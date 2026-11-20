@@ -1,0 +1,55 @@
+{
+  "name": "skylark-client",
+  "version": "1.0.1",
+  "description": "Lightweight browser client to send events and sessions to a Skylark backend",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
+  "keywords": [
+    "skylark",
+    "sentry",
+    "error-reporting",
+    "logging",
+    "browser",
+    "observability"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevenmcsorley/mini-sentry",
+    "directory": "packages/mini-sentry-client"
+  },
+  "bugs": {
+    "url": "https://github.com/stevenmcsorley/mini-sentry/issues"
+  },
+  "homepage": "https://github.com/stevenmcsorley/mini-sentry#readme",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs,iife --global-name Skylark --dts",
+    "clean": "rimraf dist || true"
+  },
+  "publishConfig": { "access": "public" },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "react-dom": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/react": "18.3.3",
+    "tsup": "8.3.0",
+    "typescript": "5.4.5"
+  }
+}
