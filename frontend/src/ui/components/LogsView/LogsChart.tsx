@@ -281,7 +281,7 @@ export const LogsChart = ({
   return (
     <div 
       className={[
-        "rounded-lg border border-slate-800/60 p-3",
+        "rounded-lg border border-slate-700 p-3",
         className
       ].filter(Boolean).join(" ")}
       data-testid={testId}
@@ -300,7 +300,7 @@ export const LogsChart = ({
             option={{
               legend: { 
                 data: ['error', 'warning', 'info'], 
-                textStyle: { color: '#cbd5e1' }, 
+                textStyle: { color: '#3c413c' }, 
                 top: 0, 
                 selected: legendSel 
               },
@@ -321,14 +321,14 @@ export const LogsChart = ({
               },
               xAxis: {
                 type: 'time',
-                axisLabel: { color: '#94a3b8' },
-                axisLine: { lineStyle: { color: '#64748b' } }
+                axisLabel: { color: '#565c55' },
+                axisLine: { lineStyle: { color: '#a9aea5' } }
               },
               yAxis: { 
                 type: 'value', 
                 min: 0, 
-                axisLabel: { color: '#94a3b8' }, 
-                splitLine: { lineStyle: { color: '#64748b', opacity: 0.25, type: 'dashed' } } 
+                axisLabel: { color: '#565c55' }, 
+                splitLine: { lineStyle: { color: '#a9aea5', opacity: 0.25, type: 'dashed' } } 
               },
               dataZoom: [
                 Object.assign(
@@ -338,9 +338,9 @@ export const LogsChart = ({
               ],
               brush: { xAxisIndex: 0, brushType: 'lineX', brushMode: 'single', transformable: false, throttleType: 'debounce', throttleDelay: 120 },
               series: [
-                { name: 'error', type: 'bar', stack: 'total', barMaxWidth: 28, itemStyle: { color: '#ef4444' }, data: chartData.map(r => [r.timestamp, r.error]) },
-                { name: 'warning', type: 'bar', stack: 'total', barMaxWidth: 28, itemStyle: { color: '#f59e0b' }, data: chartData.map(r => [r.timestamp, r.warning]) },
-                { name: 'info', type: 'bar', stack: 'total', barMaxWidth: 28, itemStyle: { color: '#60a5fa' }, data: chartData.map(r => [r.timestamp, r.info]) },
+                { name: 'error', type: 'bar', stack: 'total', barMaxWidth: 28, itemStyle: { color: '#d63a20' }, data: chartData.map(r => [r.timestamp, r.error]) },
+                { name: 'warning', type: 'bar', stack: 'total', barMaxWidth: 28, itemStyle: { color: '#c07f00' }, data: chartData.map(r => [r.timestamp, r.warning]) },
+                { name: 'info', type: 'bar', stack: 'total', barMaxWidth: 28, itemStyle: { color: '#3a7fb1' }, data: chartData.map(r => [r.timestamp, r.info]) },
               ],
             }}
             onChartReady={handleChartReady}

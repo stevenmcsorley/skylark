@@ -39,7 +39,7 @@ export function InviteAccept({ token }: { token: string }) {
     }
   }
 
-  const input = 'w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none'
+  const input = 'w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100'
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
@@ -48,7 +48,7 @@ export function InviteAccept({ token }: { token: string }) {
           <h1 className="text-xl font-semibold text-slate-100">Skylark</h1>
           <p className="mt-1 text-sm text-slate-400">Workspace invitation</p>
         </div>
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-6">
+        <div className="rounded-lg border border-slate-700 bg-slate-950 p-6">
           {loading ? (
             <p className="text-sm text-slate-400">Loading…</p>
           ) : error && !info ? (
@@ -63,8 +63,8 @@ export function InviteAccept({ token }: { token: string }) {
             <form onSubmit={accept} className="space-y-4">
               <p className="text-sm text-slate-300">
                 You&apos;ve been invited to join{' '}
-                <span className="font-medium text-white">{info?.workspace_name}</span> as{' '}
-                <span className="text-white">{info?.role}</span> ({info?.email}).
+                <span className="font-medium text-slate-100">{info?.workspace_name}</span> as{' '}
+                <span className="text-slate-100">{info?.role}</span> ({info?.email}).
               </p>
               {error && <div className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">{error}</div>}
               {!info?.account_exists && (
@@ -79,7 +79,7 @@ export function InviteAccept({ token }: { token: string }) {
                 </label>
                 <input type="password" className={input} value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
               </div>
-              <button type="submit" disabled={submitting} className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50">
+              <button type="submit" disabled={submitting} className="w-full rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-50">
                 {submitting ? 'Joining…' : 'Accept invite'}
               </button>
             </form>

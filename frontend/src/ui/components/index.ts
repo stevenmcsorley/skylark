@@ -1,7 +1,6 @@
 // Component exports for easy importing
 
 // Layout components
-export { NavRail } from './NavRail'
 export { TimeRangeMenu } from './TimeRangeMenu'
 
 // UI components

@@ -56,13 +56,13 @@ export function McpPage() {
   const command = (token: string) =>
     `claude mcp add --transport http skylark ${mcpUrl} \\\n  --header "Authorization: Bearer ${token}"`
 
-  const card = 'rounded-lg border border-slate-800/60 bg-slate-900/40 p-6'
-  const pre = 'mt-2 overflow-x-auto rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs text-slate-200'
+  const card = 'rounded-lg border border-slate-700 bg-slate-900/40 p-6'
+  const pre = 'mt-2 overflow-x-auto rounded-lg border border-slate-700 bg-slate-950 p-3 text-xs text-slate-200'
 
   return (
     <div className="space-y-6" data-testid="mcp-page">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">MCP &amp; API</h1>
+        <h2 className="text-lg font-semibold text-slate-100">MCP &amp; API</h2>
         <p className="mt-1 max-w-2xl text-sm text-slate-400">
           Skylark ships a <span className="text-slate-200">Model Context Protocol</span> server so an AI agent
           (Claude Code, etc.) can triage and manage your errors directly — list and resolve issues, inspect
@@ -78,11 +78,11 @@ export function McpPage() {
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Token name (e.g. claude-code)"
-            className="w-64 rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none"
+            className="w-64 rounded-md border border-slate-500 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none"
           />
           <button
             onClick={create}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+            className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700"
           >
             Create API token
           </button>
@@ -93,7 +93,7 @@ export function McpPage() {
           <div className="mt-4 rounded-lg border border-amber-800/60 bg-amber-950/30 p-4">
             <p className="text-sm font-medium text-amber-200">Copy this token now — it won't be shown again.</p>
             <SecretValue value={newToken} label="API token" />
-            <p className="mt-3 text-xs uppercase tracking-wide text-slate-400">Register with Claude Code</p>
+            <p className="mt-3 text-xs text-slate-400">Register with Claude Code</p>
             <SecretValue value={command(newToken)} label="command"
               display={revealed => command(revealed ? newToken : maskSecret(newToken))} />
           </div>
@@ -110,13 +110,13 @@ export function McpPage() {
 
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">1 · Claude Code (CLI)</p>
+            <p className="text-xs font-semibold text-slate-400">1 · Claude Code (CLI)</p>
             <pre className={pre}>{`claude mcp add --transport http skylark ${mcpUrl} \\
   --header "Authorization: Bearer <your-api-token>"`}</pre>
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">2 · Claude Desktop / Clawx (JSON config)</p>
+            <p className="text-xs font-semibold text-slate-400">2 · Claude Desktop / Clawx (JSON config)</p>
             <p className="mb-1 text-xs text-slate-400">
               Uses the <code className="text-slate-400">mcp-remote</code> bridge (auto-downloaded by npx; no clone). Claude Desktop:{' '}
               <code className="text-slate-400">claude_desktop_config.json</code>, Clawx: <code className="text-slate-400">~/.clawx/clawx.json</code>:
@@ -132,7 +132,7 @@ export function McpPage() {
 }`}</pre>
           </div>
 
-          <div className="rounded-lg border border-slate-800/60 bg-slate-900/40 p-3 text-xs text-slate-400">
+          <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3 text-xs text-slate-400">
             <p className="mb-1 font-medium text-slate-300">Notes</p>
             <ul className="list-disc space-y-1 pl-4">
               <li>The token is a workspace-scoped API token — it&apos;s all the agent needs; it&apos;s sent as the Bearer credential.</li>
@@ -148,7 +148,7 @@ export function McpPage() {
         <h2 className="mb-3 text-base font-semibold text-slate-100">What the agent can do</h2>
         <div className="grid gap-2 sm:grid-cols-2">
           {TOOL_GROUPS.map(([group, tools]) => (
-            <div key={group} className="rounded-lg border border-slate-800/60 bg-slate-900/40 p-3">
+            <div key={group} className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
               <div className="text-sm font-medium text-slate-200">{group}</div>
               <div className="mt-1 text-xs text-slate-400">{tools}</div>
             </div>
@@ -163,7 +163,7 @@ export function McpPage() {
           <p className="text-sm text-slate-400">No tokens yet.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-400">
+            <thead className="text-left text-xs text-slate-400">
               <tr>
                 <th className="pb-2">Name</th>
                 <th className="pb-2">Token</th>
@@ -171,7 +171,7 @@ export function McpPage() {
                 <th className="pb-2" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-700/60">
               {tokens.map(t => (
                 <tr key={t.id}>
                   <td className="py-2 text-slate-200">{t.name}</td>

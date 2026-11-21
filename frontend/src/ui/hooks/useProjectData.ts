@@ -124,7 +124,7 @@ export const useProjectData = (params: ProjectDataHookParams) => {
         q.set('from', timeParams.from)
         q.set('to', timeParams.to)
       }
-      if (activeTab === 'logs') {
+      if (activeTab === 'explore') {
         q.set('limit', String(eventLimit))
         q.set('offset', String(eventOffset))
       }

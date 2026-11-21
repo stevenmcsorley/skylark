@@ -28,7 +28,7 @@ const sizes = {
   lg: 'h-10 px-5 text-sm'
 }
 
-const disabledStyles = 'cursor-not-allowed border border-slate-800 bg-slate-800/60 text-slate-400 hover:bg-slate-800/60'
+const disabledStyles = 'cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-400 hover:bg-slate-800/60'
 
 export const Button = ({
   children,

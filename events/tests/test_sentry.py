@@ -261,6 +261,7 @@ class EndpointTests(TestCase):
         self.post(envelope(self.event))
         group = Group.objects.get()
         self.assertEqual((group.count, group.status), (2, Group.STATUS_UNRESOLVED))
+        self.assertIsNotNone(group.regressed_at)
 
     def test_distinct_locations(self):
         self.post(envelope(self.event))

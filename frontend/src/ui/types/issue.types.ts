@@ -11,6 +11,8 @@ export interface Issue {
   last_seen: string
   status: IssueStatus
   resolved_at: string | null
+  /** Set when a new event reopened a resolved issue. */
+  regressed_at?: string | null
   assignee: string
   is_bookmarked: boolean
 }

@@ -50,6 +50,7 @@ class GroupSerializer(serializers.ModelSerializer):
             "last_seen",
             "status",
             "resolved_at",
+            "regressed_at",
             "assignee",
             "is_bookmarked",
         ]

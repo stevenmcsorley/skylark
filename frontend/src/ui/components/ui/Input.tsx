@@ -10,7 +10,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const baseInputStyles = `
   w-full px-3 py-2
-  border border-slate-700 bg-slate-800 text-white
+  border border-slate-700 bg-slate-800 text-slate-100
   rounded-lg
   placeholder:text-slate-400
   focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent

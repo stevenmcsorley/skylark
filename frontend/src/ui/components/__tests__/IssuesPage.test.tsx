@@ -12,8 +12,19 @@ const make = (id: number, over: Partial<Issue> = {}): Issue => ({
   last_seen: `2026-11-1${(id % 9)}T00:00:00Z`, status: 'unresolved', resolved_at: null, assignee: '', is_bookmarked: false, ...over,
 })
 
+/** Answer by path: issues for the list, no trackers, no chart data, {} for actions. */
+const mockApi = (issues: Issue[] | (() => Promise<Issue[]>)) => {
+  vi.mocked(api).mockImplementation(async (path: string, opts?: any) => {
+    if (path.startsWith('/api/groups/') && !opts) return typeof issues === 'function' ? issues() : issues
+    if (path.startsWith('/api/integrations/')) return { integrations: [] }
+    if (path.startsWith('/api/dashboard/series/')) return []
+    if (path.startsWith('/api/events/')) return { results: [] }
+    return {}
+  })
+}
+
 const renderPage = (over: Partial<Parameters<typeof IssuesPage>[0]> = {}) => {
-  const props = { project, status: 'unresolved' as const, query: '', onStatus: vi.fn(), onQuery: vi.fn(), onOpen: vi.fn(), ...over }
+  const props = { projects: [project], app: 'web', status: 'unresolved' as const, query: '', onApp: vi.fn(), onStatus: vi.fn(), onQuery: vi.fn(), onOpen: vi.fn(), ...over }
   return { props, ...render(<IssuesPage {...props} />) }
 }
 
@@ -21,7 +32,7 @@ beforeEach(() => { vi.mocked(api).mockReset() })
 
 describe('IssuesPage', () => {
   it('asks for the selected project\'s issues and lists them with counts per status', async () => {
-    vi.mocked(api).mockResolvedValue([make(1), make(2, { status: 'resolved' }), make(3, { status: 'ignored' }), make(4)])
+    mockApi([make(1), make(2, { status: 'resolved' }), make(3, { status: 'ignored' }), make(4)])
     renderPage()
     await screen.findByTestId('issues-table')
     expect(api).toHaveBeenCalledWith('/api/groups/?project=web')
@@ -34,7 +45,7 @@ describe('IssuesPage', () => {
   })
 
   it('filters by the status tab, and "All" shows everything', async () => {
-    vi.mocked(api).mockResolvedValue([make(1), make(2, { status: 'resolved' })])
+    mockApi([make(1), make(2, { status: 'resolved' })])
     renderPage({ status: 'resolved' })
     await screen.findByTestId('issues-table')
     expect(screen.getByTestId('issue-row-2')).toBeInTheDocument()
@@ -42,7 +53,7 @@ describe('IssuesPage', () => {
   })
 
   it('reports tab and search changes to the router instead of keeping them privately', async () => {
-    vi.mocked(api).mockResolvedValue([make(1)])
+    mockApi([make(1)])
     const { props } = renderPage()
     await screen.findByTestId('issues-table')
     fireEvent.click(screen.getByTestId('issues-tab-all'))
@@ -52,7 +63,7 @@ describe('IssuesPage', () => {
   })
 
   it('searches titles and assignees, ignoring case', async () => {
-    vi.mocked(api).mockResolvedValue([make(1, { title: 'KeyError: user_id' }), make(2, { title: 'Timeout', assignee: 'Dana' }), make(3, { title: 'Other' })])
+    mockApi([make(1, { title: 'KeyError: user_id' }), make(2, { title: 'Timeout', assignee: 'Dana' }), make(3, { title: 'Other' })])
     renderPage({ query: 'dana' })
     await screen.findByTestId('issues-table')
     expect(screen.getByTestId('issue-row-2')).toBeInTheDocument()
@@ -61,7 +72,7 @@ describe('IssuesPage', () => {
   })
 
   it('opens an issue on a plain click but leaves ctrl-click to the browser (new tab)', async () => {
-    vi.mocked(api).mockResolvedValue([make(7, { title: 'Open me' })])
+    mockApi([make(7, { title: 'Open me' })])
     const { props } = renderPage()
     const link = await screen.findByRole('link', { name: 'Open me' })
     expect(link).toHaveAttribute('href', '#view=issues&project=web&issue=7')
@@ -92,24 +103,24 @@ describe('IssuesPage', () => {
   it('explains an empty project, a filter with no matches, and a failed load', async () => {
     vi.mocked(api).mockImplementation(async (path: string) => (path.startsWith('/api/events/') ? { results: [] } : []))
     const first = renderPage()
-    expect(await screen.findByTestId('issues-empty')).toHaveTextContent('Connect your first app')
+    expect(await screen.findByTestId('issues-empty')).toHaveTextContent('Waiting for the first error')
     expect(screen.getByTestId('connect-app')).toBeInTheDocument()   // setup is right there, not a link to another page
     first.unmount()
 
-    vi.mocked(api).mockResolvedValueOnce([make(1)])
+    mockApi([make(1)])
     const { props } = renderPage({ query: 'zzz' })
     expect(await screen.findByTestId('issues-no-match')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
     expect(props.onStatus).toHaveBeenCalledWith('all'); expect(props.onQuery).toHaveBeenCalledWith('')
 
-    vi.mocked(api).mockRejectedValueOnce(new Error('API Error 500'))
-    render(<IssuesPage project={{ ...project, slug: 'other' }} status="unresolved" query="" onStatus={vi.fn()} onQuery={vi.fn()} onOpen={vi.fn()} />)
+    mockApi(async () => { throw new Error('API Error 500') })
+    render(<IssuesPage projects={[{ ...project, slug: 'other' }]} app="other" status="unresolved" query="" onApp={vi.fn()} onStatus={vi.fn()} onQuery={vi.fn()} onOpen={vi.fn()} />)
     await waitFor(() => expect(screen.getAllByTestId('issues-error').length).toBeGreaterThan(0))
     expect(within(screen.getAllByTestId('issues-error')[0]).getByText('API Error 500')).toBeInTheDocument()
   })
 
   it('resolves several selected issues at once and reloads the list', async () => {
-    vi.mocked(api).mockResolvedValue([make(1), make(2), make(3)])
+    mockApi([make(1), make(2), make(3)])
     renderPage()
     await screen.findByTestId('issues-table')
     expect(screen.queryByTestId('issues-bulk-bar')).not.toBeInTheDocument()
@@ -124,7 +135,7 @@ describe('IssuesPage', () => {
   })
 
   it('moves with j and k, opens with Enter and resolves with e', async () => {
-    vi.mocked(api).mockResolvedValue([make(1, { last_seen: '2026-11-19T00:00:00Z' }), make(2, { last_seen: '2026-11-18T00:00:00Z' })])
+    mockApi([make(1, { last_seen: '2026-11-19T00:00:00Z' }), make(2, { last_seen: '2026-11-18T00:00:00Z' })])
     const { props } = renderPage()
     await screen.findByTestId('issues-table')
     fireEvent.keyDown(window, { key: 'j' })
@@ -139,7 +150,7 @@ describe('IssuesPage', () => {
   })
 
   it('does not hijack keys typed into the search box', async () => {
-    vi.mocked(api).mockResolvedValue([make(1)])
+    mockApi([make(1)])
     const { props } = renderPage()
     await screen.findByTestId('issues-table')
     fireEvent.keyDown(screen.getByTestId('issues-search'), { key: 'j' })
@@ -148,7 +159,7 @@ describe('IssuesPage', () => {
   })
 
   it('names the level in words and hides the Status column when a tab already filters by it', async () => {
-    vi.mocked(api).mockResolvedValue([make(1, { level: 'warning' })])
+    mockApi([make(1, { level: 'warning' })])
     renderPage()
     await screen.findByTestId('issues-table')
     expect(screen.getByTestId('issue-row-1')).toHaveTextContent('warning')
@@ -156,7 +167,7 @@ describe('IssuesPage', () => {
   })
 
   it('only offers bulk actions that change something for the selected issues', async () => {
-    vi.mocked(api).mockResolvedValue([make(1), make(2, { status: 'resolved' })])
+    mockApi([make(1), make(2, { status: 'resolved' })])
     renderPage({ status: 'all' })
     await screen.findByTestId('issues-table')
     fireEvent.click(screen.getByTestId('issue-select-1'))

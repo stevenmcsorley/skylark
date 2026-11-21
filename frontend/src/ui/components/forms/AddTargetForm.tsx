@@ -82,7 +82,7 @@ export const AddTargetForm = ({
       <select 
         value={type} 
         onChange={handleTypeChange} 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         disabled={isLoading || isSubmitting}
         data-testid="target-type-select"
       >
@@ -94,7 +94,7 @@ export const AddTargetForm = ({
         value={value} 
         onChange={handleValueChange} 
         placeholder={type === 'email' ? 'alerts@example.com' : 'https://webhook-url.com/alerts'} 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 220 }}
         disabled={isLoading || isSubmitting}
         data-testid="target-value-input"
@@ -105,7 +105,7 @@ export const AddTargetForm = ({
         value={subject} 
         onChange={handleSubjectChange} 
         placeholder='subject template (optional)' 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 220 }}
         disabled={isLoading || isSubmitting}
         data-testid="subject-template-input"
@@ -116,7 +116,7 @@ export const AddTargetForm = ({
         value={body} 
         onChange={handleBodyChange} 
         placeholder='body template (optional)' 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 260 }}
         disabled={isLoading || isSubmitting}
         data-testid="body-template-input"
