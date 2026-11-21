@@ -115,9 +115,9 @@ describe('ReleasesPage', () => {
       />
     )
 
-    fireEvent.click(screen.getByText('📖 Upload Guide'))
+    fireEvent.click(screen.getByText('Upload guide'))
 
-    expect(screen.getByText('🚀 Source Map Upload Guide')).toBeInTheDocument()
+    expect(screen.getByText('Source map upload guide')).toBeInTheDocument()
     expect(screen.getByText('Option 1: File Upload (Recommended)')).toBeInTheDocument()
     expect(screen.getByText('Option 2: CLI Upload')).toBeInTheDocument()
   })

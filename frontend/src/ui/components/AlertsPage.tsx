@@ -26,6 +26,8 @@ interface EditRuleData extends CreateRuleForm {
 }
 
 import { api } from '../utils/api.utils'
+import { BookOpen, Bell } from 'lucide-react'
+import { Icon } from './ui/Icon'
 
 export const AlertsPage = ({ 
   selected, 
@@ -185,7 +187,7 @@ export const AlertsPage = ({
               onClick={() => setShowGuide(!showGuide)}
               className="px-4 py-2 text-sm bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 transition-colors"
             >
-              📋 Alert Guide
+              <span className="inline-flex items-center gap-2"><Icon icon={BookOpen} size="sm" />Alert guide</span>
             </button>
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
@@ -205,10 +207,10 @@ export const AlertsPage = ({
       {/* Alert Guide */}
       {showGuide && (
         <div className="mb-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-6">
-          <h2 className="text-xl font-semibold text-blue-300 mb-4">🚀 Alert Configuration Guide</h2>
+          <h2 className="text-xl font-semibold text-blue-300 mb-4">Alert configuration guide</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-sm">
             <div>
-              <h3 className="font-semibold text-white mb-3">📈 Threshold Settings</h3>
+              <h3 className="font-semibold text-white mb-3">Threshold settings</h3>
               <ul className="space-y-2 text-slate-300">
                 <li><strong>Threshold Count:</strong> Number of events that trigger the alert</li>
                 <li><strong>Window Minutes:</strong> Time window to count events (e.g., 10 errors in 5 minutes)</li>
@@ -217,7 +219,7 @@ export const AlertsPage = ({
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-white mb-3">🔔 Notification Types</h3>
+              <h3 className="font-semibold text-white mb-3">Notification types</h3>
               <ul className="space-y-2 text-slate-300">
                 <li><strong>Email:</strong> Send alerts to email addresses</li>
                 <li><strong>Webhook:</strong> POST alerts to external services</li>
@@ -350,7 +352,7 @@ export const AlertsPage = ({
       <div className="space-y-4">
         {rules.length === 0 ? (
           <div className="rounded-xl border border-slate-800/60 bg-slate-800/10 p-8 text-center">
-            <div className="text-6xl mb-4">🔔</div>
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500"><Icon icon={Bell} size="lg" /></div>
             <h3 className="text-xl font-semibold text-white mb-2">No alert rules yet</h3>
             <p className="text-slate-400 mb-4">
               Create your first alert rule above to start monitoring error thresholds and get notified when issues occur.

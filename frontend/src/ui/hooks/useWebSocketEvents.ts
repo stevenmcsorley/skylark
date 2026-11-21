@@ -98,7 +98,7 @@ export const useWebSocketEvents = ({
       wsRef.current = ws
 
       ws.onopen = () => {
-        console.log(`[WebSocket] ✅ Successfully connected to project: ${projectSlug}`)
+        console.log(`[WebSocket] Connected to project: ${projectSlug}`)
         setIsConnected(true)
         onConnectionChange?.(true)
         reconnectAttemptRef.current = 0
@@ -123,7 +123,7 @@ export const useWebSocketEvents = ({
       }
 
       ws.onerror = (error) => {
-        console.error(`[WebSocket] ❌ Connection error to ${wsUrl}:`, error)
+        console.error(`[WebSocket] Connection error to ${wsUrl}:`, error)
         onError?.('WebSocket connection error')
       }
 
@@ -152,7 +152,7 @@ export const useWebSocketEvents = ({
         }
       }
     } catch (error) {
-      console.error(`[WebSocket] ❌ Failed to create connection to ${getWebSocketUrl()}:`, error)
+      console.error(`[WebSocket] Failed to create connection to ${getWebSocketUrl()}:`, error)
       onError?.('Failed to create WebSocket connection')
     }
   }, [enabled, projectSlug, getWebSocketUrl, onNewEvent, onError, onConnectionChange, startPingInterval, cleanup])

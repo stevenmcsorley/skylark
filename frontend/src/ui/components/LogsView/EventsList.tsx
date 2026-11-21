@@ -4,6 +4,8 @@ import React from 'react'
 import type { Event, EventDetails } from '../../types/app.types'
 import { LevelBadge } from '../LevelBadge'
 import { fmtDate } from '../../utils/date.utils'
+import { ChevronRight } from 'lucide-react'
+import { Icon } from '../ui/Icon'
 
 interface EventsListProps {
   events: Event[]
@@ -86,13 +88,7 @@ export const EventsList = ({
                 onClick={() => handleToggleDetails(e.id)}
                 data-testid={`toggle-event-${e.id}`}
               >
-                <svg 
-                  viewBox="0 0 12 12" 
-                  className={`h-3 w-3 transform transition-transform ${open[e.id] ? 'rotate-90' : ''}`} 
-                  aria-hidden="true"
-                >
-                  <path d="M4 2 L8 6 L4 10 Z" fill="currentColor" />
-                </svg>
+                <Icon icon={ChevronRight} size="xs" className={`transform transition-transform ${open[e.id] ? 'rotate-90' : ''}`} />
               </button>
               {levelDot(e.level)}
               <span className="tabular-nums text-slate-300">{fmtDate(e.received_at)}</span>
