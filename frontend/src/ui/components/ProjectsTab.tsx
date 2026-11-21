@@ -1,3 +1,4 @@
+import { SecretValue } from './SecretValue'
 import { useState, useCallback } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { Project } from '../types/app.types'
@@ -106,10 +107,8 @@ export const ProjectsTab = ({
               >
                 <td className="py-2">{p.slug}</td>
                 <td className="py-2">{p.name}</td>
-                <td className="py-2 truncate">
-                  <code className="text-xs bg-slate-800/60 px-2 py-1 rounded">
-                    {p.ingest_token}
-                  </code>
+                <td className="w-48 py-2 pr-2">
+                  <SecretValue value={p.ingest_token} label={`${p.name} ingest token`} />
                 </td>
                 <td className="py-2">
                   <button 
