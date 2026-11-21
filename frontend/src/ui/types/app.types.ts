@@ -3,6 +3,8 @@ export type Project = {
   name: string
   slug: string
   ingest_token: string
+  /** Sentry-compatible DSN built by the API; the UI falls back to building one from the page origin. */
+  dsn?: string
 }
 
 export type Group = {

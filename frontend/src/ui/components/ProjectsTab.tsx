@@ -1,4 +1,9 @@
 import { SecretValue } from './SecretValue'
+import { ConnectApp } from './ConnectApp'
+import { Modal } from './ui/Modal'
+import { Button } from './ui/Button'
+import { Plug } from 'lucide-react'
+import { Icon } from './ui/Icon'
 import { useState, useCallback } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { Project } from '../types/app.types'
@@ -24,6 +29,7 @@ export const ProjectsTab = ({
 }: ProjectsTabProps) => {
   const [name, setName] = useState('My App')
   const [isCreating, setIsCreating] = useState(false)
+  const [connecting, setConnecting] = useState<Project | null>(null)
 
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
@@ -110,15 +116,11 @@ export const ProjectsTab = ({
                 <td className="w-48 py-2 pr-2">
                   <SecretValue value={p.ingest_token} label={`${p.name} ingest token`} />
                 </td>
-                <td className="py-2">
-                  <button 
-                    type="button"
-                    className="rounded border border-slate-700 px-3 py-1 text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
-                    onClick={() => handleSelectProject(p)}
-                    data-testid={`select-project-${p.id}`}
-                  >
-                    Open
-                  </button>
+                <td className="whitespace-nowrap py-2">
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="secondary" icon={<Icon icon={Plug} size="sm" />} onClick={() => setConnecting(p)} testId={`connect-project-${p.id}`}>Connect</Button>
+                    <Button size="sm" variant="secondary" onClick={() => handleSelectProject(p)} testId={`select-project-${p.id}`}>Open</Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -131,6 +133,9 @@ export const ProjectsTab = ({
           No projects yet. Create your first project to get started.
         </div>
       )}
+      <Modal isOpen={connecting !== null} onClose={() => setConnecting(null)} title={connecting ? `Connect ${connecting.name}` : 'Connect'} size="xl" testId="connect-modal">
+        {connecting && <ConnectApp project={connecting} />}
+      </Modal>
     </section>
   )
 }

@@ -90,9 +90,10 @@ describe('IssuesPage', () => {
   })
 
   it('explains an empty project, a filter with no matches, and a failed load', async () => {
-    vi.mocked(api).mockResolvedValueOnce([])
+    vi.mocked(api).mockImplementation(async (path: string) => (path.startsWith('/api/events/') ? { results: [] } : []))
     const first = renderPage()
-    expect(await screen.findByTestId('issues-empty')).toHaveTextContent('No issues yet')
+    expect(await screen.findByTestId('issues-empty')).toHaveTextContent('Connect your first app')
+    expect(screen.getByTestId('connect-app')).toBeInTheDocument()   // setup is right there, not a link to another page
     first.unmount()
 
     vi.mocked(api).mockResolvedValueOnce([make(1)])
