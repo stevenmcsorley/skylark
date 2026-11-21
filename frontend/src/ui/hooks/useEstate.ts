@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '../utils/api.utils'
 
 export interface EstateRow {
@@ -23,7 +23,9 @@ export interface Estate {
 /** One summary of every app in the workspace: feeds the Inbox count, the Apps list and the first-run path. */
 export const useEstate = (reloadKey: unknown = 0) => {
   const [estate, setEstate] = useState<Estate | null>(null)
-  const reload = useCallback(() => api('/api/estate/').then(setEstate).catch(() => setEstate(null)), [])
+  const alive = useRef(true)
+  useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+  const reload = useCallback(() => api('/api/estate/').then(d => { if (alive.current) setEstate(d) }).catch(() => { if (alive.current) setEstate(null) }), [])
   useEffect(() => { reload() }, [reload, reloadKey])
   return { estate, reload }
 }

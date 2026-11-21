@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, MouseEvent } from 'react'
 import { Check, CircleAlert, CircleCheck, EyeOff, Search } from 'lucide-react'
 import { api } from '../utils/api.utils'
@@ -78,14 +78,21 @@ export const IssuesPage = ({ projects, app, status, query, onApp, onStatus, onQu
     setError(null)
     try {
       const data = await api(app ? `/api/groups/?project=${encodeURIComponent(app)}` : '/api/groups/')
+      if (!mounted.current) return
       setIssues(Array.isArray(data) ? data : data?.results ?? [])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not load issues')
+      if (mounted.current) setError(e instanceof Error ? e.message : 'Could not load issues')
     }
   }, [app])
 
   useEffect(() => { setIssues(null); setShown(ISSUE_PAGE_SIZE); load() }, [load, projects.length])
-  useEffect(() => { api('/api/integrations/').then((d: any) => setProviders((d.integrations || []).map((i: any) => i.provider))).catch(() => setProviders([])) }, [])
+  useEffect(() => {
+    let live = true
+    api('/api/integrations/').then((d: any) => { if (live) setProviders((d.integrations || []).map((i: any) => i.provider)) }).catch(() => { if (live) setProviders([]) })
+    return () => { live = false }
+  }, [])
+  const mounted = useRef(true)
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
   useEffect(() => { setShown(ISSUE_PAGE_SIZE); setSelected(new Set()); setActive(-1) }, [status, query, sort])
 
   const counts = useMemo(() => {

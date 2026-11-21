@@ -88,9 +88,11 @@ export function OverviewPage({
   const [ticketFor, setTicketFor] = useState<{ id: number; title: string } | null>(null)
 
   useEffect(() => {
+    let live = true
     api('/api/integrations/')
-      .then((d: any) => setProviders((d.integrations || []).map((i: any) => i.provider)))
-      .catch(() => setProviders([]))
+      .then((d: any) => { if (live) setProviders((d.integrations || []).map((i: any) => i.provider)) })
+      .catch(() => { if (live) setProviders([]) })
+    return () => { live = false }
   }, [])
 
   const attention = groups

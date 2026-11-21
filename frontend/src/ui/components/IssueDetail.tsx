@@ -110,10 +110,15 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
 
   useEffect(() => { setIssue(null); load() }, [load])
   useEffect(() => {
-    api('/api/integrations/').then((d: any) => setProviders((d.integrations || []).map((i: any) => i.provider))).catch(() => setProviders([]))
+    let live = true
+    api('/api/integrations/').then((d: any) => { if (live) setProviders((d.integrations || []).map((i: any) => i.provider)) }).catch(() => { if (live) setProviders([]) })
+    return () => { live = false }
   }, [])
-  const loadLinks = useCallback(() => api(`/api/groups/${issueId}/links/`).then((l: unknown) => setLinks(Array.isArray(l) ? l as typeof links : [])).catch(() => setLinks([])), [issueId])
-  useEffect(() => { loadLinks() }, [loadLinks, handoff])
+  useEffect(() => {
+    let live = true
+    api(`/api/groups/${issueId}/links/`).then((l: unknown) => { if (live) setLinks(Array.isArray(l) ? l as typeof links : []) }).catch(() => { if (live) setLinks([]) })
+    return () => { live = false }
+  }, [issueId, handoff])
 
   const act = async (name: string, path: string, body?: unknown) => {
     setBusy(name)
