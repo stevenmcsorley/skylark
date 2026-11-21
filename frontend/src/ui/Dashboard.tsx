@@ -1,3 +1,4 @@
+import { fmtDate } from './utils/date.utils'
 import React, { useEffect, useState } from 'react'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts/core'
@@ -35,6 +36,15 @@ type Deployment = {
 }
 
 type DashboardTemplate = 'current' | 'general'
+
+/** "14:05" for ranges up to a day and a half, "Nov 20" beyond that (ECharts hands us the raw ISO bucket). */
+export const bucketLabel = (bucket: string, spanMs: number): string => {
+  const d = new Date(bucket)
+  if (Number.isNaN(d.getTime())) return bucket
+  return spanMs > 36 * 3600 * 1000
+    ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+}
 
 export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProjects?: () => void; projectSlug: string, fromTo?: { from: string; to: string } | null }) {
   const [seriesStatus, setSeriesStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -111,68 +121,60 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
       })
   }
 
+  // Bucket timestamps arrive as ISO strings; show clock time for short ranges and the date for long ones.
+  const spanMs = series.length > 1 ? new Date(series[series.length - 1].bucket).getTime() - new Date(series[0].bucket).getTime() : 0
+  const axisLabel = (bucket: string) => bucketLabel(bucket, spanMs)
+
+  const lineStyle = (color: string) => ({ lineStyle: { color, width: 1.5 }, itemStyle: { color }, showSymbol: false, symbol: 'none', smooth: false })
+
   const getEventsChartOption = (): any => ({
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#1e293b',
-      borderColor: '#374151',
-      textStyle: { color: '#f1f5f9' }
+      backgroundColor: '#0f172a',
+      borderColor: '#334155',
+      textStyle: { color: '#e2e8f0', fontSize: 12 },
+      formatter: (params: any[]) => {
+        const rows = params.map(p => `${p.marker} ${p.seriesName}: ${Number(p.value).toFixed(2)}/min`).join('<br/>')
+        return `${fmtDate(String(params[0]?.axisValue ?? ''))}<br/>${rows}`
+      }
     },
-    legend: {
-      data: ['Errors', 'Warnings', 'Info'],
-      textStyle: { color: '#cbd5e1' },
-      top: 0
-    },
-    grid: { left: '3%', right: '4%', bottom: '3%', top: '12%', containLabel: true },
+    grid: { left: 8, right: 16, bottom: 8, top: 12, containLabel: true },
     xAxis: {
       type: 'category',
+      boundaryGap: false,
       data: series.map(s => s.bucket),
-      axisLabel: { color: '#94a3b8' },
-      axisLine: { lineStyle: { color: '#374151' } }
+      axisLabel: { color: '#94a3b8', fontSize: 11, hideOverlap: true, formatter: axisLabel },
+      axisLine: { lineStyle: { color: '#334155' } },
+      axisTick: { show: false }
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      axisLine: { lineStyle: { color: '#374151' } },
-      splitLine: { lineStyle: { color: '#374151' } }
+      min: 0,
+      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: '#1e293b' } }
     },
     series: [
       {
         name: 'Errors',
         type: 'line',
         data: series.map(s => s.error / intervalMinutes),
-        smooth: true,
-        lineStyle: { color: '#ef4444' },
-        itemStyle: { color: '#ef4444' },
+        ...lineStyle('#ef4444'),
         markLine: {
           symbol: 'none',
           silent: false,
-          lineStyle: { color: '#a855f7', type: 'dashed', width: 1 },
+          lineStyle: { color: '#64748b', type: 'dashed', width: 1 },
           label: {
             formatter: (p: any) => `${p.name}`,
-            color: '#c4b5fd',
+            color: '#94a3b8',
             fontSize: 10,
             position: 'insideEndTop',
           },
           data: deployMarkLines(),
         },
       },
-      {
-        name: 'Warnings', 
-        type: 'line',
-        data: series.map(s => s.warning / intervalMinutes),
-        smooth: true,
-        lineStyle: { color: '#f59e0b' },
-        itemStyle: { color: '#f59e0b' }
-      },
-      {
-        name: 'Info',
-        type: 'line',
-        data: series.map(s => s.info / intervalMinutes),
-        smooth: true,
-        lineStyle: { color: '#3b82f6' },
-        itemStyle: { color: '#3b82f6' }
-      }
+      { name: 'Warnings', type: 'line', data: series.map(s => s.warning / intervalMinutes), ...lineStyle('#f59e0b') },
+      { name: 'Info', type: 'line', data: series.map(s => s.info / intervalMinutes), ...lineStyle('#0ea5e9') }
     ]
   })
 
@@ -186,7 +188,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Error Rate</p>
-              <p className={`text-2xl font-semibold ${tone}`}>{rate === null ? missingEvents : `${rate.toFixed(2)}%`}</p>
+              <p className={`text-2xl font-semibold tabular-nums ${tone}`}>{rate === null ? missingEvents : `${rate.toFixed(2)}%`}</p>
             </div>
           </div>
         </div>
@@ -195,12 +197,9 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Crash-Free Rate</p>
-              <p className="text-2xl font-semibold tabular-nums text-accent-400">
+              <p className="text-2xl font-semibold tabular-nums text-slate-100">
                 {crashFree === null ? missing('No release health data') : `${crashFree.toFixed(2)}%`}
               </p>
-            </div>
-            <div className="rounded-full bg-accent-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-accent-500"></div>
             </div>
           </div>
         </div>
@@ -209,10 +208,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Active Issues</p>
-              <p className="text-2xl font-semibold tabular-nums text-amber-400">{count ? top?.length ?? missing('No issue data') : missingEvents}</p>
-            </div>
-            <div className="rounded-full bg-amber-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-amber-500"></div>
+              <p className="text-2xl font-semibold tabular-nums text-slate-100">{count ? top?.length ?? missing('No issue data') : missingEvents}</p>
             </div>
           </div>
         </div>
@@ -221,10 +217,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Total Events</p>
-              <p className="text-2xl font-semibold tabular-nums text-accent-400">{count ? count.toLocaleString() : missingEvents}</p>
-            </div>
-            <div className="rounded-full bg-accent-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-accent-500"></div>
+              <p className="text-2xl font-semibold tabular-nums text-slate-100">{count ? count.toLocaleString() : missingEvents}</p>
             </div>
           </div>
         </div>
@@ -240,15 +233,15 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
               <h2 className="text-base font-semibold text-slate-100">Events per minute</h2>
               <div className="flex space-x-4 text-sm">
                 <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-red-500"></div>
                   <span className="text-slate-300">Errors</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-amber-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
                   <span className="text-slate-300">Warnings</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-accent-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-sky-500"></div>
                   <span className="text-slate-300">Info</span>
                 </div>
               </div>
