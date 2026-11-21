@@ -9,8 +9,14 @@ import type {
   TimeInterval
 } from '../types/app.types'
 
+export type IssueStatusFilter = 'unresolved' | 'resolved' | 'ignored' | 'all'
+const ISSUE_STATUSES: IssueStatusFilter[] = ['unresolved', 'resolved', 'ignored', 'all']
+
 interface RoutingState {
   activeTab: NavigationTab
+  issue: number | null
+  issueStatus: IssueStatusFilter
+  issueQuery: string
   selected: Project | null
   search: string
   filterLevel: string
@@ -27,6 +33,9 @@ interface RoutingState {
 
 interface RoutingActions {
   setActiveTab: (tab: NavigationTab) => void
+  openIssue: (id: number | null) => void
+  setIssueStatus: (status: IssueStatusFilter) => void
+  setIssueQuery: (query: string) => void
   setSelected: (project: Project) => void
   setSearch: (search: string) => void
   setFilterLevel: (level: string) => void
@@ -65,6 +74,9 @@ const readRoute = (params: URLSearchParams, projects: Project[]): RoutingState =
   return {
     selected,
     activeTab: view?.id ?? (selected ? 'overview' : 'estate'),
+    issue: Number.parseInt(params.get('issue') ?? '', 10) || null,
+    issueStatus: ISSUE_STATUSES.find(status => status === params.get('istatus')) ?? 'unresolved',
+    issueQuery: params.get('iq') ?? '',
     search: params.get('q') ?? '',
     filterLevel: params.get('level') ?? '',
     filterEnv: params.get('env') ?? '',
@@ -121,6 +133,9 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
     }
     
     if (!state.selected && pendingProject) hash.set('project', pendingProject)
+    if (state.issue) hash.set('issue', String(state.issue))
+    if (state.issueStatus !== 'unresolved') hash.set('istatus', state.issueStatus)
+    if (state.issueQuery) hash.set('iq', state.issueQuery)
     if (state.search) hash.set('q', state.search)
     if (state.filterLevel) hash.set('level', state.filterLevel)
     if (state.filterEnv) hash.set('env', state.filterEnv)
@@ -146,6 +161,9 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
   }, [
     params,
     state.activeTab,
+    state.issue,
+    state.issueStatus,
+    state.issueQuery,
     state.selected,
     state.search,
     state.filterLevel,
@@ -164,9 +182,27 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
     if (activeTab === state.activeTab) return
     const next = new URLSearchParams(window.location.hash.slice(1))
     next.set('view', activeTab)
+    next.delete('issue')   // leaving a view closes any open issue
     history.pushState(null, '', '#' + next.toString())
-    setState(prev => ({ ...prev, activeTab }))
+    setState(prev => ({ ...prev, activeTab, issue: null }))
   }, [state.activeTab])
+
+  // Opening an issue is a navigation (Back returns to the list); changing the list's filters is not.
+  const openIssue = useCallback((issue: number | null) => {
+    const next = new URLSearchParams(window.location.hash.slice(1))
+    if (issue) next.set('issue', String(issue)); else next.delete('issue')
+    next.set('view', 'issues')
+    history.pushState(null, '', '#' + next.toString())
+    setState(prev => ({ ...prev, activeTab: 'issues', issue }))
+  }, [])
+
+  const setIssueStatus = useCallback((issueStatus: IssueStatusFilter) => {
+    setState(prev => (prev.issueStatus === issueStatus ? prev : { ...prev, issueStatus }))
+  }, [])
+
+  const setIssueQuery = useCallback((issueQuery: string) => {
+    setState(prev => (prev.issueQuery === issueQuery ? prev : { ...prev, issueQuery }))
+  }, [])
 
   const setSelected = useCallback((selected: Project) => {
     setState(prev => (prev.selected === selected ? prev : { ...prev, selected, eventOffset: 0 }))
@@ -215,6 +251,9 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
   return {
     ...state,
     setActiveTab,
+    openIssue,
+    setIssueStatus,
+    setIssueQuery,
     setSelected,
     setSearch,
     setFilterLevel,

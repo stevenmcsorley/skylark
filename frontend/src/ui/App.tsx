@@ -9,13 +9,15 @@ import type {
 // Components
 import { Dashboard } from './Dashboard'
 import { OverviewPage } from './components/OverviewPage'
+import { IssuesPage } from './components/IssuesPage'
+import { IssueDetail } from './components/IssueDetail'
 import { NavRail } from './components/NavRail'
 import { LogsView } from './components/LogsView'
 import { ProjectsTab } from './components/ProjectsTab'
 import { ReleasesPage } from './components/ReleasesPage'
 import { AlertsPage } from './components/AlertsPage'
 import { ToastProvider } from './components/ui'
-import { EmptyState, NoProjectSelected } from './components/ui'
+import { NoProjectSelected } from './components/ui'
 import { McpPage } from './components/McpPage'
 import { IntegrationsPage } from './components/IntegrationsPage'
 import { HelpPage } from './components/HelpPage'
@@ -151,7 +153,12 @@ export const App = () => {
                     }}
                   />
                 ) : routing.activeTab === 'issues' ? (
-                  <EmptyState title="Issues are coming next" />
+                  routing.selected
+                    ? (routing.issue
+                      ? <IssueDetail issueId={routing.issue} onBack={() => routing.openIssue(null)} />
+                      : <IssuesPage project={routing.selected} status={routing.issueStatus} query={routing.issueQuery}
+                          onStatus={routing.setIssueStatus} onQuery={routing.setIssueQuery} onOpen={routing.openIssue} />)
+                    : <NoProjectSelected testId="issues-no-project" />
                 ) : routing.activeTab === 'projects' ? (
                   <ProjectsTab
                     projects={projects}

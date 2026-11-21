@@ -1,4 +1,4 @@
-import { fmtDate, normISO, toInputLocal } from '../date.utils'
+import { fmtDate, normISO, timeAgo, toInputLocal } from '../date.utils'
 
 describe('date utilities', () => {
   describe('fmtDate', () => {
@@ -169,5 +169,27 @@ describe('date utilities', () => {
       
       global.Date = originalDate
     })
+  })
+})
+
+describe('timeAgo', () => {
+  const now = Date.parse('2026-11-21T12:00:00Z')
+  const ago = (ms: number) => new Date(now - ms).toISOString()
+  it.each([
+    [10 * 1000, 'just now'],
+    [5 * 60 * 1000, '5m ago'],
+    [3 * 3600 * 1000, '3h ago'],
+    [2 * 86400 * 1000, '2d ago'],
+  ])('reads %i ms as %s', (ms, expected) => expect(timeAgo(ago(ms), now)).toBe(expected))
+
+  it('never goes negative for a timestamp slightly in the future (clock skew)', () => {
+    expect(timeAgo(new Date(now + 5000).toISOString(), now)).toBe('just now')
+  })
+  it('falls back to a date after 30 days and to empty for garbage', () => {
+    expect(timeAgo(ago(40 * 86400 * 1000), now)).not.toMatch(/ago/)
+    expect(timeAgo('not a date', now)).toBe('')
+  })
+  it('treats a naive timestamp as UTC like the rest of the app', () => {
+    expect(timeAgo('2026-11-21 11:55:00', now)).toBe('5m ago')
   })
 })
