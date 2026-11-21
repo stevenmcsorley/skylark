@@ -16,7 +16,8 @@
  */
 import express from 'express'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import { makeApi, buildServer } from './tools.js'
+import { makeApi } from './tools.js'
+import { buildCodeModeServer } from './codemode.js'
 
 const BASE_URL = (process.env.SKYLARK_URL || 'http://skylark-api:8000').replace(/\/$/, '')
 const PORT = Number(process.env.PORT || 3000)
@@ -39,7 +40,7 @@ app.post('/mcp', async (req, res) => {
   if (!token) return rpcError(res, 401, 'Missing bearer token — paste your Skylark API token as the Authorization: Bearer credential.')
 
   // Stateless: a new server + transport per request (sessionIdGenerator: undefined).
-  const server = buildServer(makeApi(BASE_URL, token))
+  const server = buildCodeModeServer(makeApi(BASE_URL, token))   // Code Mode: two tools (search + execute) instead of ~30 schemas
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
   res.on('close', () => { transport.close(); server.close() })
   try {
