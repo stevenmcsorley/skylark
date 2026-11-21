@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api.utils'
 import { LevelBadge } from './LevelBadge'
+import { Tag } from 'lucide-react'
+import { Icon } from './ui/Icon'
 
 interface EstateRow {
   id: number
@@ -94,7 +96,7 @@ export function EstatePage({ onOpen }: { onOpen: (slug: string) => void }) {
                 <span>{p.events_total} events</span>
                 <span>last: {ago(p.last_event_at)}</span>
                 <span>{p.active_monitors} monitors</span>
-                {p.last_deploy && <span className="text-violet-300">🚀 {p.last_deploy.version}</span>}
+                {p.last_deploy && <span className="inline-flex items-center gap-1 text-slate-300"><Icon icon={Tag} size="xs" />{p.last_deploy.version}</span>}
               </div>
             </button>
           ))}

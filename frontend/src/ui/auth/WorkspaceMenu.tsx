@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from './AuthContext'
+import { Check, ChevronDown, X } from 'lucide-react'
+import { Icon } from '../components/ui/Icon'
 import {
   renameWorkspace,
   fetchMembers,
@@ -44,9 +46,7 @@ export function WorkspaceMenu() {
         className="flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-800"
       >
         <span className="max-w-[160px] truncate">{currentWorkspace?.name ?? 'Workspace'}</span>
-        <svg className="h-3 w-3 opacity-70" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-          <path d="M5.5 7.5 10 12l4.5-4.5" strokeWidth="1.5" />
-        </svg>
+        <Icon icon={ChevronDown} size="xs" className="opacity-70" />
       </button>
 
       {open && (
@@ -62,7 +62,7 @@ export function WorkspaceMenu() {
               className="flex w-full items-center justify-between px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
             >
               <span className="truncate">{w.name}</span>
-              {w.id === currentWorkspace?.id && <span className="text-emerald-400">✓</span>}
+              {w.id === currentWorkspace?.id && <Icon icon={Check} size="sm" className="text-emerald-400" aria-label="Current workspace" />}
             </button>
           ))}
           <div className="my-1 border-t border-slate-800" />
@@ -144,7 +144,7 @@ function WorkspaceSettings({ onClose }: { onClose: () => void }) {
       <div className="w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 p-6" onMouseDown={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Workspace settings</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
+          <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-white"><Icon icon={X} size="md" /></button>
         </div>
         {err && <div className="mb-3 rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">{err}</div>}
 

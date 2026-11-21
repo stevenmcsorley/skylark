@@ -149,7 +149,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           silent: false,
           lineStyle: { color: '#a855f7', type: 'dashed', width: 1 },
           label: {
-            formatter: (p: any) => `🚀 ${p.name}`,
+            formatter: (p: any) => `${p.name}`,
             color: '#c4b5fd',
             fontSize: 10,
             position: 'insideEndTop',

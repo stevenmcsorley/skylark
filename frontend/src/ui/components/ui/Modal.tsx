@@ -1,4 +1,6 @@
 import { useEffect, useCallback, type ReactNode } from 'react'
+import { X } from 'lucide-react'
+import { Icon } from './Icon'
 
 interface ModalProps {
   isOpen: boolean
@@ -75,9 +77,7 @@ export const Modal = ({
             className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-slate-700"
             aria-label="Close modal"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <Icon icon={X} size="md" />
           </button>
         </div>
 

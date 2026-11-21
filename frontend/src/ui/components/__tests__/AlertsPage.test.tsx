@@ -215,11 +215,11 @@ describe('AlertsPage', () => {
       />
     )
 
-    await user.click(screen.getByText('📋 Alert Guide'))
+    await user.click(screen.getByText('Alert guide'))
 
-    expect(screen.getByText('🚀 Alert Configuration Guide')).toBeInTheDocument()
-    expect(screen.getByText('📈 Threshold Settings')).toBeInTheDocument()
-    expect(screen.getByText('🔔 Notification Types')).toBeInTheDocument()
+    expect(screen.getByText('Alert configuration guide')).toBeInTheDocument()
+    expect(screen.getByText('Threshold settings')).toBeInTheDocument()
+    expect(screen.getByText('Notification types')).toBeInTheDocument()
   })
 
   it('can start editing a rule', async () => {

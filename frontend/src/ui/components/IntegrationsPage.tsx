@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api.utils'
+import { Check } from 'lucide-react'
+import { Icon } from './ui/Icon'
 
 interface Integration {
   id: number
@@ -148,7 +150,7 @@ export function IntegrationsPage() {
                   Remove
                 </button>
               )}
-              {saved === provider && <span className="text-sm text-emerald-400">Saved ✓</span>}
+              {saved === provider && <span className="inline-flex items-center gap-1 text-sm text-emerald-400"><Icon icon={Check} size="sm" />Saved</span>}
             </div>
           </div>
         )

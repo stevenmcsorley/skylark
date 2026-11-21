@@ -1,5 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { NAV_ITEMS, type NavigationTab } from '../navigation'
+import { Menu } from 'lucide-react'
+import { Icon } from './ui/Icon'
 
 interface NavRailProps {
   activeTab: NavigationTab
@@ -55,7 +57,7 @@ export const NavRail = ({ activeTab, onChange, className = '', testId = 'nav-rai
   return <>
     <div className="flex items-center gap-3 rounded-lg bg-slate-800 p-2 lg:hidden">
       <button ref={menu} type="button" aria-label="Open navigation" aria-controls="main-nav" aria-expanded={open}
-        className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded px-3 py-2 ${focusRing}`} onClick={() => setOpen(true)}>☰</button>
+        className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded px-3 py-2 ${focusRing}`} onClick={() => setOpen(true)}><Icon icon={Menu} size="md" /></button>
       <span className="font-semibold">Skylark</span>
     </div>
     {open && <div aria-hidden="true" className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={close} />}

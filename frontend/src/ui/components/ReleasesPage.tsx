@@ -4,6 +4,8 @@ import { LevelBadge } from './LevelBadge'
 import { api } from '../utils/api.utils'
 import { fmtDate } from '../utils/date.utils'
 import type { Project, Release } from '../types/app.types'
+import { BookOpen, Package, X } from 'lucide-react'
+import { Icon } from './ui/Icon'
 
 interface ReleasesPageProps {
   selected: Project
@@ -137,7 +139,7 @@ export const ReleasesPage = ({
               onClick={() => setShowUploadGuide(!showUploadGuide)}
               className="px-4 py-2 text-sm bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 transition-colors"
             >
-              📖 Upload Guide
+              <span className="inline-flex items-center gap-2"><Icon icon={BookOpen} size="sm" />Upload guide</span>
             </button>
             <div className="rounded-lg bg-slate-800/60 px-4 py-2">
               <div className="text-xs text-slate-400">Total Releases</div>
@@ -150,7 +152,7 @@ export const ReleasesPage = ({
       {/* Upload Guide */}
       {showUploadGuide && (
         <div className="mb-6 rounded-xl border border-blue-500/30 bg-blue-900/20 p-6">
-          <h3 className="text-lg font-semibold text-blue-300 mb-3">🚀 Source Map Upload Guide</h3>
+          <h3 className="text-lg font-semibold text-blue-300 mb-3">Source map upload guide</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
               <h4 className="font-medium text-white mb-2">Option 1: File Upload (Recommended)</h4>
@@ -231,7 +233,7 @@ export const ReleasesPage = ({
         
         {releases.length === 0 ? (
           <div className="text-center py-12 rounded-xl border border-slate-800/60 bg-slate-800/10">
-            <div className="text-6xl mb-4">📦</div>
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500"><Icon icon={Package} size="lg" /></div>
             <h3 className="text-lg font-medium text-slate-300 mb-2">No releases yet</h3>
             <p className="text-slate-400">Create your first release above to start tracking versions and uploading source maps.</p>
           </div>
@@ -290,7 +292,7 @@ export const ReleasesPage = ({
                         onClick={() => setSelectedRelease(null)}
                         className="text-slate-400 hover:text-white"
                       >
-                        ✕
+                        <Icon icon={X} size="sm" aria-label="Close" />
                       </button>
                     </div>
                     <div className="p-3">
