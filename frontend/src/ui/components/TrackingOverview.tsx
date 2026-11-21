@@ -1,3 +1,5 @@
+import { SecretValue } from './SecretValue'
+import { maskSecret } from '../utils/secret'
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api.utils'
 
@@ -188,7 +190,10 @@ export function TrackingOverview({ slug }: { slug: string }) {
 
       <div className="border-t border-slate-800/60 pt-4 text-xs text-slate-400">
         <div>First event: <span className="text-slate-200">{fmt(s.first_event_at)}</span> · Last event: <span className="text-slate-200">{fmt(s.last_event_at)}</span></div>
-        <div className="mt-1">Ingest endpoint: <code className="rounded bg-slate-950 px-1.5 py-0.5 text-slate-300">{data.ingest_endpoint}</code></div>
+        <div className="mt-1">
+          Ingest endpoint: <SecretValue value={data.project.ingest_token} label="ingest token"
+            display={revealed => `/api/events/ingest/token/${revealed ? data.project.ingest_token : maskSecret(data.project.ingest_token)}/`} />
+        </div>
       </div>
     </section>
   )

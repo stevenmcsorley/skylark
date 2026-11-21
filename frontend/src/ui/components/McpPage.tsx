@@ -1,3 +1,5 @@
+import { maskSecret } from '../utils/secret'
+import { SecretValue } from './SecretValue'
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api.utils'
 
@@ -26,7 +28,6 @@ export function McpPage() {
   const [name, setName] = useState('')
   const [newToken, setNewToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
   const base = window.location.origin
 
   const load = () => api('/api/tokens/').then(setTokens).catch(() => setTokens([]))
@@ -54,13 +55,6 @@ export function McpPage() {
   const mcpUrl = `${base}/mcp`
   const command = (token: string) =>
     `claude mcp add --transport http skylark ${mcpUrl} \\\n  --header "Authorization: Bearer ${token}"`
-
-  const copy = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
 
   const card = 'rounded-xl border border-slate-800/60 bg-slate-900/40 p-6'
   const pre = 'mt-2 overflow-x-auto rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs text-slate-200'
@@ -98,15 +92,10 @@ export function McpPage() {
         {newToken && (
           <div className="mt-4 rounded-lg border border-amber-800/60 bg-amber-950/30 p-4">
             <p className="text-sm font-medium text-amber-200">Copy this token now — it won't be shown again.</p>
-            <code className="mt-2 block break-all rounded bg-slate-950 p-2 text-xs text-amber-100">{newToken}</code>
+            <SecretValue value={newToken} label="API token" />
             <p className="mt-3 text-xs uppercase tracking-wide text-slate-400">Register with Claude Code</p>
-            <pre className={pre}>{command(newToken)}</pre>
-            <button
-              onClick={() => copy(command(newToken))}
-              className="mt-2 rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-800"
-            >
-              {copied ? 'Copied ✓' : 'Copy command'}
-            </button>
+            <SecretValue value={command(newToken)} label="command"
+              display={revealed => command(revealed ? newToken : maskSecret(newToken))} />
           </div>
         )}
       </div>
