@@ -12,8 +12,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Python deps
-COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+# constraints.txt pins EVERY package (including transitive ones) to the versions that were running in production. Without it a rebuild pulls the
+# newest kombu (5.7), which needs redis-py 6.1 and crashed the Celery worker. Refresh it deliberately, not by accident.
+COPY requirements.txt constraints.txt /app/
+RUN pip install -r requirements.txt -c constraints.txt
 
 # App code
 COPY . /app
