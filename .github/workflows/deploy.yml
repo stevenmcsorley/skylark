@@ -19,10 +19,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The same tests that run on pull requests, before anything is built on the Pi. Skipped for a rollback (an image that already passed).
+  ci:
+    if: ${{ github.event.inputs.rollback_tag == '' }}
+    uses: ./.github/workflows/ci.yml
+
   # Compose settings that are not secrets, written next to .env.prod: build ONE image at a time (the frontend build is heavy and
   # parallel builds have run this Pi out of memory before).
   env:
-    if: ${{ vars.PI_DEPLOY == 'true' }}
+    needs: ci
+    if: ${{ !failure() && !cancelled() && vars.PI_DEPLOY == 'true' }}   # ci passed, or was skipped for a rollback
     runs-on: [self-hosted, pi, skylark]
     steps:
       - name: Write ~/skylark/.env.deploy
@@ -33,7 +39,7 @@ jobs:
 
   deploy:
     needs: env
-    if: ${{ vars.PI_DEPLOY == 'true' }}
+    if: ${{ !failure() && !cancelled() && vars.PI_DEPLOY == 'true' }}
     permissions:
       contents: read
       packages: write
