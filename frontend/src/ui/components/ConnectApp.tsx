@@ -106,7 +106,7 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
     <div className="space-y-5" data-testid="connect-app">
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">DSN</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-slate-400">DSN</span>
           <span className="flex items-center gap-1">
             <button type="button" className={iconButton} aria-pressed={revealed} aria-label={`${revealed ? 'Hide' : 'Reveal'} DSN`} onClick={() => setRevealed(r => !r)} data-testid="connect-reveal">
               <Icon icon={revealed ? EyeOff : Eye} size="sm" />
@@ -117,14 +117,14 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
           </span>
         </div>
         <code className="block overflow-x-auto whitespace-nowrap rounded-md border border-slate-800 bg-slate-900/60 px-3 py-2 font-mono text-xs text-slate-200" data-testid="connect-dsn">{shown(dsn)}</code>
-        <p className="text-[13px] text-slate-500">Paste this into any Sentry SDK. The key is hidden until you reveal it, and the copy buttons always copy the real value.</p>
+        <p className="text-sm text-slate-400">Paste this into any Sentry SDK. The key is hidden until you reveal it, and the copy buttons always copy the real value.</p>
       </div>
 
       <div className="space-y-2">
         <div role="tablist" aria-label="Language" className="inline-flex rounded-md border border-slate-700 p-0.5">
           {TABS.map(t => (
             <button key={t} role="tab" type="button" aria-selected={tab === t} onClick={() => setTab(t)} data-testid={`connect-tab-${t}`}
-              className={`rounded px-3 py-1 text-[13px] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${tab === t ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:text-slate-200'}`}>{t}</button>
+              className={`rounded px-3 py-1 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${tab === t ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:text-slate-200'}`}>{t}</button>
           ))}
         </div>
         {active.install && (
@@ -147,11 +147,11 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
             <><Icon icon={Check} size="sm" className="text-accent-400" /><span className="text-slate-200">Connected. Last event {timeAgo(latest)}.</span></>
           ) : latest === null ? (
             <><span className="h-2 w-2 animate-pulse rounded-full bg-amber-500" /><span className="text-slate-300">Waiting for the first event...</span></>
-          ) : <span className="text-slate-500">Checking for events...</span>}
+          ) : <span className="text-slate-400">Checking for events...</span>}
         </div>
         <Button size="sm" variant="secondary" loading={sending} icon={<Icon icon={Send} size="sm" />} onClick={sendTest} testId="connect-send-test">Send test event</Button>
       </div>
-      {error && <p className="text-[13px] text-red-400" role="alert" data-testid="connect-error">{error}</p>}
+      {error && <p className="text-sm text-red-400" role="alert" data-testid="connect-error">{error}</p>}
     </div>
   )
 }

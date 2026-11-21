@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LevelBadge } from './LevelBadge'
 import { Button } from './ui/Button'
+import { OverviewStatus } from './OverviewStatus'
 import { issueHref } from './IssuesPage'
 import { timeAgo } from '../utils/date.utils'
 import { TrackingOverview } from './TrackingOverview'
@@ -119,13 +120,16 @@ export function OverviewPage({
     }
   }
 
-  const openGroups = groups.filter(g => g.status === 'unresolved')
+  const attention = groups
+    .filter(g => g.status === 'unresolved')
+    .map(g => ({ group: g, isNew: !!g.first_seen && Date.now() - new Date(g.first_seen).getTime() < 24 * 60 * 60 * 1000 }))
+    .sort((a, b) => Number(b.isNew) - Number(a.isNew) || (a.group.last_seen < b.group.last_seen ? 1 : -1))
 
   const PROVIDER_LABEL: Record<string, string> = { github: 'GitHub issue', ossicone: 'Ossicone ticket' }
 
   return (
     <div data-testid="overview-page" className="space-y-6">
-      <header data-testid="overview-header" className="flex flex-wrap items-end justify-between gap-3" >
+      <header data-testid="overview-header" className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-100" data-testid="project-title">{selected.name}</h1>
           <p className="text-sm text-slate-400" data-testid="project-description">
@@ -133,55 +137,39 @@ export function OverviewPage({
           </p>
         </div>
         <div className="text-right" data-testid="project-info">
-          <div className="text-xs text-slate-500">Project slug</div>
+          <div className="text-xs text-slate-400">Project slug</div>
           <div className="font-mono text-sm text-slate-300">{selected.slug}</div>
         </div>
       </header>
 
-      <div data-testid="quick-actions" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          { label: 'Open issues', value: openGroups.length, testid: 'open-groups-count', view: 'issues', tone: openGroups.length > 0 ? 'text-red-400' : 'text-slate-100' },
-          { label: 'Releases', value: releases.length, testid: 'releases-count', view: 'releases', tone: 'text-slate-100' },
-          { label: 'Deployments', value: deploys.length, testid: 'deployments-count', view: 'releases', tone: 'text-slate-100' },
-          { label: 'Alert rules', value: rules.length, testid: 'alert-rules-count', view: 'alerts', tone: 'text-slate-100' },
-        ].map(s => (
-          <a
-            key={s.label}
-            href={`#view=${s.view}&project=${encodeURIComponent(selected.slug)}`}
-            className="rounded-lg border border-slate-800/60 px-4 py-3 transition-colors hover:border-slate-700 hover:bg-slate-800/30"
-          >
-            <div className={`text-2xl font-semibold tabular-nums ${s.tone}`} data-testid={s.testid}>{s.value}</div>
-            <div className="text-xs text-slate-400">{s.label}</div>
-          </a>
-        ))}
-      </div>
+      <OverviewStatus slug={selected.slug} groups={groups} />
 
-      {/* Open issues: the full list, filters and triage live on the Issues page */}
-      <section data-testid="groups-section" className="rounded-lg border border-slate-800/60">
-        <div className="flex items-center justify-between border-b border-slate-800/60 px-4 py-3">
-          <h2 className="text-sm font-semibold text-slate-100">Recent open issues</h2>
-          <a href={`#view=issues&project=${encodeURIComponent(selected.slug)}`} className="text-xs text-accent-400 hover:text-accent-300">View all issues</a>
+      <section data-testid="groups-section" className="rounded-lg border border-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+          <h2 className="text-base font-semibold text-slate-100">Needs attention</h2>
+          <a href={`#view=issues&project=${encodeURIComponent(selected.slug)}`} className="inline-flex min-h-8 items-center text-sm text-accent-400 hover:text-accent-300">View all issues</a>
         </div>
-        {openGroups.length === 0 ? (
-          <p className="px-4 py-6 text-sm text-slate-400" data-testid="groups-table">No open issues.</p>
+        {attention.length === 0 ? (
+          <p className="px-4 py-6 text-sm text-slate-300" data-testid="groups-table">No open issues.</p>
         ) : (
           <div className="overflow-x-auto" data-testid="groups-table">
             <table className="w-full text-sm">
               <thead className="text-left">
-                <tr><th className="pl-4">Issue</th><th>Events</th><th>Last seen</th><th className="pr-4 text-right">Actions</th></tr>
+                <tr><th className="pl-4">Issue</th><th className="pl-3 text-right">Events</th><th className="pl-6">Last seen</th><th className="pr-4 text-right"><span className="sr-only">Actions</span></th></tr>
               </thead>
               <tbody>
-                {openGroups.slice(0, 8).map(g => (
-                  <tr key={g.id} className="border-t border-slate-800/60" data-testid={`group-${g.id}`}>
-                    <td className="max-w-0 py-2 pl-4 w-full">
+                {attention.slice(0, 8).map(({ group: g, isNew }) => (
+                  <tr key={g.id} className="border-t border-slate-800" data-testid={`group-${g.id}`}>
+                    <td className="w-full max-w-0 py-1 pl-4">
                       <div className="flex items-center gap-2">
-                        <LevelBadge level={g.level} />
-                        <a href={issueHref(selected.slug, g.id)} className="truncate text-slate-100 hover:text-accent-300">{g.title}</a>
+                        <LevelBadge level={g.level} variant="compact" />
+                        <a href={issueHref(selected.slug, g.id)} className="block min-h-9 flex-1 truncate py-2 text-slate-100 hover:underline">{g.title}</a>
+                        {isNew && <span className="shrink-0 rounded bg-accent-900 px-1.5 py-0.5 text-xs text-accent-300">New</span>}
                       </div>
                     </td>
-                    <td className="tabular-nums">{g.count}</td>
-                    <td className="text-slate-400">{timeAgo(g.last_seen)}</td>
-                    <td className="space-x-1 pr-4 text-right">
+                    <td className="pl-3 text-right tabular-nums text-slate-200">{g.count.toLocaleString()}</td>
+                    <td className="whitespace-nowrap pl-6 text-slate-300">{timeAgo(g.last_seen)}</td>
+                    <td className="space-x-1 whitespace-nowrap pr-4 text-right">
                       {rules.length > 0 ? (
                         <Button size="xs" variant="secondary" data-testid={`snooze-group-${g.id}`} onClick={() => snoozeGroup(g.id, 60)}>Snooze</Button>
                       ) : null}
@@ -199,8 +187,15 @@ export function OverviewPage({
 
       <TrackingOverview slug={selected.slug} />
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <details className="group rounded-lg border border-slate-800" data-testid="setup-section">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm text-slate-200 hover:bg-slate-800/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
+          <span className="font-medium">Releases, deployments and alert rules</span>
+          <span className="text-slate-400">
+            <span data-testid="releases-count">{releases.length}</span> releases · <span data-testid="deployments-count">{deploys.length}</span> deployments · <span data-testid="alert-rules-count">{rules.length}</span> alert rules
+          </span>
+        </summary>
+        <div className="border-t border-slate-800 p-4">
+<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Release Management */}
         <section data-testid="releases-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="flex items-center justify-between mb-3">
@@ -217,7 +212,7 @@ export function OverviewPage({
 
           {/* Releases List */}
           {releases.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-2">No releases yet</p>
+            <p className="text-sm text-slate-400 text-center py-2">No releases yet</p>
           ) : (
             <div className="space-y-1.5 max-h-48 overflow-y-auto" data-testid="releases-table">
               {releases.map(r => (
@@ -237,7 +232,7 @@ export function OverviewPage({
                     }`}>
                       {r.environment}
                     </span>
-                    <span className="text-xs text-slate-500">{r.created_at}</span>
+                    <span className="text-xs text-slate-400">{r.created_at}</span>
                   </div>
                   <button
                     onClick={() => setSelectedRelease(selectedRelease === r.id ? null : r.id)}
@@ -274,7 +269,7 @@ export function OverviewPage({
 
           {/* Deployments List */}
           {deploys.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-2">No deployments yet</p>
+            <p className="text-sm text-slate-400 text-center py-2">No deployments yet</p>
           ) : (
             <div className="space-y-1.5 max-h-48 overflow-y-auto" data-testid="deployments-table">
               {deploys.map(d => (
@@ -294,7 +289,7 @@ export function OverviewPage({
                     }`}>
                       {d.environment}
                     </span>
-                    <span className="text-xs text-slate-500">{d.date_started}</span>
+                    <span className="text-xs text-slate-400">{d.date_started}</span>
                   </div>
                   {d.url && (
                     <a
@@ -509,6 +504,8 @@ export function OverviewPage({
           </div>
         </section>
       </div>
+        </div>
+      </details>
 
       {/* Create Issue Modal */}
       {issueModal && (
@@ -521,7 +518,7 @@ export function OverviewPage({
 
             {issueModal.links.length > 0 && (
               <div className="mb-4 rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
-                <div className="mb-2 text-xs uppercase tracking-wide text-slate-500">Linked issues</div>
+                <div className="mb-2 text-xs uppercase tracking-wide text-slate-400">Linked issues</div>
                 <ul className="space-y-1 text-sm">
                   {issueModal.links.map(l => (
                     <li key={l.id}>
@@ -535,7 +532,7 @@ export function OverviewPage({
             )}
 
             <div className="space-y-2">
-              <div className="text-xs uppercase tracking-wide text-slate-500">Open a new issue in</div>
+              <div className="text-xs uppercase tracking-wide text-slate-400">Open a new issue in</div>
               {providers.map(p => (
                 <button
                   key={p}

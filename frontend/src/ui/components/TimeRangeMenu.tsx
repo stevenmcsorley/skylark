@@ -170,7 +170,7 @@ export const TimeRangeMenu = ({
       </button>
       {open && (
         <div className="absolute z-10 mt-1 w-56 rounded-md border border-slate-700 bg-slate-900 p-2 text-sm shadow" data-testid="time-range-dropdown">
-          <div className="mb-2 text-[11px] text-slate-400">Filter Time Range</div>
+          <div className="mb-2 text-xs text-slate-400">Filter Time Range</div>
           <input 
             type="text"
             className="mb-2 w-full rounded border border-slate-700 bg-transparent px-2 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-accent-500" 

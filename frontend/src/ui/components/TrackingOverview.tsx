@@ -44,7 +44,7 @@ const SOURCE_STYLE: Record<string, string> = {
 
 const chip = 'rounded-full bg-slate-800/70 px-2.5 py-1 text-xs text-slate-200'
 function Chips({ items, empty }: { items: string[]; empty: string }) {
-  if (!items.length) return <span className="text-xs text-slate-500">{empty}</span>
+  if (!items.length) return <span className="text-xs text-slate-400">{empty}</span>
   return <div className="flex flex-wrap gap-1.5">{items.map(i => <span key={i} className={chip}>{i}</span>)}</div>
 }
 
@@ -116,7 +116,7 @@ export function TrackingOverview({ slug }: { slug: string }) {
       {/* DECLARED monitors — the inventory */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-slate-200">Declared monitors <span className="text-slate-500">({declared.length})</span></h4>
+          <h4 className="text-sm font-semibold text-slate-200">Declared monitors <span className="text-slate-400">({declared.length})</span></h4>
           <button onClick={() => setAdding(a => !a)} className="text-xs text-emerald-400 hover:text-emerald-300" data-testid="add-monitor">
             {adding ? 'Close' : '+ Add monitor'}
           </button>
@@ -137,7 +137,7 @@ export function TrackingOverview({ slug }: { slug: string }) {
         )}
 
         {declared.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-700/60 p-4 text-sm text-slate-500">
+          <p className="rounded-lg border border-dashed border-slate-700/60 p-4 text-sm text-slate-400">
             No monitors declared yet. Ask the AI agent: <em>“list what you're tracking in this project”</em> or <em>“add tracking for the backend 5xx handler.”</em>
           </p>
         ) : (
@@ -146,13 +146,13 @@ export function TrackingOverview({ slug }: { slug: string }) {
               <li key={t.id} className="flex items-start justify-between gap-3 bg-slate-900/30 p-3" data-testid={`monitor-${t.id}`}>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded px-1.5 py-0.5 text-[11px] ${SOURCE_STYLE[t.source] || SOURCE_STYLE.other}`}>{t.source}</span>
+                    <span className={`rounded px-1.5 py-0.5 text-xs ${SOURCE_STYLE[t.source] || SOURCE_STYLE.other}`}>{t.source}</span>
                     <span className="text-sm font-medium text-slate-100">{t.kind}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] ${STATUS_STYLE[t.status]}`}>{t.status}</span>
-                    <span className="rounded-full bg-slate-800/70 px-2 py-0.5 text-[11px] text-slate-400" title="who declared it">{t.origin}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[t.status]}`}>{t.status}</span>
+                    <span className="rounded-full bg-slate-800/70 px-2 py-0.5 text-xs text-slate-400" title="who declared it">{t.origin}</span>
                   </div>
                   {t.detail && <div className="mt-1 text-xs text-slate-400">{t.detail}</div>}
-                  {t.location && <div className="mt-0.5 font-mono text-[11px] text-slate-500">{t.location}</div>}
+                  {t.location && <div className="mt-0.5 font-mono text-xs text-slate-400">{t.location}</div>}
                 </div>
                 <div className="flex shrink-0 items-center gap-2 text-xs">
                   {t.status !== 'active' && <button onClick={() => setStatus(t.id, 'active')} className="text-emerald-400 hover:text-emerald-300">Activate</button>}
@@ -168,7 +168,7 @@ export function TrackingOverview({ slug }: { slug: string }) {
       {/* OBSERVED — what's actually arriving, to confirm the monitors are live */}
       <div>
         <h4 className="mb-3 text-sm font-semibold text-slate-200">
-          Actually arriving <span className="text-slate-500">(from the last {data.sources.sampled_events} events)</span>
+          Actually arriving <span className="text-slate-400">(from the last {data.sources.sampled_events} events)</span>
         </h4>
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[['Events', s.events_total], ['Issues', s.groups_total], ['Unresolved', s.groups_unresolved], ['Linked tickets', data.external_links_total]].map(([label, val]) => (
@@ -179,12 +179,12 @@ export function TrackingOverview({ slug }: { slug: string }) {
           ))}
         </div>
         <dl className="grid gap-4 sm:grid-cols-2">
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-500">Environments</dt><dd><Chips items={data.sources.environments} empty="No events yet" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-500">Platforms / SDKs</dt><dd><Chips items={data.sources.platforms} empty="Not reported by the SDK" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-500">Tag keys seen</dt><dd><Chips items={data.sources.tag_keys} empty="No tags" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-500">Recent releases</dt><dd><Chips items={data.releases} empty="No releases tracked" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-500">Integrations</dt><dd><Chips items={data.integrations} empty="None configured" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-500">Alert rules</dt><dd><Chips items={data.alert_rules.map(r => `${r.name}${r.active ? '' : ' (off)'}`)} empty="No alert rules" /></dd></div>
+          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Environments</dt><dd><Chips items={data.sources.environments} empty="No events yet" /></dd></div>
+          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Platforms / SDKs</dt><dd><Chips items={data.sources.platforms} empty="Not reported by the SDK" /></dd></div>
+          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Tag keys seen</dt><dd><Chips items={data.sources.tag_keys} empty="No tags" /></dd></div>
+          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Recent releases</dt><dd><Chips items={data.releases} empty="No releases tracked" /></dd></div>
+          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Integrations</dt><dd><Chips items={data.integrations} empty="None configured" /></dd></div>
+          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Alert rules</dt><dd><Chips items={data.alert_rules.map(r => `${r.name}${r.active ? '' : ' (off)'}`)} empty="No alert rules" /></dd></div>
         </dl>
       </div>
 

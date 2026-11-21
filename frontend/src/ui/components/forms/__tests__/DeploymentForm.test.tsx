@@ -19,6 +19,11 @@ describe('DeploymentForm', () => {
     expect(screen.getByTestId('create-deployment-button')).toBeInTheDocument()
   })
 
+  const fill = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.type(screen.getByTestId('deployment-name-input'), 'Deploy #1')
+    await user.type(screen.getByTestId('deployment-url-input'), 'https://example.com')
+  }
+
   it('has correct default values', () => {
     render(<DeploymentForm onCreate={mockOnCreate} />)
     
@@ -26,16 +31,19 @@ describe('DeploymentForm', () => {
     const urlInput = screen.getByTestId('deployment-url-input') as HTMLInputElement
     const envInput = screen.getByTestId('deployment-environment-input') as HTMLInputElement
     
-    expect(nameInput.value).toBe('Deploy #1')
-    expect(urlInput.value).toBe('https://example.com')
+    expect(nameInput.value).toBe('')
+    expect(urlInput.value).toBe('')
     expect(envInput.value).toBe('production')
     expect(screen.getByText('Create')).toBeInTheDocument()
   })
 
-  it('submit button is enabled with default values', () => {
+  it('submit button is disabled until name and URL are filled in', async () => {
+    const user = userEvent.setup()
     render(<DeploymentForm onCreate={mockOnCreate} />)
     
     const submitButton = screen.getByTestId('create-deployment-button')
+    expect(submitButton).toBeDisabled()
+    await fill(user)
     expect(submitButton).toBeEnabled()
   })
 
@@ -73,7 +81,9 @@ describe('DeploymentForm', () => {
   })
 
   it('calls onCreate on form submit event', async () => {
+    const user = userEvent.setup()
     render(<DeploymentForm onCreate={mockOnCreate} />)
+    await fill(user)
     
     const form = screen.getByTestId('deployment-form')
     fireEvent.submit(form)
@@ -102,8 +112,8 @@ describe('DeploymentForm', () => {
     await user.click(submitButton)
     
     await waitFor(() => {
-      expect(nameInput.value).toBe('Deploy #1')
-      expect(urlInput.value).toBe('https://example.com')
+      expect(nameInput.value).toBe('')
+      expect(urlInput.value).toBe('')
       expect(envInput.value).toBe('production')
     })
   })
@@ -117,6 +127,7 @@ describe('DeploymentForm', () => {
     mockOnCreate.mockReturnValue(promise)
     
     render(<DeploymentForm onCreate={mockOnCreate} />)
+    await fill(user)
     
     const submitButton = screen.getByTestId('create-deployment-button')
     
@@ -137,6 +148,7 @@ describe('DeploymentForm', () => {
     mockOnCreate.mockRejectedValue(new Error('Network error'))
     
     render(<DeploymentForm onCreate={mockOnCreate} />)
+    await fill(user)
     
     const submitButton = screen.getByTestId('create-deployment-button')
     

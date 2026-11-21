@@ -65,7 +65,7 @@ export function EstatePage({ onOpen }: { onOpen: (slug: string) => void }) {
 
       {/* Project cards */}
       {projects.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-slate-700/60 p-8 text-center text-sm text-slate-500">No projects yet.</p>
+        <p className="rounded-lg border border-dashed border-slate-700/60 p-8 text-center text-sm text-slate-400">No projects yet.</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {cleanest.map(p => (
@@ -81,7 +81,7 @@ export function EstatePage({ onOpen }: { onOpen: (slug: string) => void }) {
                   {p.unresolved > 0 ? `${p.unresolved} open` : 'clear'}
                 </span>
               </div>
-              <div className="mt-1 font-mono text-xs text-slate-500">{p.slug}</div>
+              <div className="mt-1 font-mono text-xs text-slate-400">{p.slug}</div>
 
               {p.latest_issue ? (
                 <div className="mt-3 flex items-start gap-2">
@@ -89,7 +89,7 @@ export function EstatePage({ onOpen }: { onOpen: (slug: string) => void }) {
                   <span className="line-clamp-2 text-xs text-slate-300">{p.latest_issue.title}</span>
                 </div>
               ) : (
-                <div className="mt-3 text-xs text-slate-500">No errors captured</div>
+                <div className="mt-3 text-xs text-slate-400">No errors captured</div>
               )}
 
               <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-800/60 pt-3 text-xs text-slate-400">

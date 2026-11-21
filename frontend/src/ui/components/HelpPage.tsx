@@ -135,7 +135,7 @@ Content-Type: application/json
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-slate-400">
           Upload source maps on a release to get readable stack frames. The browser SDK also ships as
           <code className="text-slate-400"> packages/mini-sentry-client</code> (aliased <code className="text-slate-400">skylark-client</code>).
         </p>

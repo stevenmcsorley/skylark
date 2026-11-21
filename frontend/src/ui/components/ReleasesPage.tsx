@@ -233,7 +233,7 @@ export const ReleasesPage = ({
         
         {releases.length === 0 ? (
           <div className="text-center py-12 rounded-lg border border-slate-800/60 bg-slate-800/10">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500"><Icon icon={Package} size="lg" /></div>
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400"><Icon icon={Package} size="lg" /></div>
             <h3 className="text-base font-medium text-slate-300 mb-2">No releases yet</h3>
             <p className="text-slate-400">Create your first release above to start tracking versions and uploading source maps.</p>
           </div>

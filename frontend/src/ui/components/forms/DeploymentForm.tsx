@@ -14,8 +14,8 @@ export const DeploymentForm = ({
   className,
   testId = 'deployment-form'
 }: DeploymentFormProps) => {
-  const [name, setName] = useState('Deploy #1')
-  const [url, setUrl] = useState('https://example.com')
+  const [name, setName] = useState('')
+  const [url, setUrl] = useState('')
   const [env, setEnv] = useState('production')
   const [isSubmitting, setIsSubmitting] = useState(false)
   
@@ -28,8 +28,8 @@ export const DeploymentForm = ({
     
     try {
       await onCreate(name.trim(), url.trim(), env.trim())
-      setName('Deploy #1')
-      setUrl('https://example.com')
+      setName('')
+      setUrl('')
       setEnv('production')
     } catch (error) {
       console.error('Failed to create deployment:', error)

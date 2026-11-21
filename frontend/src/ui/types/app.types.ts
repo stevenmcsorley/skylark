@@ -12,6 +12,7 @@ export type Group = {
   title: string
   level: string
   count: number
+  first_seen?: string
   last_seen: string
   status: string
   assignee?: string

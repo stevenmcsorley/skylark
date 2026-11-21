@@ -352,7 +352,7 @@ export const AlertsPage = ({
       <div className="space-y-4">
         {rules.length === 0 ? (
           <div className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-8 text-center">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500"><Icon icon={Bell} size="lg" /></div>
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400"><Icon icon={Bell} size="lg" /></div>
             <h3 className="text-base font-semibold text-slate-100 mb-2">No alert rules yet</h3>
             <p className="text-slate-400 mb-4">
               Create your first alert rule above to start monitoring error thresholds and get notified when issues occur.

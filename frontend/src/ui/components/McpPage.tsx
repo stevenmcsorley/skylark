@@ -117,7 +117,7 @@ export function McpPage() {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">2 · Claude Desktop / Clawx (JSON config)</p>
-            <p className="mb-1 text-xs text-slate-500">
+            <p className="mb-1 text-xs text-slate-400">
               Uses the <code className="text-slate-400">mcp-remote</code> bridge (auto-downloaded by npx; no clone). Claude Desktop:{' '}
               <code className="text-slate-400">claude_desktop_config.json</code>, Clawx: <code className="text-slate-400">~/.clawx/clawx.json</code>:
             </p>
@@ -163,7 +163,7 @@ export function McpPage() {
           <p className="text-sm text-slate-400">No tokens yet.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500">
+            <thead className="text-left text-xs uppercase text-slate-400">
               <tr>
                 <th className="pb-2">Name</th>
                 <th className="pb-2">Token</th>
@@ -185,7 +185,7 @@ export function McpPage() {
             </tbody>
           </table>
         )}
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-slate-400">
           Tokens are scoped to this workspace. The MCP is hosted at <code className="text-slate-400">{mcpUrl}</code> —
           add the URL + token to any MCP client; revoke here to cut off access instantly.
         </p>

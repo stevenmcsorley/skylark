@@ -14,11 +14,11 @@ export const AlertRuleForm = ({
   className,
   testId = 'alert-rule-form'
 }: AlertRuleFormProps) => {
-  const [name, setName] = useState('High error volume')
+  const [name, setName] = useState('')
   const [level, setLevel] = useState('error')
   const [threshold, setThreshold] = useState(10)
   const [targetType, setTargetType] = useState<'email'|'webhook'>('email')
-  const [targetValue, setTargetValue] = useState('alerts@example.test')
+  const [targetValue, setTargetValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const handleSubmit = useCallback(async (e?: FormEvent) => {
@@ -30,11 +30,11 @@ export const AlertRuleForm = ({
     
     try {
       await onCreate(name.trim(), level.trim(), threshold, targetType, targetValue.trim())
-      setName('High error volume')
+      setName('')
       setLevel('error')
       setThreshold(10)
       setTargetType('email')
-      setTargetValue('alerts@example.test')
+      setTargetValue('')
     } catch (error) {
       console.error('Failed to create alert rule:', error)
     } finally {
@@ -57,7 +57,7 @@ export const AlertRuleForm = ({
   const handleTargetTypeChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
     const newType = e.target.value as 'email' | 'webhook'
     setTargetType(newType)
-    setTargetValue(newType === 'email' ? 'alerts@example.test' : 'https://your-webhook-url.com/alerts')
+    setTargetValue('')
   }, [])
 
   const handleTargetValueChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {

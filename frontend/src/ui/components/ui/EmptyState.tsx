@@ -15,7 +15,7 @@ interface EmptyStateProps {
 export const EmptyState = ({ icon, title, description, action, testId }: EmptyStateProps) => (
   <div className="rounded-lg border border-slate-800 px-6 py-10 text-center" data-testid={testId}>
     {icon && (
-      <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500">
+      <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400">
         <Icon icon={icon} size="lg" />
       </div>
     )}
