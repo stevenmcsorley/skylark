@@ -69,7 +69,7 @@ export const AlertRuleForm = ({
   return (
     <form 
       onSubmit={handleSubmit}
-      className={["flex gap-2 my-2", className].filter(Boolean).join(" ")}
+      className={["flex flex-wrap gap-2 my-2", className].filter(Boolean).join(" ")}
       data-testid={testId}
     >
       <input 
@@ -131,7 +131,7 @@ export const AlertRuleForm = ({
         className={`px-4 py-2 rounded font-medium transition-colors ${
           disabled 
             ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
-            : 'bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500'
+            : 'bg-accent-600 text-white hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500'
         }`}
         data-testid="create-alert-rule-button"
       >
