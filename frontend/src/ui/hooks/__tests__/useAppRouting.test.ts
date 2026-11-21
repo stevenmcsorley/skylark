@@ -51,7 +51,7 @@ describe('useAppRouting', () => {
   it('should initialize with default values', () => {
     const { result } = renderHook(() => useAppRouting([]))
 
-    expect(result.current.activeTab).toBe('estate')
+    expect(result.current.activeTab).toBe('inbox')
     expect(result.current.selected).toBeNull()
     expect(result.current.search).toBe('')
     expect(result.current.filterLevel).toBe('')
@@ -90,7 +90,8 @@ describe('useAppRouting', () => {
 
     await waitFor(() => {
       expect(result.current.initializedFromURL).toBe(true)
-      expect(result.current.activeTab).toBe('overview')
+      expect(result.current.activeTab).toBe('apps')   // the old #view=overview address lands on the app's Health section
+      expect(result.current.section).toBe('health')
       expect(result.current.search).toBe('error')
       expect(result.current.filterLevel).toBe('warning')
       expect(result.current.filterEnv).toBe('production')
@@ -113,7 +114,7 @@ describe('useAppRouting', () => {
       expect(result.current.initializedFromURL).toBe(true)
     })
 
-    expect(result.current.activeTab).toBe('estate') // Should remain default
+    expect(result.current.activeTab).toBe('inbox') // Should remain default
   })
 
   it('should select project from URL parameter', async () => {
@@ -166,7 +167,7 @@ describe('useAppRouting', () => {
     })
 
     // Change some state
-    result.current.setActiveTab('overview')
+    result.current.setActiveTab('explore')
     result.current.setSearch('test error')
     result.current.setFilterLevel('error')
 
@@ -174,7 +175,7 @@ describe('useAppRouting', () => {
       expect(mockHistory.replaceState).toHaveBeenCalledWith(
         null,
         '',
-        expect.stringContaining('view=overview')
+        expect.stringContaining('view=explore')
       )
     })
   })
@@ -345,18 +346,18 @@ describe('useAppRouting', () => {
       expect(result.current.initializedFromURL).toBe(true)
     })
 
-    expect(result.current.activeTab).toBe('dashboard')
+    expect(result.current.activeTab).toBe('apps')
 
     // Change hash externally
     mockLocation.hash = '#view=overview'
     rerender()
 
     // Should not reinitialize
-    expect(result.current.activeTab).toBe('dashboard') // Should remain unchanged
+    expect(result.current.activeTab).toBe('apps') // Should remain unchanged
   })
 
   it('should not update URL if hash is already correct', async () => {
-    mockLocation.hash = '#view=logs&project=test-project'
+    mockLocation.hash = '#view=explore&project=test-project'
 
     const { result } = renderHook(() => useAppRouting(mockProjects))
 
@@ -367,11 +368,36 @@ describe('useAppRouting', () => {
     const initialCallCount = mockHistory.replaceState.mock.calls.length
 
     // Trigger state sync without changing anything
-    result.current.setActiveTab('logs') // Same as current
+    result.current.setActiveTab('explore') // Same as current
 
     await new Promise(resolve => setTimeout(resolve, 100))
 
     // Should not make additional history calls
     expect(mockHistory.replaceState.mock.calls.length).toBe(initialCallCount)
+  })
+
+  it('maps every address from before the restructure to a page and section', () => {
+    const cases: Array<[string, string, string]> = [
+      ['issues', 'inbox', ''], ['estate', 'apps', ''], ['projects', 'apps', ''], ['releases', 'apps', 'releases'],
+      ['alerts', 'apps', 'alerts'], ['dashboard', 'apps', 'charts'], ['logs', 'explore', ''],
+      ['mcp', 'settings', 'agents'], ['integrations', 'settings', 'integrations'], ['help', 'settings', 'help'],
+    ]
+    for (const [legacy, tab, section] of cases) {
+      mockLocation.hash = `#view=${legacy}`
+      const { result, unmount } = renderHook(() => useAppRouting([]))
+      expect([legacy, result.current.activeTab, result.current.section]).toEqual([legacy, tab, section])
+      unmount()
+    }
+  })
+
+  it('opens an app on a section and remembers the inbox app filter', async () => {
+    mockLocation.hash = '#view=inbox&iapp=test-project'
+    const { result } = renderHook(() => useAppRouting(mockProjects))
+    expect(result.current.inboxApp).toBe('test-project')
+    act(() => result.current.openApp(mockProject, 'setup'))
+    await waitFor(() => expect(result.current.activeTab).toBe('apps'))
+    expect(result.current.section).toBe('setup')
+    expect(result.current.selected).toEqual(mockProject)
+    expect(mockHistory.pushState).toHaveBeenCalledWith(null, '', expect.stringContaining('tab=setup'))
   })
 })

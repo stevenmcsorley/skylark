@@ -94,14 +94,14 @@ export function TrackingOverview({ slug }: { slug: string }) {
   ]
 
   return (
-    <section data-testid="tracking-overview" className="space-y-6 rounded-lg border border-slate-800 p-5">
+    <section data-testid="tracking-overview" className="space-y-6 rounded-lg border border-slate-700 p-5 bg-slate-950">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-slate-100">What we're monitoring</h2>
           <p className="text-sm text-slate-300">Monitors declared for this project, and what has actually arrived.</p>
         </div>
         {!editingDesc && (
-          <button onClick={() => { setDraft(data.project.description || ''); setEditingDesc(true) }} className="min-h-8 items-center inline-flex text-sm text-slate-200 underline underline-offset-2 hover:text-white">
+          <button onClick={() => { setDraft(data.project.description || ''); setEditingDesc(true) }} className="min-h-8 items-center inline-flex text-sm text-slate-200 underline underline-offset-2 hover:text-slate-100">
             {data.project.description ? 'Edit summary' : 'Add summary'}
           </button>
         )}
@@ -112,9 +112,9 @@ export function TrackingOverview({ slug }: { slug: string }) {
         <div>
           <textarea value={draft} onChange={e => setDraft(e.target.value)} rows={3}
             placeholder="One-line summary of what this project monitors and why."
-            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none" />
+            className="w-full rounded-md border border-slate-500 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none" />
           <div className="mt-2 flex gap-2">
-            <button onClick={saveDesc} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500">Save</button>
+            <button onClick={saveDesc} className="rounded-md bg-accent-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-700">Save</button>
             <button onClick={() => setEditingDesc(false)} className="rounded-md border border-slate-600 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Cancel</button>
           </div>
         </div>
@@ -126,21 +126,21 @@ export function TrackingOverview({ slug }: { slug: string }) {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h4 className="text-sm font-semibold text-slate-200">Declared monitors <span className="text-slate-400">({declared.length})</span></h4>
-          <button onClick={() => setAdding(a => !a)} className="min-h-8 items-center inline-flex text-sm text-slate-200 underline underline-offset-2 hover:text-white" data-testid="add-monitor">
+          <button onClick={() => setAdding(a => !a)} className="min-h-8 items-center inline-flex text-sm text-slate-200 underline underline-offset-2 hover:text-slate-100" data-testid="add-monitor">
             {adding ? 'Close' : '+ Add monitor'}
           </button>
         </div>
 
         {adding && (
           <div className="mb-3 grid gap-2 rounded-lg border border-slate-700/60 bg-slate-950/40 p-3 sm:grid-cols-2">
-            <select value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100">
+            <select value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className="h-8 rounded-md border border-slate-500 bg-slate-950 px-2 text-sm text-slate-100">
               {SOURCES.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
-            <input value={form.kind} onChange={e => setForm(f => ({ ...f, kind: e.target.value }))} placeholder="kind — e.g. window.onerror" className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100" />
-            <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="location — file or endpoint" className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100" />
-            <input value={form.detail} onChange={e => setForm(f => ({ ...f, detail: e.target.value }))} placeholder="detail — what it captures" className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100" />
+            <input value={form.kind} onChange={e => setForm(f => ({ ...f, kind: e.target.value }))} placeholder="kind — e.g. window.onerror" className="h-8 rounded-md border border-slate-500 bg-slate-950 px-2 text-sm text-slate-100" />
+            <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="location — file or endpoint" className="h-8 rounded-md border border-slate-500 bg-slate-950 px-2 text-sm text-slate-100" />
+            <input value={form.detail} onChange={e => setForm(f => ({ ...f, detail: e.target.value }))} placeholder="detail — what it captures" className="h-8 rounded-md border border-slate-500 bg-slate-950 px-2 text-sm text-slate-100" />
             <div className="sm:col-span-2">
-              <button onClick={addItem} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500">Add</button>
+              <button onClick={addItem} className="rounded-md bg-accent-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-700">Add</button>
             </div>
           </div>
         )}
@@ -150,7 +150,7 @@ export function TrackingOverview({ slug }: { slug: string }) {
             No monitors declared yet. Ask the AI agent: <em>“list what you're tracking in this project”</em> or <em>“add tracking for the backend 5xx handler.”</em>
           </p>
         ) : (
-          <ul className="divide-y divide-slate-800/60 overflow-hidden rounded-lg border border-slate-800/60">
+          <ul className="divide-y divide-slate-700/60 overflow-hidden rounded-lg border border-slate-700 bg-slate-950">
             {declared.map(t => (
               <li key={t.id} className="flex items-start justify-between gap-3 bg-slate-900/30 p-3" data-testid={`monitor-${t.id}`}>
                 <div className="min-w-0">
@@ -164,7 +164,7 @@ export function TrackingOverview({ slug }: { slug: string }) {
                   {t.location && <div className="mt-0.5 font-mono text-xs text-slate-400">{t.location}</div>}
                 </div>
                 <div className="flex shrink-0 items-center gap-2 text-xs">
-                  {t.status !== 'active' && <button onClick={() => setStatus(t.id, 'active')} className="inline-flex min-h-8 items-center text-slate-200 underline underline-offset-2 hover:text-white">Activate</button>}
+                  {t.status !== 'active' && <button onClick={() => setStatus(t.id, 'active')} className="inline-flex min-h-8 items-center text-slate-200 underline underline-offset-2 hover:text-slate-100">Activate</button>}
                   {t.status === 'active' && <button onClick={() => setStatus(t.id, 'removed')} className="inline-flex min-h-8 items-center text-amber-400 hover:text-amber-300">Retire</button>}
                   <button onClick={() => remove(t.id)} className="inline-flex min-h-8 items-center text-red-400 hover:text-red-300">Delete</button>
                 </div>
@@ -192,13 +192,13 @@ export function TrackingOverview({ slug }: { slug: string }) {
         {facts.some(f => f.items.length === 0) && (
           <p className="mt-3 text-sm text-slate-400" data-testid="not-set-up">
             Not set up yet: {facts.filter(f => f.items.length === 0).map((f, i, arr) => (
-              <span key={f.label}>{f.href ? <a href={`${f.href}&project=${encodeURIComponent(slug)}`} className="text-slate-200 underline underline-offset-2 hover:text-white">{f.noun}</a> : f.noun}{i < arr.length - 1 ? ', ' : '.'}</span>
+              <span key={f.label}>{f.href ? <a href={`${f.href}&project=${encodeURIComponent(slug)}`} className="text-slate-200 underline underline-offset-2 hover:text-slate-100">{f.noun}</a> : f.noun}{i < arr.length - 1 ? ', ' : '.'}</span>
             ))}
           </p>
         )}
       </div>
 
-      <div className="border-t border-slate-800/60 pt-4 text-xs text-slate-400">
+      <div className="border-t border-slate-700 pt-4 text-xs text-slate-400">
         <div>First event: <span className="text-slate-200">{fmt(s.first_event_at)}</span> · Last event: <span className="text-slate-200">{fmt(s.last_event_at)}</span></div>
         <div className="mt-1">
           Ingest endpoint: <SecretValue value={data.project.ingest_token} label="ingest token"

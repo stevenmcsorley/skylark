@@ -180,6 +180,8 @@ class Group(models.Model):
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_UNRESOLVED, db_index=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
+    # Set when a new event reopens a resolved issue (a regression); cleared when someone resolves or reopens it by hand.
+    regressed_at = models.DateTimeField(null=True, blank=True)
     assignee = models.CharField(max_length=200, blank=True, default="")
     is_bookmarked = models.BooleanField(default=False)
 

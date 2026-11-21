@@ -47,7 +47,7 @@ export const SkeletonText = ({ lines = 3, className = '' }: { lines?: number; cl
 )
 
 export const SkeletonCard = ({ className = '' }: { className?: string }) => (
-  <div className={`rounded-lg border border-slate-800/60 bg-slate-800/20 p-6 ${className}`}>
+  <div className={`rounded-lg border border-slate-700 bg-slate-800/20 p-6 ${className}`}>
     <div className="flex items-center justify-between mb-4">
       <Skeleton variant="text" className="w-32 h-6" />
       <Skeleton variant="rectangular" className="w-20 h-6" />
@@ -59,7 +59,7 @@ export const SkeletonCard = ({ className = '' }: { className?: string }) => (
 export const SkeletonTable = ({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) => (
   <div className="space-y-2">
     {/* Header */}
-    <div className="flex gap-4 pb-2 border-b border-slate-800/60">
+    <div className="flex gap-4 pb-2 border-b border-slate-700">
       {Array.from({ length: columns }).map((_, i) => (
         <Skeleton key={i} variant="text" className="flex-1 h-4" />
       ))}
@@ -78,7 +78,7 @@ export const SkeletonTable = ({ rows = 5, columns = 4 }: { rows?: number; column
 export const SkeletonStats = ({ count = 4 }: { count?: number }) => (
   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
     {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center">
+      <div key={i} className="rounded-lg border border-slate-700 bg-slate-800/20 p-4 text-center">
         <Skeleton variant="text" className="w-16 h-8 mx-auto mb-2" />
         <Skeleton variant="text" className="w-24 h-4 mx-auto" />
       </div>

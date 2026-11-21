@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T12:22:45.710048Z",
+  "title": "Design System: Skylark",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#17191a",
+        "tonalRamp": [
+          "#0f1110",
+          "#17191a",
+          "#262a27",
+          "#3c413c",
+          "#565c55",
+          "#6a7068",
+          "#a9aea5",
+          "#cdd0c8"
+        ]
+      },
+      "signal-vermilion": {
+        "role": "secondary",
+        "displayName": "Signal Vermilion",
+        "canonical": "#d63a20",
+        "tonalRamp": [
+          "#4b140c",
+          "#962415",
+          "#a4281a",
+          "#b42d1c",
+          "#b8301b",
+          "#d63a20",
+          "#e8806d",
+          "#f3c4ba"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#f3f4f1",
+        "tonalRamp": [
+          "#a9aea5",
+          "#cdd0c8",
+          "#e7e9e3",
+          "#f3f4f1",
+          "#ffffff"
+        ]
+      },
+      "resolved-green": {
+        "role": "tertiary",
+        "displayName": "Resolved Green",
+        "canonical": "#2c6b45",
+        "tonalRamp": [
+          "#235637",
+          "#2c6b45",
+          "#3c8a5a",
+          "#e1ebe3"
+        ]
+      },
+      "level-amber": {
+        "role": "tertiary",
+        "displayName": "Level Amber",
+        "canonical": "#c07f00",
+        "tonalRamp": [
+          "#7a5200",
+          "#8f5f00",
+          "#a56c00",
+          "#c07f00"
+        ]
+      },
+      "level-sky": {
+        "role": "tertiary",
+        "displayName": "Level Sky",
+        "canonical": "#3a7fb1",
+        "tonalRamp": [
+          "#1d5a86",
+          "#2a6797",
+          "#2f6a99",
+          "#3a7fb1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Page Title",
+        "purpose": "PageHeader title."
+      },
+      "title": {
+        "displayName": "Panel Title",
+        "purpose": "Panel and dialog headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Rows, forms, paragraphs."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Table headers, counts, timestamps."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "colour-transition",
+        "value": "transition-colors (150ms default ease)",
+        "purpose": "Button and tab hover colour changes only."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink fill action.",
+      "html": "<button class=\"ds-btn-primary\">Resolve</button>",
+      "css": ".ds-btn-primary{background:#17191a;color:#fff;height:32px;padding:0 14px;border:0;border-radius:6px;font:500 14px 'Hanken Grotesk',system-ui,sans-serif;transition:background-color .15s}.ds-btn-primary:hover{background:#000}.ds-btn-primary:focus-visible{outline:2px solid #17191a;outline-offset:2px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Per-row action.",
+      "html": "<button class=\"ds-btn-ghost\">Hand off</button>",
+      "css": ".ds-btn-ghost{background:transparent;color:#3c413c;height:32px;padding:0 14px;border:0;border-radius:6px;font:500 14px 'Hanken Grotesk',system-ui,sans-serif}.ds-btn-ghost:hover{background:#e7e9e3;color:#17191a}.ds-btn-ghost:focus-visible{outline:2px solid #17191a;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ruled outline action.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary{background:transparent;color:#262a27;height:32px;padding:0 14px;border:1px solid #cdd0c8;border-radius:6px;font:500 14px 'Hanken Grotesk',system-ui,sans-serif}.ds-btn-secondary:hover{background:#e7e9e3}.ds-btn-secondary:focus-visible{outline:2px solid #17191a;outline-offset:2px}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "control",
+      "description": "White field with rule border.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search issues\">",
+      "css": ".ds-input{height:36px;padding:0 12px;background:#fff;color:#17191a;border:1px solid #a9aea5;border-radius:6px;font:400 14px 'Hanken Grotesk',system-ui,sans-serif}.ds-input::placeholder{color:#565c55}.ds-input:focus-visible{outline:2px solid #17191a;outline-offset:2px}"
+    },
+    {
+      "name": "Top Tabs",
+      "kind": "nav",
+      "description": "Text tabs with ink underline; Inbox carries the signal count.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab ds-on\" href=\"#\">Inbox <span class=\"ds-count\">4</span></a><a class=\"ds-tab\" href=\"#\">Apps</a><a class=\"ds-tab\" href=\"#\">Settings</a></nav>",
+      "css": ".ds-tabs{display:flex;gap:4px;border-bottom:1px solid #cdd0c8;background:#fff;font:500 14px 'Hanken Grotesk',system-ui,sans-serif}.ds-tab{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;color:#565c55;text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}.ds-tab:hover{color:#17191a}.ds-tab:focus-visible{outline:2px solid #17191a;outline-offset:-2px}.ds-on{color:#17191a;border-bottom-color:#17191a}.ds-count{background:#d63a20;color:#fff;border-radius:9999px;padding:0 6px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Level Mark",
+      "kind": "chip",
+      "description": "Dot plus level word.",
+      "html": "<span class=\"ds-level\"><i></i>Error</span>",
+      "css": ".ds-level{display:inline-flex;align-items:center;gap:6px;font:400 12px 'Hanken Grotesk',system-ui,sans-serif;color:#3c413c}.ds-level i{width:8px;height:8px;border-radius:9999px;background:#d63a20}"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "White ruled panel with title and sentence.",
+      "html": "<section class=\"ds-panel\"><h2>Waiting for the first error</h2><p>Add the snippet to your app and send a test event.</p></section>",
+      "css": ".ds-panel{background:#fff;border:1px solid #cdd0c8;border-radius:8px;padding:20px;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#17191a}.ds-panel h2{margin:0;font-size:18px;font-weight:600}.ds-panel p{margin:4px 0 0;font-size:14px;color:#3c413c;max-width:60ch}"
+    },
+    {
+      "name": "Event Bars",
+      "kind": "custom",
+      "description": "Errors in vermilion over other events in grey on a baseline.",
+      "html": "<div class=\"ds-bars\"><b style=\"height:12px\"></b><b style=\"height:30px\"></b><b style=\"height:6px\"></b><b style=\"height:44px\"></b><b style=\"height:20px\"></b></div>",
+      "css": ".ds-bars{display:flex;align-items:flex-end;gap:2px;height:64px;border-bottom:1px solid #a9aea5;width:160px}.ds-bars b{flex:1;background:#6a7068;border-top:10px solid #d63a20;box-sizing:content-box}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Log",
+    "overview": "Skylark reads as a printed log book, not a dashboard. Cool grey-white paper carries white panels, text and primary actions are near-black ink, and ruled entries replace cards and tiles. Colour has jobs: vermilion only for what needs a person; amber and sky only as level dots; deep green only as resolved text. Flat, no gradients or shadows.",
+    "keyCharacteristics": [
+      "Paper, white panel, ink; no dark chrome, no side rail.",
+      "Top text tabs with a 2px ink underline on one ruled bar.",
+      "Hanken Grotesk only, tabular figures in tables.",
+      "Quiet, scannable density: 14px body, 12px labels, 48px ledger rows.",
+      "Real numbers only; empty states say so and show the next step."
+    ],
+    "rules": [
+      {
+        "name": "The Signal Rule",
+        "body": "Vermilion marks only what needs a person. If everything is red, nothing is.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dot Rule",
+        "body": "Level colour is a small solid dot beside a word, never a filled pill or a row tint.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Numbers in tables (td) are tabular so columns of counts align.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Rule",
+        "body": "Surfaces carry no shadow at rest or on hover; separation is a 1px rule or a tonal step.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do open every page with a 24px title and one purpose sentence.",
+      "Do use ink for primary actions and vermilion only for what needs a person.",
+      "Do show level as an 8px dot plus the level word.",
+      "Do keep surfaces flat with 1px rules; use radii of 6px or 8px.",
+      "Do give every control the shared 2px ink focus outline.",
+      "Do show real counts with the scale written out."
+    ],
+    "donts": [
+      "Don't build a dark sidebar admin with KPI tiles or rainbow status colours.",
+      "Don't use gradients or shadows for depth.",
+      "Don't fill pills with level colour or tint rows by level.",
+      "Don't use green for fills; resolved is text or a small mark.",
+      "Don't add a second typeface or an accent hue beside ink."
+    ]
+  }
+}

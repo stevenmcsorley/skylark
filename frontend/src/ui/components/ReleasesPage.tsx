@@ -129,7 +129,7 @@ export const ReleasesPage = ({
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-slate-100">Releases</h1>
+            <h2 className="text-lg font-semibold text-slate-100">Releases</h2>
             <p className="mt-1 text-sm text-slate-400">
               Versions of <span className="font-mono text-slate-200">{selected.slug}</span> that errors are reported against.
             </p>
@@ -155,7 +155,7 @@ export const ReleasesPage = ({
           <h3 className="text-base font-semibold text-accent-400 mb-3">Source map upload guide</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-white mb-2">Option 1: File Upload (Recommended)</h4>
+              <h4 className="font-medium text-slate-100 mb-2">Option 1: File Upload (Recommended)</h4>
               <ol className="list-decimal list-inside space-y-1 text-sm text-slate-300">
                 <li>Build your project with source maps enabled</li>
                 <li>Click "Upload Files" on any release below</li>
@@ -164,7 +164,7 @@ export const ReleasesPage = ({
               </ol>
             </div>
             <div>
-              <h4 className="font-medium text-white mb-2">Option 2: CLI Upload</h4>
+              <h4 className="font-medium text-slate-100 mb-2">Option 2: CLI Upload</h4>
               <ol className="list-decimal list-inside space-y-1 text-sm text-slate-300">
                 <li>Copy the upload_sourcemap.mjs script to your project</li>
                 <li>Run the generated command for each release</li>
@@ -177,7 +177,7 @@ export const ReleasesPage = ({
       )}
 
       {/* Create New Release */}
-      <div className="mb-8 rounded-lg border border-slate-800/60 bg-slate-800/20 p-6">
+      <div className="mb-8 rounded-lg border border-slate-700 bg-slate-800/20 p-6">
         <h2 className="text-base font-semibold text-slate-100 mb-4">Create New Release</h2>
         <form onSubmit={handleCreateRelease} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,7 +188,7 @@ export const ReleasesPage = ({
                 value={newVersion}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setNewVersion(e.target.value)}
                 placeholder="e.g., 1.2.3, v2.0.0-beta.1"
-                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 disabled={isCreating}
               />
             </div>
@@ -197,7 +197,7 @@ export const ReleasesPage = ({
               <select
                 value={newEnvironment}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) => setNewEnvironment(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 disabled={isCreating}
               >
                 <option value="production">Production</option>
@@ -213,7 +213,7 @@ export const ReleasesPage = ({
               value={releaseNotes}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setReleaseNotes(e.target.value)}
               placeholder="What's new in this release..."
-              className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 h-20 resize-none"
+              className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 h-20 resize-none"
               disabled={isCreating}
             />
           </div>
@@ -232,15 +232,15 @@ export const ReleasesPage = ({
         <h2 className="text-base font-semibold text-slate-100">Existing Releases</h2>
         
         {releases.length === 0 ? (
-          <div className="text-center py-12 rounded-lg border border-slate-800/60 bg-slate-800/10">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400"><Icon icon={Package} size="lg" /></div>
+          <div className="text-center py-12 rounded-lg border border-slate-700 bg-slate-800/10">
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 bg-slate-950"><Icon icon={Package} size="lg" /></div>
             <h3 className="text-base font-medium text-slate-300 mb-2">No releases yet</h3>
             <p className="text-slate-400">Create your first release above to start tracking versions and uploading source maps.</p>
           </div>
         ) : (
           <div className="grid gap-4">
             {releases.map(release => (
-              <div key={release.id} className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-6">
+              <div key={release.id} className="rounded-lg border border-slate-700 bg-slate-800/10 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <h3 className="text-base font-semibold text-slate-100">{release.version}</h3>
@@ -287,10 +287,10 @@ export const ReleasesPage = ({
                 {selectedRelease?.id === release.id && selectedRelease.artifacts && (
                   <div className="mt-4 rounded-lg border border-slate-700 bg-slate-900/30">
                     <div className="flex items-center justify-between p-3 border-b border-slate-700">
-                      <h4 className="font-medium text-white">Artifacts ({selectedRelease.artifacts.length})</h4>
+                      <h4 className="font-medium text-slate-100">Artifacts ({selectedRelease.artifacts.length})</h4>
                       <button
                         onClick={() => setSelectedRelease(null)}
-                        className="text-slate-400 hover:text-white"
+                        className="text-slate-400 hover:text-slate-100"
                       >
                         <Icon icon={X} size="sm" aria-label="Close" />
                       </button>

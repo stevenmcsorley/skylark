@@ -35,7 +35,7 @@ export const SearchFilters = ({
       <select 
         value={filterLevel} 
         onChange={onLevelChange}
-        className="rounded-full border border-slate-700 bg-slate-800 text-white px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="rounded-full border border-slate-500 bg-slate-950 text-slate-100 px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500"
         data-testid="severity-filter"
       >
         <option value="">severity:any</option>
@@ -46,7 +46,7 @@ export const SearchFilters = ({
       
       {timeSel && (
         <span 
-          className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-white"
+          className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-slate-950/60 px-3 py-1 text-xs text-slate-100"
           data-testid="time-filter-badge"
         >
           time: {new Date(timeSel.from).toLocaleString()} – {new Date(timeSel.to).toLocaleString()}
@@ -64,7 +64,7 @@ export const SearchFilters = ({
       {tokens.map((t, i) => (
         <span 
           key={i} 
-          className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-white"
+          className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-slate-950/60 px-3 py-1 text-xs text-slate-100"
           data-testid={`search-token-${i}`}
         >
           {t.key ? `${t.key}:` : ''}{t.value}
@@ -81,7 +81,7 @@ export const SearchFilters = ({
       
       <button 
         type="button"
-        className="rounded-full border border-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
+        className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
         onClick={onClearAll}
         data-testid="clear-filters-button"
       >

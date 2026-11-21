@@ -21,10 +21,10 @@ Skylark is a self-hosted error monitor. Apps send errors with the normal Sentry 
 Live at https://skylark.halfagiraf.com (Pi, Docker Compose, deploys on push to main). Django + DRF + Celery backend, React 18 + Vite + Tailwind frontend. Sentry-compatible ingest at `/api/<project_id>/envelope|store/`.
 
 ## Capabilities and Constraints
-Projects with DSN and Connect-your-app snippets, Issues (list, detail, resolve/ignore/assign/comment), Overview, Dashboards, Explore (events), Releases and deployments, Alerts, Integrations, MCP & API. No performance tracing: do not show or imply it. Dark UI only (no light theme required).
+Projects with DSN and Connect-your-app snippets, Issues (list, detail, resolve/ignore/assign/comment), Overview, Dashboards, Explore (events), Releases and deployments, Alerts, Integrations, MCP & API. No performance tracing: do not show or imply it. Light UI only (cool grey-white paper, near-black ink); no dark theme is planned.
 
 ## Brand Commitments
-Existing green logo mark; one accent colour (the logo green). Monochrome line icons (lucide), no emoji. Honest data only: never show invented numbers, customers or features that do not exist.
+The field-log look chosen by the owner (replacing the earlier dark navy and green): paper and ink, one vermilion signal for what needs a person, ink for primary actions. New logo mark: a rising stroke ending in a vermilion dot. Monochrome line icons (lucide), no emoji. Honest data only: never show invented numbers, customers or features that do not exist.
 
 ## Evidence on Hand
 Real seeded data exists only in the local review rig (`/home/dev/opencode/skylark-review-rig`). No testimonials, customers or benchmarks exist and none may be invented.

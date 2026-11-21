@@ -77,7 +77,7 @@ export const AlertRuleForm = ({
         value={name} 
         onChange={handleNameChange} 
         placeholder="Rule name" 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 180 }}
         disabled={isLoading || isSubmitting}
         data-testid="alert-rule-name-input"
@@ -88,7 +88,7 @@ export const AlertRuleForm = ({
         value={level} 
         onChange={handleLevelChange} 
         placeholder="Level (blank=any)" 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 140 }}
         disabled={isLoading || isSubmitting}
         data-testid="alert-rule-level-input"
@@ -99,7 +99,7 @@ export const AlertRuleForm = ({
         value={threshold} 
         onChange={handleThresholdChange} 
         min="1"
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 100 }}
         disabled={isLoading || isSubmitting}
         data-testid="alert-rule-threshold-input"
@@ -107,7 +107,7 @@ export const AlertRuleForm = ({
       <select 
         value={targetType} 
         onChange={handleTargetTypeChange} 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         disabled={isLoading || isSubmitting}
         data-testid="alert-target-type-select"
       >
@@ -119,7 +119,7 @@ export const AlertRuleForm = ({
         value={targetValue} 
         onChange={handleTargetValueChange} 
         placeholder={targetType === 'email' ? 'alerts@example.com' : 'https://webhook-url.com/alerts'} 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 240 }}
         disabled={isLoading || isSubmitting}
         data-testid="alert-target-input"

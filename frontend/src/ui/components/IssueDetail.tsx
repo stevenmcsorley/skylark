@@ -11,10 +11,11 @@ import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
 import { Icon } from './ui/Icon'
 import { EventBars } from './EventBars'
+import { TicketDialog, PROVIDER_LABEL } from './TicketDialog'
 import type { BarRow } from './EventBars'
 import { useToast } from './ui/Toast'
 
-const control = 'rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500'
+const control = 'rounded-md border border-slate-500 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500'
 
 /** Tags arrive as a dict, a list of strings or a list of {key, value}; show them all as "key: value". */
 export const tagPairs = (tags: IssueEvent['tags']): Array<[string, string]> => {
@@ -86,6 +87,9 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
   const [draft, setDraft] = useState('')
   const [copied, setCopied] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [providers, setProviders] = useState<string[]>([])
+  const [links, setLinks] = useState<Array<{ id: number; provider: string; url: string; external_key: string }>>([])
+  const [handoff, setHandoff] = useState(false)
 
   const load = useCallback(async () => {
     setError(null)
@@ -105,6 +109,11 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
   }, [issueId])
 
   useEffect(() => { setIssue(null); load() }, [load])
+  useEffect(() => {
+    api('/api/integrations/').then((d: any) => setProviders((d.integrations || []).map((i: any) => i.provider))).catch(() => setProviders([]))
+  }, [])
+  const loadLinks = useCallback(() => api(`/api/groups/${issueId}/links/`).then((l: unknown) => setLinks(Array.isArray(l) ? l as typeof links : [])).catch(() => setLinks([])), [issueId])
+  useEffect(() => { loadLinks() }, [loadLinks, handoff])
 
   const act = async (name: string, path: string, body?: unknown) => {
     setBusy(name)
@@ -148,7 +157,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
 
   const back = (
     <button type="button" onClick={onBack} className="inline-flex min-h-8 items-center gap-1 text-sm text-slate-300 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-back">
-      <Icon icon={ArrowLeft} size="sm" /> Issues
+      <Icon icon={ArrowLeft} size="sm" /> Inbox
     </button>
   )
 
@@ -190,6 +199,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         <Button size="md" variant="ghost" aria-pressed={issue.is_bookmarked} aria-label={issue.is_bookmarked ? 'Remove bookmark' : 'Bookmark'}
           icon={<Icon icon={Bookmark} size="sm" className={issue.is_bookmarked ? 'fill-current' : ''} />}
           onClick={() => act('bookmark', issue.is_bookmarked ? 'unbookmark' : 'bookmark')} testId="issue-bookmark">{issue.is_bookmarked ? 'Bookmarked' : 'Bookmark'}</Button>
+        <Button size="md" variant="secondary" onClick={() => setHandoff(true)} testId="issue-handoff">Hand off</Button>
         <label className="ml-auto flex items-center gap-2 text-sm text-slate-400">
           Assignee
           <input value={assignee} onChange={e => setAssignee(e.target.value)} onBlur={saveAssignee} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
@@ -206,7 +216,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
           {selected.stack?.split('\n')[0]?.trim() !== selected.message.trim() && <p className="break-words text-sm text-slate-200" data-testid="issue-event-message">{selected.message}</p>}
 
           {selected.stack ? (
-            <div className="relative rounded-lg border border-slate-800 bg-slate-900/60">
+            <div className="relative rounded-lg border border-slate-700 bg-slate-800/60">
               <button type="button" onClick={copyStack} aria-label="Copy stack trace" className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
                 <Icon icon={copied ? Check : Copy} size="sm" />
               </button>
@@ -242,10 +252,10 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         <section aria-label="Recent events" className="space-y-2">
           <h2 className="text-base font-semibold text-slate-100">Recent events</h2>
           {!messagesDiffer && <p className="text-sm text-slate-400">Every event has the same message, so it is shown once above.</p>}
-          <div className="overflow-x-auto rounded-lg border border-slate-800">
+          <div className="overflow-x-auto rounded-lg border border-slate-700 bg-slate-950">
             <table className="w-full text-sm">
-              <thead><tr className="border-b border-slate-800"><th className="py-2.5 pl-4">When</th><th className="py-2.5 pl-6">Environment</th>{hasRelease && <th className="py-2.5 pl-6">Release</th>}{messagesDiffer && <th className="w-full py-2.5 pl-6 pr-4">Message</th>}</tr></thead>
-              <tbody className="divide-y divide-slate-800">
+              <thead><tr className="border-b border-slate-700"><th className="py-2.5 pl-4">When</th><th className="py-2.5 pl-6">Environment</th>{hasRelease && <th className="py-2.5 pl-6">Release</th>}{messagesDiffer && <th className="w-full py-2.5 pl-6 pr-4">Message</th>}</tr></thead>
+              <tbody className="divide-y divide-slate-700">
                 {events.map(ev => (
                   <tr key={ev.id} data-testid={`issue-event-${ev.id}`} onClick={() => setSelectedId(ev.id)} aria-selected={ev.id === selected?.id}
                     className={`cursor-pointer hover:bg-slate-800/40 ${ev.id === selected?.id ? 'bg-slate-800/60' : ''}`}>
@@ -261,6 +271,15 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         </section>
       )}
 
+      <section aria-label="Tickets" className="space-y-2" data-testid="issue-tickets">
+        <h2 className="text-base font-semibold text-slate-100">Tickets</h2>
+        {links.length === 0
+          ? <p className="text-sm text-slate-400">No ticket yet. Use Hand off to open one for an agent or a person to pick up.</p>
+          : <ul className="divide-y divide-slate-700 rounded-lg border border-slate-700 bg-slate-950">
+              {links.map(l => <li key={l.id} className="px-4 py-3 text-sm"><a href={l.url} target="_blank" rel="noreferrer" className="font-medium text-slate-100 underline underline-offset-2">{PROVIDER_LABEL[l.provider] || l.provider} {l.external_key}</a></li>)}
+            </ul>}
+      </section>
+
       <section aria-label="Comments" className="space-y-3">
         <h2 className="text-base font-semibold text-slate-100">Comments</h2>
         <form onSubmit={addComment} className="space-y-2">
@@ -269,7 +288,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
           <Button type="submit" size="md" variant="secondary" loading={busy === 'comment'} disabled={!draft.trim()} testId="issue-comment-submit">Comment</Button>
         </form>
         {comments.length === 0 ? <p className="text-sm text-slate-400">No comments yet.</p> : (
-          <ul className="divide-y divide-slate-800 rounded-lg border border-slate-800" data-testid="issue-comments">
+          <ul className="divide-y divide-slate-700 rounded-lg border border-slate-700 bg-slate-950" data-testid="issue-comments">
             {comments.map(c => (
               <li key={c.id} className="space-y-1 px-4 py-3">
                 <div className="flex items-baseline justify-between gap-3 text-sm"><span className="font-medium text-slate-200">{c.author}</span><span className="text-slate-400" title={fmtDate(c.created_at)}>{timeAgo(c.created_at)}</span></div>
@@ -279,6 +298,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
           </ul>
         )}
       </section>
+      <TicketDialog issue={handoff ? { id: issue.id, title: issue.title } : null} providers={providers} onClose={() => setHandoff(false)} />
     </div>
   )
 }

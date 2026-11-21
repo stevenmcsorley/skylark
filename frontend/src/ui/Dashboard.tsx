@@ -130,9 +130,9 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
   const getEventsChartOption = (): any => ({
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#0f172a',
-      borderColor: '#334155',
-      textStyle: { color: '#e2e8f0', fontSize: 12 },
+      backgroundColor: '#ffffff',
+      borderColor: '#cdd0c8',
+      textStyle: { color: '#17191a', fontSize: 12 },
       formatter: (params: any[]) => {
         const rows = params.map(p => `${p.marker} ${p.seriesName}: ${Number(p.value).toFixed(2)}/min`).join('<br/>')
         return `${fmtDate(String(params[0]?.axisValue ?? ''))}<br/>${rows}`
@@ -143,38 +143,38 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
       type: 'category',
       boundaryGap: false,
       data: series.map(s => s.bucket),
-      axisLabel: { color: '#94a3b8', fontSize: 11, hideOverlap: true, formatter: axisLabel },
-      axisLine: { lineStyle: { color: '#334155' } },
+      axisLabel: { color: '#565c55', fontSize: 11, hideOverlap: true, formatter: axisLabel },
+      axisLine: { lineStyle: { color: '#cdd0c8' } },
       axisTick: { show: false }
     },
     yAxis: {
       type: 'value',
       min: 0,
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      axisLabel: { color: '#565c55', fontSize: 11 },
       axisLine: { show: false },
-      splitLine: { lineStyle: { color: '#1e293b' } }
+      splitLine: { lineStyle: { color: '#e7e9e3' } }
     },
     series: [
       {
         name: 'Errors',
         type: 'line',
         data: series.map(s => s.error / intervalMinutes),
-        ...lineStyle('#ef4444'),
+        ...lineStyle('#d63a20'),
         markLine: {
           symbol: 'none',
           silent: false,
-          lineStyle: { color: '#64748b', type: 'dashed', width: 1 },
+          lineStyle: { color: '#a9aea5', type: 'dashed', width: 1 },
           label: {
             formatter: (p: any) => `${p.name}`,
-            color: '#94a3b8',
+            color: '#565c55',
             fontSize: 10,
             position: 'insideEndTop',
           },
           data: deployMarkLines(),
         },
       },
-      { name: 'Warnings', type: 'line', data: series.map(s => s.warning / intervalMinutes), ...lineStyle('#f59e0b') },
-      { name: 'Info', type: 'line', data: series.map(s => s.info / intervalMinutes), ...lineStyle('#0ea5e9') }
+      { name: 'Warnings', type: 'line', data: series.map(s => s.warning / intervalMinutes), ...lineStyle('#c07f00') },
+      { name: 'Info', type: 'line', data: series.map(s => s.info / intervalMinutes), ...lineStyle('#3a7fb1') }
     ]
   })
 
@@ -262,7 +262,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
               {releaseHealth.slice(0, 5).map((rh, i) => (
                 <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-3">
                   <div>
-                    <div className="font-medium text-white">{rh.version}</div>
+                    <div className="font-medium text-slate-100">{rh.version}</div>
                     <div className="text-sm text-slate-400">{rh.environment}</div>
                   </div>
                   <div className="text-right">
@@ -290,7 +290,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
               {top?.slice(0, 8).map((t, i) => (
                 <li key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-white">
+                    <div className="truncate text-sm font-medium text-slate-100">
                       {t.title || t.fingerprint}
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
               {deployments.slice(0, 5).map((deployment, i) => (
                 <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
                   <div>
-                    <div className="text-sm font-medium text-white">{deployment.version}</div>
+                    <div className="text-sm font-medium text-slate-100">{deployment.version}</div>
                     <div className="text-xs text-slate-400">{deployment.environment}</div>
                   </div>
                   <div className="text-xs text-slate-400">
@@ -330,7 +330,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
               {releases.slice(0, 5).map((release, i) => (
                 <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
                   <div>
-                    <div className="text-sm font-medium text-white">{release.version}</div>
+                    <div className="text-sm font-medium text-slate-100">{release.version}</div>
                     <div className="text-xs text-slate-400">
                       {new Date(release.date_created).toLocaleDateString()}
                     </div>
@@ -356,11 +356,11 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div>
-            <h1 className="text-xl font-semibold text-slate-100">Dashboard</h1>
+            <h2 className="text-lg font-semibold text-slate-100">Dashboard</h2>
             <p className="text-sm text-slate-400">Skylark shows errors and releases. Page-load and transaction performance are not collected yet.</p>
           </div>
           <select 
-            className="rounded border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-white" 
+            className="rounded border border-slate-500 bg-slate-950 px-3 py-1 text-sm text-slate-100" 
             aria-label="Dashboard template"
             value={template} 
             onChange={e=>setTemplate(e.target.value === 'general' ? 'general' : 'current')}
@@ -371,13 +371,13 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
         </div>
         {!fromTo && (
           <div className="space-x-2">
-            <select className="rounded border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-white" value={range} onChange={e=>setRange(e.target.value as any)}>
+            <select className="rounded border border-slate-500 bg-slate-950 px-3 py-1 text-sm text-slate-100" value={range} onChange={e=>setRange(e.target.value as any)}>
               <option value="1h">Last hour</option>
               <option value="24h">Last 24 hours</option>
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
             </select>
-            <select className="rounded border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-white" value={interval} onChange={e=>setInterval(e.target.value as any)}>
+            <select className="rounded border border-slate-500 bg-slate-950 px-3 py-1 text-sm text-slate-100" value={interval} onChange={e=>setInterval(e.target.value as any)}>
               <option value="5m">5m</option>
               <option value="1h">1h</option>
             </select>

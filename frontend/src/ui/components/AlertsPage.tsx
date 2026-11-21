@@ -177,7 +177,7 @@ export const AlertsPage = ({
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-slate-100">Alerts</h1>
+            <h2 className="text-lg font-semibold text-slate-100">Alerts</h2>
             <p className="mt-1 text-sm text-slate-400">
               Rules that notify you when errors in <span className="font-mono text-slate-200">{selected.name}</span> cross a threshold.
             </p>
@@ -233,7 +233,7 @@ export const AlertsPage = ({
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="mb-8 rounded-lg border border-slate-800/60 bg-slate-800/20 p-6">
+        <div className="mb-8 rounded-lg border border-slate-700 bg-slate-800/20 p-6">
           <h2 className="text-base font-semibold text-slate-100 mb-4">Create New Alert Rule</h2>
           <form onSubmit={handleCreateRule} className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -244,7 +244,7 @@ export const AlertsPage = ({
                   value={createForm.name}
                   onChange={(e) => setCreateForm({...createForm, name: e.target.value})}
                   placeholder="e.g., High Error Rate Alert"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                   required
                 />
               </div>
@@ -253,7 +253,7 @@ export const AlertsPage = ({
                 <select
                   value={createForm.level}
                   onChange={(e) => setCreateForm({...createForm, level: e.target.value})}
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 >
                   <option value="">Any Level</option>
                   <option value="error">Error</option>
@@ -272,7 +272,7 @@ export const AlertsPage = ({
                   value={createForm.thresholdCount}
                   onChange={(e) => setCreateForm({...createForm, thresholdCount: parseInt(e.target.value) || 1})}
                   min="1"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
               <div>
@@ -282,7 +282,7 @@ export const AlertsPage = ({
                   value={createForm.thresholdWindowMinutes}
                   onChange={(e) => setCreateForm({...createForm, thresholdWindowMinutes: parseInt(e.target.value) || 5})}
                   min="1"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
               <div>
@@ -292,7 +292,7 @@ export const AlertsPage = ({
                   value={createForm.notifyIntervalMinutes}
                   onChange={(e) => setCreateForm({...createForm, notifyIntervalMinutes: parseInt(e.target.value) || 60})}
                   min="1"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
             </div>
@@ -303,7 +303,7 @@ export const AlertsPage = ({
                 <select
                   value={createForm.targetType}
                   onChange={(e) => setCreateForm({...createForm, targetType: e.target.value as 'email' | 'webhook', targetValue: ''})}
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 >
                   <option value="email">Email</option>
                   <option value="webhook">Webhook</option>
@@ -318,7 +318,7 @@ export const AlertsPage = ({
                   value={createForm.targetValue}
                   onChange={(e) => setCreateForm({...createForm, targetValue: e.target.value})}
                   placeholder={createForm.targetType === 'email' ? 'alerts@example.com' : 'https://your-webhook-url.com/alerts'}
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                   required
                 />
               </div>
@@ -351,8 +351,8 @@ export const AlertsPage = ({
       {/* Rules List */}
       <div className="space-y-4">
         {rules.length === 0 ? (
-          <div className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-8 text-center">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400"><Icon icon={Bell} size="lg" /></div>
+          <div className="rounded-lg border border-slate-700 bg-slate-800/10 p-8 text-center">
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-400 bg-slate-950"><Icon icon={Bell} size="lg" /></div>
             <h3 className="text-base font-semibold text-slate-100 mb-2">No alert rules yet</h3>
             <p className="text-slate-400 mb-4">
               Create your first alert rule above to start monitoring error thresholds and get notified when issues occur.
@@ -366,7 +366,7 @@ export const AlertsPage = ({
           </div>
         ) : (
           rules.map((rule) => (
-            <div key={rule.id} className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-6">
+            <div key={rule.id} className="rounded-lg border border-slate-700 bg-slate-800/10 p-6">
               {editingRule?.id === rule.id ? (
                 // Edit form
                 <div className="space-y-4">
@@ -400,7 +400,7 @@ export const AlertsPage = ({
                         type="text"
                         value={editingRule.name}
                         onChange={(e) => setEditingRule({...editingRule, name: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                     <div>
@@ -408,7 +408,7 @@ export const AlertsPage = ({
                       <select
                         value={editingRule.level}
                         onChange={(e) => setEditingRule({...editingRule, level: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       >
                         <option value="">Any Level</option>
                         <option value="error">Error</option>
@@ -427,7 +427,7 @@ export const AlertsPage = ({
                         value={editingRule.thresholdCount}
                         onChange={(e) => setEditingRule({...editingRule, thresholdCount: parseInt(e.target.value) || 1})}
                         min="1"
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                     <div>
@@ -437,7 +437,7 @@ export const AlertsPage = ({
                         value={editingRule.thresholdWindowMinutes}
                         onChange={(e) => setEditingRule({...editingRule, thresholdWindowMinutes: parseInt(e.target.value) || 5})}
                         min="1"
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                     <div>
@@ -447,7 +447,7 @@ export const AlertsPage = ({
                         value={editingRule.notifyIntervalMinutes}
                         onChange={(e) => setEditingRule({...editingRule, notifyIntervalMinutes: parseInt(e.target.value) || 60})}
                         min="1"
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                   </div>
@@ -458,7 +458,7 @@ export const AlertsPage = ({
                       <select
                         value={editingRule.targetType}
                         onChange={(e) => setEditingRule({...editingRule, targetType: e.target.value as 'email' | 'webhook'})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       >
                         <option value="email">Email</option>
                         <option value="webhook">Webhook</option>
@@ -470,7 +470,7 @@ export const AlertsPage = ({
                         type={editingRule.targetType === 'email' ? 'email' : 'url'}
                         value={editingRule.targetValue}
                         onChange={(e) => setEditingRule({...editingRule, targetValue: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                   </div>

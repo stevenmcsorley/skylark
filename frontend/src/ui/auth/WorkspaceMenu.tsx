@@ -50,8 +50,8 @@ export function WorkspaceMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-slate-700 bg-slate-900 py-1 ">
-          <p className="px-3 pb-1 pt-2 text-xs uppercase text-slate-400">Workspaces</p>
+        <div className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-slate-500 bg-slate-950 py-1 ">
+          <p className="px-3 pb-1 pt-2 text-xs text-slate-400">Workspaces</p>
           {workspaces.map(w => (
             <button
               key={w.id}
@@ -65,7 +65,7 @@ export function WorkspaceMenu() {
               {w.id === currentWorkspace?.id && <Icon icon={Check} size="sm" className="text-emerald-400" aria-label="Current workspace" />}
             </button>
           ))}
-          <div className="my-1 border-t border-slate-800" />
+          <div className="my-1 border-t border-slate-700" />
           {canManage && (
             <button
               onClick={() => { setSettingsOpen(true); setOpen(false) }}
@@ -82,7 +82,7 @@ export function WorkspaceMenu() {
               New workspace
             </button>
           )}
-          <div className="my-1 border-t border-slate-800" />
+          <div className="my-1 border-t border-slate-700" />
           <div className="truncate px-3 py-1 text-xs text-slate-400">{user?.email}</div>
           <button onClick={logout} className="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-slate-800">
             Sign out
@@ -137,25 +137,25 @@ function WorkspaceSettings({ onClose }: { onClose: () => void }) {
     }
   }
 
-  const input = 'rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none'
+  const input = 'rounded-md border border-slate-500 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none'
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={onClose}>
       <div className="w-full max-w-lg rounded-lg border border-slate-700 bg-slate-900 p-6" onMouseDown={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-100">Workspace settings</h2>
-          <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-white"><Icon icon={X} size="md" /></button>
+          <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-slate-100"><Icon icon={X} size="md" /></button>
         </div>
         {err && <div className="mb-3 rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">{err}</div>}
 
-        <label className="mb-1 block text-xs uppercase text-slate-400">Name</label>
+        <label className="mb-1 block text-xs text-slate-400">Name</label>
         <div className="mb-4 flex gap-2">
           <input value={name} onChange={e => setName(e.target.value)} className={`flex-1 ${input}`} />
-          <button onClick={save} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">Save</button>
+          <button onClick={save} className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700">Save</button>
         </div>
 
-        <label className="mb-1 block text-xs uppercase text-slate-400">Members</label>
-        <div className="mb-4 max-h-40 overflow-auto rounded-md border border-slate-800">
+        <label className="mb-1 block text-xs text-slate-400">Members</label>
+        <div className="mb-4 max-h-40 overflow-auto rounded-md border border-slate-700">
           {members.map(m => (
             <div key={m.id} className="flex items-center justify-between px-3 py-2 text-sm text-slate-200">
               <span className="truncate">
@@ -166,14 +166,14 @@ function WorkspaceSettings({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        <label className="mb-1 block text-xs uppercase text-slate-400">Invite someone</label>
+        <label className="mb-1 block text-xs text-slate-400">Invite someone</label>
         <div className="flex gap-2">
           <input placeholder="email@example.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} className={`flex-1 ${input}`} />
           <select value={inviteRole} onChange={e => setInviteRole(e.target.value as WorkspaceRole)} className={input}>
             <option value="member">Member</option>
             <option value="admin">Admin</option>
           </select>
-          <button onClick={invite} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">Invite</button>
+          <button onClick={invite} className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700">Invite</button>
         </div>
         {inviteLink && (
           <div className="mt-3 break-all rounded-md border border-amber-800 bg-amber-950/40 p-3 text-xs text-amber-200">

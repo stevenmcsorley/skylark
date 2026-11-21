@@ -1,32 +1,53 @@
-import { Bot, Bell, CircleAlert, CircleHelp, FolderKanban, Gauge, House, LayoutDashboard, Link2, Package, Search } from 'lucide-react'
-import { Icon } from './components/ui/Icon'
-import type { IconComponent } from './components/ui/Icon'
-
-const nav = (glyph: IconComponent) => () => <Icon icon={glyph} size="md" />
-const Estate = nav(LayoutDashboard)
-const Home = nav(House)
-const Issues = nav(CircleAlert)
-const Explore = nav(Search)
-const Dashboards = nav(Gauge)
-const Folder = nav(FolderKanban)
-const Releases = nav(Package)
-const Alerts = nav(Bell)
-const Integrations = nav(Link2)
-const Agent = nav(Bot)
-const Help = nav(CircleHelp)
-
+/**
+ * Four places, each with one job:
+ *   Inbox     what needs you right now, across every app
+ *   Apps      one app at a time: its health, setup, releases and alert rules
+ *   Explore   search and slice every raw event
+ *   Settings  agents and API, integrations, help
+ */
 export const NAV_ITEMS = [
-  { id: 'estate', label: 'All projects', description: 'View the project estate', icon: Estate, group: '' },
-  { id: 'overview', label: 'Overview', description: 'View project health', icon: Home, group: 'Monitor' },
-  { id: 'issues', label: 'Issues', description: 'Inspect grouped errors', icon: Issues, group: 'Monitor' },
-  { id: 'logs', label: 'Explore', description: 'Search events and logs', icon: Explore, group: 'Monitor' },
-  { id: 'dashboard', label: 'Dashboards', description: 'View project metrics', icon: Dashboards, group: 'Monitor' },
-  { id: 'projects', label: 'Projects', description: 'Manage projects', icon: Folder, group: 'Manage' },
-  { id: 'releases', label: 'Releases', description: 'Track deployments', icon: Releases, group: 'Manage' },
-  { id: 'alerts', label: 'Alerts', description: 'Manage alert rules', icon: Alerts, group: 'Manage' },
-  { id: 'integrations', label: 'Integrations', description: 'Connect services', icon: Integrations, group: 'Manage' },
-  { id: 'mcp', label: 'MCP & API', description: 'Connect API clients and agents', icon: Agent, group: 'Connect' },
-  { id: 'help', label: 'Help', description: 'Read Skylark help', icon: Help, group: 'Connect' },
+  { id: 'inbox', label: 'Inbox', purpose: 'What needs you right now, across every app.' },
+  { id: 'apps', label: 'Apps', purpose: 'Each app’s health, setup, releases and alert rules.' },
+  { id: 'explore', label: 'Explore', purpose: 'Search and slice every event.' },
+  { id: 'settings', label: 'Settings', purpose: 'Agents and API, integrations and help.' },
 ] as const
 
 export type NavigationTab = typeof NAV_ITEMS[number]['id']
+
+export const APP_SECTIONS = [
+  { id: 'health', label: 'Health' },
+  { id: 'setup', label: 'Setup' },
+  { id: 'releases', label: 'Releases' },
+  { id: 'alerts', label: 'Alerts' },
+  { id: 'charts', label: 'Charts' },
+] as const
+export type AppSection = typeof APP_SECTIONS[number]['id']
+
+export const SETTINGS_SECTIONS = [
+  { id: 'agents', label: 'Agents and API' },
+  { id: 'integrations', label: 'Integrations' },
+  { id: 'help', label: 'Help' },
+] as const
+export type SettingsSection = typeof SETTINGS_SECTIONS[number]['id']
+
+/** Addresses from before the restructure keep working: each old view maps to a page and a section. */
+export const LEGACY_VIEWS: Record<string, { view: NavigationTab; section?: string }> = {
+  estate: { view: 'apps' },
+  projects: { view: 'apps' },
+  overview: { view: 'apps', section: 'health' },
+  issues: { view: 'inbox' },
+  logs: { view: 'explore' },
+  dashboard: { view: 'apps', section: 'charts' },
+  releases: { view: 'apps', section: 'releases' },
+  alerts: { view: 'apps', section: 'alerts' },
+  mcp: { view: 'settings', section: 'agents' },
+  integrations: { view: 'settings', section: 'integrations' },
+  help: { view: 'settings', section: 'help' },
+}
+
+export const resolveView = (view: string | null): { view: NavigationTab; section?: string } | null => {
+  if (!view) return null
+  const direct = NAV_ITEMS.find(item => item.id === view)
+  if (direct) return { view: direct.id }
+  return LEGACY_VIEWS[view] ?? null
+}

@@ -1,4 +1,4 @@
-import { NAV_ITEMS } from '../navigation'
+import { NAV_ITEMS, resolveView } from '../navigation'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { 
   Project, 
@@ -14,6 +14,10 @@ const ISSUE_STATUSES: IssueStatusFilter[] = ['unresolved', 'resolved', 'ignored'
 
 interface RoutingState {
   activeTab: NavigationTab
+  /** Sub-page of Apps (health, setup, ...) or Settings; empty on the Apps list. */
+  section: string
+  /** Inbox filter: one app's slug, or '' for every app. */
+  inboxApp: string
   issue: number | null
   issueStatus: IssueStatusFilter
   issueQuery: string
@@ -33,6 +37,10 @@ interface RoutingState {
 
 interface RoutingActions {
   setActiveTab: (tab: NavigationTab) => void
+  setSection: (section: string) => void
+  setInboxApp: (slug: string) => void
+  /** Go to one app, optionally to one of its sections. */
+  openApp: (project: Project, section?: string) => void
   openIssue: (id: number | null) => void
   setIssueStatus: (status: IssueStatusFilter) => void
   setIssueQuery: (query: string) => void
@@ -65,7 +73,7 @@ const intervals: TimeInterval[] = ['1m', '5m', '15m', '30m', '1h', '24h', '7d', 
 
 const readRoute = (params: URLSearchParams, projects: Project[]): RoutingState => {
   const selected = resolveProject(projects, params.get('project'))
-  const view = NAV_ITEMS.find(item => item.id === params.get('view'))
+  const route = resolveView(params.get('view'))
   const value = Number(params.get('customValue'))
   const unit = params.get('customUnit')
   const label = params.get('customLabel')
@@ -73,7 +81,9 @@ const readRoute = (params: URLSearchParams, projects: Project[]): RoutingState =
   const to = params.get('to')
   return {
     selected,
-    activeTab: view?.id ?? (selected ? 'overview' : 'estate'),
+    activeTab: route?.view ?? 'inbox',
+    section: params.get('tab') ?? route?.section ?? '',
+    inboxApp: params.get('iapp') ?? '',
     issue: Number.parseInt(params.get('issue') ?? '', 10) || null,
     issueStatus: ISSUE_STATUSES.find(status => status === params.get('istatus')) ?? 'unresolved',
     issueQuery: params.get('iq') ?? '',
@@ -95,12 +105,12 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
   // Keep the requested route until asynchronously loaded projects can resolve it.
   const [params, setParams] = useState(() => new URLSearchParams(window.location.hash.slice(1)))
   const [state, setState] = useState(() => readRoute(params, projects))
-  const explicitView = useRef(NAV_ITEMS.some(item => item.id === params.get('view')))
+  const explicitView = useRef(resolveView(params.get('view')) !== null)
 
   useEffect(() => {
     const readHash = () => {
       const next = new URLSearchParams(window.location.hash.slice(1))
-      explicitView.current = NAV_ITEMS.some(item => item.id === next.get('view'))
+      explicitView.current = resolveView(next.get('view')) !== null
       setParams(next)
       setState(readRoute(next, projects))
     }
@@ -111,10 +121,7 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
   useEffect(() => {
     if (state.selected || !projects.length) return
     const selected = resolveProject(projects, params.get('project'))
-    setState(prev => ({
-      ...prev, selected, interval: params.has('interval') ? prev.interval : '1h',
-      activeTab: explicitView.current ? prev.activeTab : 'overview'
-    }))
+    setState(prev => ({ ...prev, selected, interval: params.has('interval') ? prev.interval : '1h' }))
   }, [projects, params, state.selected])
 
   useEffect(() => {
@@ -126,6 +133,8 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
     const pendingProject = params.get('project')
     const hash = new URLSearchParams()
     hash.set('view', state.activeTab)
+    if (state.section) hash.set('tab', state.section)
+    if (state.inboxApp) hash.set('iapp', state.inboxApp)
     
     if (state.selected) {
       hash.set('project', state.selected.slug)
@@ -161,6 +170,8 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
   }, [
     params,
     state.activeTab,
+    state.section,
+    state.inboxApp,
     state.issue,
     state.issueStatus,
     state.issueQuery,
@@ -183,17 +194,38 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
     const next = new URLSearchParams(window.location.hash.slice(1))
     next.set('view', activeTab)
     next.delete('issue')   // leaving a view closes any open issue
+    next.delete('tab')
     history.pushState(null, '', '#' + next.toString())
-    setState(prev => ({ ...prev, activeTab, issue: null }))
+    setState(prev => ({ ...prev, activeTab, issue: null, section: '' }))
   }, [state.activeTab])
+
+  const setSection = useCallback((section: string) => {
+    const next = new URLSearchParams(window.location.hash.slice(1))
+    if (section) next.set('tab', section); else next.delete('tab')
+    history.pushState(null, '', '#' + next.toString())
+    setState(prev => (prev.section === section ? prev : { ...prev, section }))
+  }, [])
+
+  const setInboxApp = useCallback((inboxApp: string) => {
+    setState(prev => (prev.inboxApp === inboxApp ? prev : { ...prev, inboxApp }))
+  }, [])
+
+  const openApp = useCallback((project: Project, section = 'health') => {
+    explicitView.current = true
+    const next = new URLSearchParams(window.location.hash.slice(1))
+    next.set('view', 'apps'); next.set('project', project.slug); next.set('tab', section); next.delete('issue')
+    history.pushState(null, '', '#' + next.toString())
+    setState(prev => ({ ...prev, activeTab: 'apps', selected: project, section, issue: null, eventOffset: 0 }))
+  }, [])
 
   // Opening an issue is a navigation (Back returns to the list); changing the list's filters is not.
   const openIssue = useCallback((issue: number | null) => {
     const next = new URLSearchParams(window.location.hash.slice(1))
     if (issue) next.set('issue', String(issue)); else next.delete('issue')
-    next.set('view', 'issues')
+    next.set('view', 'inbox')
+    next.delete('tab')
     history.pushState(null, '', '#' + next.toString())
-    setState(prev => ({ ...prev, activeTab: 'issues', issue }))
+    setState(prev => ({ ...prev, activeTab: 'inbox', section: '', issue }))
   }, [])
 
   const setIssueStatus = useCallback((issueStatus: IssueStatusFilter) => {
@@ -251,6 +283,9 @@ export const useAppRouting = (projects: Project[]): RoutingState & RoutingAction
   return {
     ...state,
     setActiveTab,
+    setSection,
+    setInboxApp,
+    openApp,
     openIssue,
     setIssueStatus,
     setIssueQuery,

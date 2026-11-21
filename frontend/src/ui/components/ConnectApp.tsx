@@ -106,7 +106,7 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
     <div className="space-y-5" data-testid="connect-app">
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium uppercase tracking-wider text-slate-400">DSN</span>
+          <span className="text-xs font-medium text-slate-400">DSN</span>
           <span className="flex items-center gap-1">
             <button type="button" className={iconButton} aria-pressed={revealed} aria-label={`${revealed ? 'Hide' : 'Reveal'} DSN`} onClick={() => setRevealed(r => !r)} data-testid="connect-reveal">
               <Icon icon={revealed ? EyeOff : Eye} size="sm" />
@@ -116,7 +116,7 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
             </button>
           </span>
         </div>
-        <code className="block overflow-x-auto whitespace-nowrap rounded-md border border-slate-800 bg-slate-900/60 px-3 py-2 font-mono text-xs text-slate-200" data-testid="connect-dsn">{shown(dsn)}</code>
+        <code className="block overflow-x-auto whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/60 px-3 py-2 font-mono text-xs text-slate-200" data-testid="connect-dsn">{shown(dsn)}</code>
         <p className="text-sm text-slate-400">Paste this into any Sentry SDK. The key is hidden until you reveal it, and the copy buttons always copy the real value.</p>
       </div>
 
@@ -128,12 +128,12 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
           ))}
         </div>
         {active.install && (
-          <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/60 px-3 py-2">
+          <div className="flex items-center justify-between rounded-md border border-slate-700 bg-slate-900/60 px-3 py-2">
             <code className="font-mono text-xs text-slate-300" data-testid="connect-install">{active.install}</code>
             <button type="button" className={iconButton} aria-label="Copy install command" onClick={() => copy('install', active.install!)}><Icon icon={copied === 'install' ? Check : Copy} size="sm" /></button>
           </div>
         )}
-        <div className="relative rounded-md border border-slate-800 bg-slate-900/60">
+        <div className="relative rounded-md border border-slate-700 bg-slate-900/60">
           <button type="button" className={`${iconButton} absolute right-2 top-2`} aria-label="Copy code" onClick={() => copy('code', active.code)} data-testid="connect-copy-code">
             <Icon icon={copied === 'code' ? Check : Copy} size="sm" />
           </button>
@@ -141,7 +141,7 @@ export const ConnectApp = ({ project, pollMs = 3000 }: ConnectAppProps) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-800 px-4 py-3" data-testid="connect-status" role="status" aria-live="polite">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 px-4 py-3 bg-slate-950" data-testid="connect-status" role="status" aria-live="polite">
         <div className="flex items-center gap-2 text-sm">
           {latest ? (
             <><Icon icon={Check} size="sm" className="text-accent-400" /><span className="text-slate-200">Connected. Last event {timeAgo(latest)}.</span></>

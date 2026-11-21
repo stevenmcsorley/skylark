@@ -433,11 +433,12 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
                 # Resolved issues reopen on new events (regression)
                 updates["status"] = Group.STATUS_UNRESOLVED
                 updates["resolved_at"] = None
+                updates["regressed_at"] = now
                 regressed = True
             # Note: Ignored issues stay ignored (they're meant to be muted)
 
             Group.objects.filter(id=group.id).update(**updates)
-            group.refresh_from_db(fields=["count", "last_seen", "level", "status", "resolved_at"])
+            group.refresh_from_db(fields=["count", "last_seen", "level", "status", "resolved_at", "regressed_at"])
 
         # First-seen / regression signals — the alerts that matter, no rule needed.
         if created or regressed:
@@ -591,7 +592,8 @@ class GroupViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
         g = self.get_object()
         g.status = Group.STATUS_RESOLVED
         g.resolved_at = timezone.now()
-        g.save(update_fields=["status", "resolved_at"])
+        g.regressed_at = None
+        g.save(update_fields=["status", "resolved_at", "regressed_at"])
         _close_ossicone_tickets(g)   # keep the linked ticket in step
         return Response(GroupSerializer(g).data)
 
@@ -600,7 +602,8 @@ class GroupViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
         g = self.get_object()
         g.status = Group.STATUS_UNRESOLVED
         g.resolved_at = None
-        g.save(update_fields=["status", "resolved_at"])
+        g.regressed_at = None
+        g.save(update_fields=["status", "resolved_at", "regressed_at"])
         return Response(GroupSerializer(g).data)
 
     @action(detail=True, methods=["post"])  # /groups/{id}/ignore/

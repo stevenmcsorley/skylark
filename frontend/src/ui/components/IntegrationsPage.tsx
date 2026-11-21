@@ -69,12 +69,12 @@ export function IntegrationsPage() {
     load()
   }
 
-  const card = 'rounded-lg border border-slate-800/60 bg-slate-900/40 p-6'
+  const card = 'rounded-lg border border-slate-700 bg-slate-900/40 p-6'
 
   return (
     <div className="space-y-6" data-testid="integrations-page">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Integrations</h1>
+        <h2 className="text-lg font-semibold text-slate-100">Integrations</h2>
         <p className="mt-1 max-w-2xl text-sm text-slate-400">
           Connect an issue tracker so you can turn an error group into a ticket — from the UI, the API, or
           the <span className="text-slate-200">MCP</span> agent. New providers plug in via the adapter pattern
@@ -102,8 +102,8 @@ export function IntegrationsPage() {
             </div>
 
             {existing && (
-              <div className="mb-4 rounded-lg border border-slate-800/60 bg-slate-950/40 p-3 text-xs">
-                <div className="mb-1 uppercase tracking-wide text-slate-400">Current config</div>
+              <div className="mb-4 rounded-lg border border-slate-700 bg-slate-950/40 p-3 text-xs">
+                <div className="mb-1 text-slate-400">Current config</div>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 font-mono text-slate-300">
                   {Object.entries(existing.config).map(([k, v]) => (
                     <span key={k}>{k}=<span className="text-slate-100">{String(v)}</span></span>
@@ -123,7 +123,7 @@ export function IntegrationsPage() {
                       onChange={e => setField(provider, field, e.target.value)}
                       placeholder={existing ? '(unchanged)' : fm.placeholder}
                       type={field === 'token' ? 'password' : 'text'}
-                      className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-md border border-slate-500 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none"
                       data-testid={`field-${provider}-${field}`}
                     />
                     {fm.hint && <p className="mt-1 text-xs text-slate-400">{fm.hint}</p>}
@@ -136,7 +136,7 @@ export function IntegrationsPage() {
               <button
                 onClick={() => save(provider)}
                 disabled={busy === provider}
-                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+                className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-50"
                 data-testid={`save-${provider}`}
               >
                 {busy === provider ? 'Saving…' : existing ? 'Update' : 'Connect'}

@@ -5,14 +5,13 @@ import { vi } from 'vitest'
 import { mockProject, mockProjects } from '../../../test/utils'
 import { OverviewPage } from '../OverviewPage'
 import { McpPage } from '../McpPage'
-import { ProjectsTab } from '../ProjectsTab'
+import { AppSetup } from '../AppDetail'
 
-it('masks every Projects table token before reveal', () => {
-  const { container } = render(<ProjectsTab projects={mockProjects} setSelected={vi.fn()} onCreate={vi.fn()} />)
-  for (const project of mockProjects) expect(container.textContent).not.toContain(project.ingest_token)
+it('masks the ingest token on the app Setup page until it is revealed', () => {
+  const { container } = render(<AppSetup project={mockProject} />)
+  expect(container.textContent).not.toContain(mockProject.ingest_token)
   fireEvent.click(screen.getByRole('button', { name: 'Reveal Test Project ingest token' }))
   expect(container.textContent).toContain(mockProject.ingest_token)
-  expect(container.textContent).not.toContain(mockProjects[1].ingest_token)
 })
 
 it('shows the Overview endpoint with only the token masked', async () => {

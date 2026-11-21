@@ -9,10 +9,10 @@ interface CardProps {
 }
 
 const variants = {
-  default: 'border border-slate-800/60 bg-slate-800/20',
+  default: 'border border-slate-700 bg-slate-800/20',
   gradient: 'border border-slate-800',
-  interactive: 'border border-slate-800/60 bg-slate-800/20 hover:bg-slate-800/40 transition-colors cursor-pointer',
-  stat: 'border border-slate-800/60 bg-slate-800/20 text-center hover:bg-slate-800/40 transition-colors'
+  interactive: 'border border-slate-700 bg-slate-800/20 hover:bg-slate-800/40 transition-colors cursor-pointer',
+  stat: 'border border-slate-700 bg-slate-800/20 text-center hover:bg-slate-800/40 transition-colors'
 }
 
 const paddings = {

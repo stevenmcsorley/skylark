@@ -130,7 +130,7 @@ const ToastItem = ({ toast }: { toast: Toast }) => {
       <p className="flex-1 text-sm text-slate-200">{toast.message}</p>
       <button
         onClick={handleClose}
-        className="text-slate-400 hover:text-white transition-colors"
+        className="text-slate-400 hover:text-slate-100 transition-colors"
         aria-label="Close notification"
       >
         <Icon icon={X} size="sm" />

@@ -64,20 +64,20 @@ export const EventsList = ({
   return (
     <div 
       className={[
-        "rounded-lg border border-slate-800/60",
+        "rounded-lg border border-slate-700",
         className
       ].filter(Boolean).join(" ")}
       data-testid={testId}
     >
       {/* Header */}
-      <div className="grid grid-cols-[220px_1fr_120px] gap-2 border-b border-slate-800/60 px-3 py-2 text-xs text-slate-400">
+      <div className="grid grid-cols-[220px_1fr_120px] gap-2 border-b border-slate-700 px-3 py-2 text-xs text-slate-400">
         <div>TIMESTAMP</div>
         <div>MESSAGE</div>
         <div>LEVEL</div>
       </div>
 
       {/* Events */}
-      <div className="divide-y divide-slate-800/60">
+      <div className="divide-y divide-slate-700/60">
         {events.map(e => (
           <div key={e.id} className="grid grid-cols-[220px_1fr_120px] items-start gap-2 px-3 py-2 text-sm">
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export const EventsList = ({
             {open[e.id] && (
               <div className="col-span-3">
                 {eventDetails[e.id] ? (
-                  <div className="mt-2 rounded-lg border border-slate-700 bg-slate-800/40 p-4 shadow-sm ring-1 ring-slate-700/40 border-l-4 border-slate-700">
+                  <div className="mt-2 rounded-lg border border-slate-700 bg-slate-800/40 p-4">
                     <div className="mb-3 flex items-center justify-between text-xs text-slate-300">
                       <div className="truncate pr-2 text-sm font-medium text-slate-100">{e.message}</div>
                       <div className="flex items-center gap-2 whitespace-nowrap">
@@ -189,11 +189,11 @@ export const EventsList = ({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between gap-2 border-t border-slate-800/60 px-3 py-2 text-xs text-slate-300">
+      <div className="flex items-center justify-between gap-2 border-t border-slate-700 px-3 py-2 text-xs text-slate-300">
         <div className="flex items-center gap-2">
           <span>Rows per page</span>
           <select 
-            className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500" 
+            className="rounded border border-slate-500 bg-slate-950 text-slate-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500" 
             value={eventLimit} 
             onChange={handleLimitChange}
             data-testid="events-per-page-select"
@@ -210,7 +210,7 @@ export const EventsList = ({
           </span>
           <button 
             type="button"
-            className="rounded border border-slate-700 px-2 py-1 text-white disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
+            className="rounded border border-slate-700 px-2 py-1 text-slate-100 disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
             disabled={eventOffset <= 0} 
             onClick={handlePrevPage}
             data-testid="prev-page-button"
@@ -219,7 +219,7 @@ export const EventsList = ({
           </button>
           <button 
             type="button"
-            className="rounded border border-slate-700 px-2 py-1 text-white disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
+            className="rounded border border-slate-700 px-2 py-1 text-slate-100 disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
             disabled={eventOffset + events.length >= eventTotal} 
             onClick={handleNextPage}
             data-testid="next-page-button"

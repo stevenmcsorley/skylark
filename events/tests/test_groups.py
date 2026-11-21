@@ -27,6 +27,14 @@ class GroupTests(TestCase):
         self.assertEqual(self.group.status, "unresolved")
         self.assertIsNone(self.group.resolved_at)
 
+    def test_regressed_at_is_exposed_and_cleared_by_hand(self):
+        from django.utils import timezone
+        Group.objects.filter(pk=self.group.pk).update(regressed_at=timezone.now())
+        response = self.client.get(self.url)
+        self.assertIsNotNone(response.json()["regressed_at"])
+        self.action("resolve")
+        self.assertIsNone(self.group.regressed_at)
+
     def test_ignore(self):
         self.action("ignore")
         self.assertEqual(self.group.status, "ignored")
