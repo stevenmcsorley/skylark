@@ -1,0 +1,20 @@
+{
+  "event_id": "843761d3410048d98e9689c90b876008",
+  "timestamp": "2026-07-15T10:20:30Z",
+  "platform": "python",
+  "release": "orders@1.0",
+  "environment": "staging",
+  "tags": {"region": "west"},
+  "exception": {"values": [
+    {"type": "LookupError", "value": "previous exception"},
+    {"type": "KeyError", "value": "'sku'", "stacktrace": {"frames": [
+      {"function": "checkout", "filename": "/srv/orders.py", "lineno": 21, "in_app": true},
+      {"function": "lookup", "filename": "/lib/catalog.py", "lineno": 9, "in_app": false}
+    ]}, "mechanism": {"type": "excepthook", "handled": false}}
+  ]},
+  "user": {"id": "u1"},
+  "request": {"method": "POST", "url": "https://example.test/orders"},
+  "contexts": {"runtime": {"name": "CPython"}},
+  "breadcrumbs": {"values": [{"message": "Checking inventory"}]},
+  "sdk": {"name": "sentry.python", "version": "2.0.0"}
+}

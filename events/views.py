@@ -1,14 +1,20 @@
+import hmac
+import re
+import uuid
 import logging
 logger = logging.getLogger("events.views")
 from rest_framework import viewsets, mixins, status
 from rest_framework.pagination import LimitOffsetPagination
 import os
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 
+from django.core.exceptions import RequestDataTooBig
+from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -28,7 +34,8 @@ from .serializers import (
 )
 from django.conf import settings
 from .tasks import process_event
-from .grouping import compute_fingerprint
+from . import sentry_compat
+from .grouping import compute_fingerprint, compute_sentry_fingerprint
 from .ratelimit import check_rate_limit
 from .kafka import publish_event
 from .ch import query_events, query_session_series, query_events_series_by_level, query_top_groups
@@ -297,24 +304,26 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
     @action(detail=False, methods=["post"], url_path="ingest/token/(?P<token>[^/.]+)")
     def ingest_with_token(self, request, token=None):
         project = get_object_or_404(Project, ingest_token=token)
-        # Rate limit by token
+        return self._ingest_event(project, request=request)
+
+    def _ingest_event(self, project, request=None, fields=None, fingerprint_title=None):
         allowed, remaining = check_rate_limit(f"token:{project.ingest_token}", settings.RATE_LIMIT_EVENTS_PER_MINUTE)
         if not allowed:
             return Response({"detail": "Rate limit exceeded"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
-        payload = request.data or {}
+        payload = (request.data or {}) if fields is None else fields
         message = payload.get("message", "")
         level = self._normalize_level(payload)
         release = self._get_or_create_release(project, payload)
         env = payload.get("environment", "production")
         stack = payload.get("stack")
         frames = payload.get("frames")
-        group = self._get_or_create_group(project, message, level)
+        group = self._get_or_create_group(project, message, level, fingerprint_title)
         event = Event.objects.create(
             project=project,
             group=group,
             message=message,
             level=level,
-            payload=payload,
+            payload=payload if fields is None else fields["payload"],
             release=release,
             environment=env,
             stack=stack,
@@ -327,6 +336,13 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
                 event.save(update_fields=["symbolicated"])
         except Exception as e:
             logger.warning("event pipeline step failed: %s", e)
+        if fields is not None:
+            transaction.on_commit(lambda: self._publish_ingested_event(event))
+            return Response({"id": event.payload["event_id"]})
+        self._publish_ingested_event(event)
+        return Response(EventSerializer(event).data, status=status.HTTP_201_CREATED)
+
+    def _publish_ingested_event(self, event):
         try:
             process_event.delay(event.id)
         except Exception:
@@ -340,12 +356,12 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
                 {
                     "id": event.id,
                     "event_id": event.id,
-                    "project": project.slug,
-                    "message": message,
-                    "level": level,
-                    "environment": env,
-                    "fingerprint": group.fingerprint if group else None,
-                    "title": group.title if group else None,
+                    "project": event.project.slug,
+                    "message": event.message,
+                    "level": event.level,
+                    "environment": event.environment,
+                    "fingerprint": event.group.fingerprint,
+                    "title": event.group.title,
                     "received_at": event.received_at.isoformat(),
                 }
             )
@@ -364,23 +380,22 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
                 event_data = {
                     "type": "new_event",
                     "event_id": event.id,
-                    "project": project.slug,
-                    "message": message,
-                    "level": level,
-                    "environment": env,
-                    "fingerprint": group.fingerprint if group else None,
+                    "project": event.project.slug,
+                    "message": event.message,
+                    "level": event.level,
+                    "environment": event.environment,
+                    "fingerprint": event.group.fingerprint,
                     "timestamp": int(time.time() * 1000),
                 }
                 
                 async_to_sync(channel_layer.group_send)(
-                    f"events_{project.slug}",
+                    f"events_{event.project.slug}",
                     event_data
                 )
             else:
                 logger.debug("no channel layer available; skipping realtime publish")
         except Exception as e:
             logger.warning("realtime publish failed: %s", e)
-        return Response(EventSerializer(event).data, status=status.HTTP_201_CREATED)
 
     def _get_or_create_release(self, project: Project, payload: dict):
         version = (payload or {}).get("release")
@@ -394,8 +409,8 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
         )
         return rel
 
-    def _get_or_create_group(self, project: Project, message: str, level: str) -> Group:
-        fingerprint, title = compute_fingerprint(message, level)
+    def _get_or_create_group(self, project: Project, message: str, level: str, fingerprint_title=None) -> Group:
+        fingerprint, title = fingerprint_title or compute_fingerprint(message, level)
         now = timezone.now()
         group, created = Group.objects.get_or_create(
             project=project, fingerprint=fingerprint,
@@ -429,6 +444,67 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
             except Exception:
                 pass
         return group
+
+
+class SentryIngestView(EventViewSet):
+    renderer_classes = [JSONRenderer]
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    http_method_names = ["post", "options"]
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Headers"] = "X-Sentry-Auth, Content-Type, Content-Encoding, Authorization"
+        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response["Access-Control-Max-Age"] = "3600"
+        if response.status_code == 429:
+            response["Retry-After"] = "60"
+            response["X-Sentry-Rate-Limits"] = "60:error:key"
+        return response
+
+    def options(self, request, **kwargs):
+        return Response({})
+
+    def receive(self, request, project_id, envelope=False):
+        project = get_object_or_404(Project, pk=project_id)
+        key = sentry_compat.parse_auth(request.headers.get("X-Sentry-Auth"), request.query_params)
+        if not key or not hmac.compare_digest(key.encode(), project.ingest_token.encode()):
+            return Response({"detail": "Invalid Sentry key"}, status=401)
+        try:
+            encoding = request.headers.get("Content-Encoding")
+            envelope_id = None
+            if envelope:
+                header, items = sentry_compat.parse_envelope(sentry_compat.read_body(request.body, encoding))
+                envelope_id = header.get("event_id")
+                events = [sentry_compat.json_object(data) for item, data in items if item["type"] == "event"]
+            else:
+                events = [sentry_compat.parse_store(request.body, encoding)]
+            prepared = []
+            for event in events:
+                event_id = event.get("event_id") or envelope_id or uuid.uuid4().hex
+                if not isinstance(event_id, str) or not re.fullmatch(r"[0-9a-fA-F]{32}", event_id):
+                    raise ValueError("Invalid event_id")
+                event["event_id"] = event_id
+                prepared.append((sentry_compat.to_skylark_event(event), compute_sentry_fingerprint(event)))
+        except (sentry_compat.PayloadTooLarge, RequestDataTooBig):
+            return Response({"detail": "Payload too large"}, status=413)
+        except (ValueError, TypeError, AttributeError, RecursionError):
+            return Response({"detail": "Invalid Sentry payload"}, status=400)
+
+        result = Response({})
+        for fields, fingerprint_title in prepared:
+            event_id = fields["payload"]["event_id"]
+            with transaction.atomic():
+                # Serialize SDK retries for a project before checking the JSON event_id.
+                Project.objects.select_for_update().get(pk=project.pk)
+                if Event.objects.filter(project=project, payload__event_id=event_id).exists():
+                    result = Response({"id": event_id})
+                else:
+                    result = self._ingest_event(project, fields=fields, fingerprint_title=fingerprint_title)
+            if result.status_code == 429:
+                break
+        return result
 
 
 def _close_ossicone_tickets(group):

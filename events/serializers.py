@@ -1,11 +1,20 @@
+from urllib.parse import urlsplit
+
+from django.conf import settings
 from rest_framework import serializers
 from .models import Event, Project, Group, Release, Artifact, AlertRule, AlertTarget, Session, ReleaseDeployment, Comment
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    dsn = serializers.SerializerMethodField()
+
+    def get_dsn(self, project):
+        origin = urlsplit(settings.PUBLIC_ORIGIN)
+        return f"{origin.scheme}://{project.ingest_token}@{origin.netloc}/{project.pk}"
+
     class Meta:
         model = Project
-        fields = ["id", "name", "slug", "created_at", "ingest_token", "description"]
+        fields = ["id", "name", "slug", "created_at", "ingest_token", "description", "dsn"]
 
 
 class EventSerializer(serializers.ModelSerializer):
