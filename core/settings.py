@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -80,6 +81,8 @@ if DEBUG:
 
 def parse_database_url(url: str):
     parsed = urlparse(url)
+    if parsed.scheme == "sqlite":
+        return {"ENGINE": "django.db.backends.sqlite3", "NAME": parsed.path[1:] or ":memory:"}
     return {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": parsed.path[1:],
@@ -190,3 +193,15 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "0") == "1"
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "0") == "1"
 DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_FROM", "alerts@example.test")
+
+if "test" in sys.argv or os.environ.get("SKYLARK_TESTING") == "1":
+    # These optional pipelines read their switches directly from the environment.
+    os.environ["KAFKA_ENABLED"] = "false"
+    os.environ["CLICKHOUSE_ENABLED"] = "false"
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = False
+    CELERY_BROKER_URL = "memory://"
+    CELERY_RESULT_BACKEND = "cache+memory://"
+    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+    EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

@@ -493,3 +493,11 @@ List rules for a group:
 - `GET /api/alert-rules/by-group/{group_id}`
 
 Env variables for email (optional): see `.env.example` (`EMAIL_*`).
+
+## Testing
+
+With the backend dependencies installed, run `make test-backend` to test database
+settings, event ingest and grouping, group workflows, estate and project summaries,
+authentication, workspace access, and alerts. The suite uses in-memory SQLite and
+needs no PostgreSQL, Redis, Kafka, or ClickHouse. To run a subset, pass a Django
+test label, for example `scripts/test-backend.sh events.tests.test_ingest`.
