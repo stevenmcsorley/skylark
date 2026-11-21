@@ -2,6 +2,7 @@
 # behind the Cloudflare tunnel. Only the frontend port is published (to localhost).
 #   cp .env.prod.example .env.prod   # then fill in secrets
 #   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+# Normally deployed by .github/workflows/deploy.yml (push to main -> the Pi runner builds the images, pushes them to GHCR and brings them up).
 services:
   postgres:
     image: postgres:16-alpine
@@ -29,6 +30,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ghcr.io/stevenmcsorley/skylark-api:${SKYLARK_TAG:-latest}
     command: ["bash", "/app/scripts/entrypoint-web.sh"]
     environment:
       DJANGO_DEBUG: "0"
@@ -64,9 +66,7 @@ services:
     restart: unless-stopped
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/stevenmcsorley/skylark-api:${SKYLARK_TAG:-latest}   # same image as skylark-api; only the command differs
     command: ["bash", "/app/scripts/entrypoint-worker.sh"]
     environment:
       DJANGO_DEBUG: "0"
@@ -95,9 +95,7 @@ services:
     restart: unless-stopped
 
   beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/stevenmcsorley/skylark-api:${SKYLARK_TAG:-latest}   # same image as skylark-api; only the command differs
     command: ["bash", "/app/scripts/entrypoint-beat.sh"]
     environment:
       DJANGO_DEBUG: "0"
@@ -118,6 +116,7 @@ services:
     build:
       context: ./mcp
       dockerfile: Dockerfile
+    image: ghcr.io/stevenmcsorley/skylark-mcp:${SKYLARK_TAG:-latest}
     environment:
       SKYLARK_URL: http://skylark-api:8000
       PORT: 3000
@@ -129,6 +128,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
+    image: ghcr.io/stevenmcsorley/skylark-web:${SKYLARK_TAG:-latest}
     container_name: skylark-web
     depends_on:
       - skylark-api

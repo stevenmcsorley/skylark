@@ -1,0 +1,51 @@
+name: Deploy to Pi
+
+# Estate playbook: push to main -> self-hosted "pi" runner -> GHCR -> docker compose.
+# Gated by the repo variable PI_DEPLOY=true so nothing deploys until the runner and ~/skylark/.env.prod are confirmed.
+# Secrets stay on the Pi: pi-ci's rsync never deletes and excludes .env, .env.prod, data and uploads, so ~/skylark/.env.prod survives every deploy.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "postman/**", "*.png"]
+  workflow_dispatch:
+    inputs:
+      rollback_tag:
+        description: "Rollback: image tag / git SHA to redeploy (blank = build & deploy HEAD)"
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-skylark
+  cancel-in-progress: false
+
+jobs:
+  # Compose settings that are not secrets, written next to .env.prod: build ONE image at a time (the frontend build is heavy and
+  # parallel builds have run this Pi out of memory before).
+  env:
+    if: ${{ vars.PI_DEPLOY == 'true' }}
+    runs-on: [self-hosted, pi, skylark]
+    steps:
+      - name: Write ~/skylark/.env.deploy
+        run: |
+          [ -f "$HOME/skylark/.env.prod" ] || { echo "~/skylark/.env.prod is missing: refusing to deploy"; exit 1; }
+          umask 077
+          printf 'COMPOSE_BAKE=false\nCOMPOSE_PARALLEL_LIMIT=1\n' > "$HOME/skylark/.env.deploy"
+
+  deploy:
+    needs: env
+    if: ${{ vars.PI_DEPLOY == 'true' }}
+    permissions:
+      contents: read
+      packages: write
+    uses: stevenmcsorley/pi-ci/.github/workflows/pi-deploy-ghcr.yml@main
+    with:
+      app_dir: skylark
+      compose_args: "-f docker-compose.prod.yml --env-file .env.prod --env-file .env.deploy"
+      services: "skylark-api worker beat skylark-mcp frontend"
+      tag_var: SKYLARK_TAG
+      health_url: "http://127.0.0.1:8092/"
+      health_match: "<title>Skylark</title>"
+      app_label: Skylark
+      rollback_tag: ${{ github.event.inputs.rollback_tag || '' }}
+    secrets:
+      deploy_webhook: ${{ secrets.RELAY_DEPLOY_WEBHOOK }}
