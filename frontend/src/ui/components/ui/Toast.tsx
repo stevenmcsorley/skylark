@@ -65,9 +65,9 @@ const ToastContainer = () => {
 
 const toastStyles: Record<ToastType, { bg: string; border: string; icon: string }> = {
   success: {
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/30',
-    icon: 'text-green-400'
+    bg: 'bg-accent-500/10',
+    border: 'border-accent-500/30',
+    icon: 'text-accent-400'
   },
   error: {
     bg: 'bg-red-500/10',
@@ -75,14 +75,14 @@ const toastStyles: Record<ToastType, { bg: string; border: string; icon: string 
     icon: 'text-red-400'
   },
   warning: {
-    bg: 'bg-yellow-500/10',
-    border: 'border-yellow-500/30',
-    icon: 'text-yellow-400'
+    bg: 'bg-amber-500/10',
+    border: 'border-amber-500/30',
+    icon: 'text-amber-400'
   },
   info: {
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/30',
-    icon: 'text-blue-400'
+    bg: 'bg-accent-500/10',
+    border: 'border-slate-700',
+    icon: 'text-accent-400'
   }
 }
 
@@ -116,8 +116,8 @@ const ToastItem = ({ toast }: { toast: Toast }) => {
   return (
     <div
       className={`
-        flex items-center gap-3 px-4 py-3 rounded-lg border backdrop-blur-sm
-        shadow-lg min-w-[300px] max-w-[400px]
+        flex items-center gap-3 px-4 py-3 rounded-lg border 
+         min-w-[300px] max-w-[400px]
         ${styles.bg} ${styles.border}
         transform transition-all duration-200
         ${isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}

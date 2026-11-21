@@ -63,7 +63,7 @@ export const DeploymentForm = ({
         value={name} 
         onChange={handleNameChange} 
         placeholder="Name" 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 180 }}
         disabled={isLoading || isSubmitting}
         data-testid="deployment-name-input"
@@ -74,7 +74,7 @@ export const DeploymentForm = ({
         value={url} 
         onChange={handleUrlChange} 
         placeholder="URL" 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 240 }}
         disabled={isLoading || isSubmitting}
         data-testid="deployment-url-input"
@@ -85,7 +85,7 @@ export const DeploymentForm = ({
         value={env} 
         onChange={handleEnvChange} 
         placeholder="Environment" 
-        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         style={{ width: 140 }}
         disabled={isLoading || isSubmitting}
         data-testid="deployment-environment-input"
@@ -97,7 +97,7 @@ export const DeploymentForm = ({
         className={`px-4 py-2 rounded font-medium transition-colors ${
           disabled 
             ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
-            : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+            : 'bg-accent-600 text-white hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500'
         }`}
         data-testid="create-deployment-button"
       >

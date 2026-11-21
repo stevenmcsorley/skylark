@@ -162,7 +162,7 @@ export const TimeRangeMenu = ({
     >
       <button 
         type="button"
-        className="rounded border border-slate-700 bg-transparent px-2 py-1 text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+        className="rounded border border-slate-700 bg-transparent px-2 py-1 text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
         onClick={handleToggleOpen}
         data-testid="time-range-button"
       >
@@ -173,7 +173,7 @@ export const TimeRangeMenu = ({
           <div className="mb-2 text-[11px] text-slate-400">Filter Time Range</div>
           <input 
             type="text"
-            className="mb-2 w-full rounded border border-slate-700 bg-transparent px-2 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            className="mb-2 w-full rounded border border-slate-700 bg-transparent px-2 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-accent-500" 
             placeholder="Custom range: 30m, 2h, 4d, 3w" 
             value={custom} 
             onChange={handleCustomInputChange}
@@ -185,7 +185,7 @@ export const TimeRangeMenu = ({
               <li>
                 <button 
                   type="button"
-                  className="w-full rounded px-2 py-1 text-left bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+                  className="w-full rounded px-2 py-1 text-left bg-slate-800 text-slate-300 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                   onClick={handleCustomRangeApply}
                   data-testid="custom-range-apply"
                 >
@@ -196,7 +196,7 @@ export const TimeRangeMenu = ({
             <li>
               <button 
                 type="button"
-                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                 onClick={() => applyRelative('1h')}
                 data-testid="range-1h"
               >
@@ -206,7 +206,7 @@ export const TimeRangeMenu = ({
             <li>
               <button 
                 type="button"
-                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                 onClick={() => applyRelative('24h')}
                 data-testid="range-24h"
               >
@@ -216,7 +216,7 @@ export const TimeRangeMenu = ({
             <li>
               <button 
                 type="button"
-                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                 onClick={() => applyRelative('7d')}
                 data-testid="range-7d"
               >
@@ -226,7 +226,7 @@ export const TimeRangeMenu = ({
             <li>
               <button 
                 type="button"
-                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                 onClick={() => applyRelative('14d')}
                 data-testid="range-14d"
               >
@@ -236,7 +236,7 @@ export const TimeRangeMenu = ({
             <li>
               <button 
                 type="button"
-                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                 onClick={() => applyRelative('30d')}
                 data-testid="range-30d"
               >
@@ -246,7 +246,7 @@ export const TimeRangeMenu = ({
             <li>
               <button 
                 type="button"
-                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full rounded px-2 py-1 text-left text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                 onClick={() => { /* Absolute date could open a date picker */ }}
                 data-testid="range-absolute"
               >

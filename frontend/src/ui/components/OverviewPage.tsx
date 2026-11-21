@@ -123,12 +123,12 @@ export function OverviewPage({
   return (
     <div data-testid="overview-page" className="space-y-6">
       {/* Project Header */}
-      <div data-testid="overview-header" className="rounded-xl border border-slate-800/60 bg-gradient-to-r from-slate-800/30 to-slate-700/30 p-6">
+      <div data-testid="overview-header" className="rounded-lg border border-slate-800/60 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white" data-testid="project-title">{selected.name}</h1>
-            <p className="text-slate-300" data-testid="project-description">
-              Project management hub for releases, deployments, health monitoring, and issue management
+            <h1 className="text-xl font-semibold text-slate-100" data-testid="project-title">{selected.name}</h1>
+            <p className="text-sm text-slate-400" data-testid="project-description">
+              Recent activity, monitors and how events reach this project.
             </p>
           </div>
           <div className="rounded-lg bg-slate-800/60 px-4 py-2" data-testid="project-info">
@@ -143,20 +143,20 @@ export function OverviewPage({
 
       {/* Quick Actions */}
       <div data-testid="quick-actions" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-bold text-blue-400" data-testid="releases-count">{releases.length}</div>
+        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
+          <div className="text-2xl font-semibold tabular-nums text-accent-400" data-testid="releases-count">{releases.length}</div>
           <div className="text-sm text-slate-300">Active Releases</div>
         </div>
-        <div className="rounded-xl border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-bold text-green-400" data-testid="deployments-count">{deploys.length}</div>
+        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
+          <div className="text-2xl font-semibold tabular-nums text-accent-400" data-testid="deployments-count">{deploys.length}</div>
           <div className="text-sm text-slate-300">Deployments</div>
         </div>
-        <div className="rounded-xl border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-bold text-orange-400" data-testid="alert-rules-count">{rules.length}</div>
+        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
+          <div className="text-2xl font-semibold tabular-nums text-slate-100" data-testid="alert-rules-count">{rules.length}</div>
           <div className="text-sm text-slate-300">Alert Rules</div>
         </div>
-        <div className="rounded-xl border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-bold text-red-400" data-testid="open-groups-count">{groups.length}</div>
+        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
+          <div className="text-2xl font-semibold tabular-nums text-red-400" data-testid="open-groups-count">{groups.length}</div>
           <div className="text-sm text-slate-300">Open Issues</div>
         </div>
       </div>
@@ -164,10 +164,10 @@ export function OverviewPage({
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Release Management */}
-        <section data-testid="releases-section" className="rounded-xl border border-slate-800/60 p-4">
+        <section data-testid="releases-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-semibold text-white">Release Management</h3>
-            <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-medium text-blue-300">
+            <h3 className="text-base font-semibold text-slate-100">Release Management</h3>
+            <span className="rounded-full bg-accent-500/20 px-2 py-0.5 text-xs font-medium text-accent-400">
               {releases.length}
             </span>
           </div>
@@ -192,9 +192,9 @@ export function OverviewPage({
                     <span className="font-mono text-sm text-white">{r.version}</span>
                     <span className={`px-1.5 py-0.5 rounded text-xs ${
                       r.environment === 'production'
-                        ? 'bg-green-500/20 text-green-300'
+                        ? 'bg-accent-500/20 text-accent-400'
                         : r.environment === 'staging'
-                        ? 'bg-yellow-500/20 text-yellow-300'
+                        ? 'bg-amber-500/20 text-amber-300'
                         : 'bg-slate-500/20 text-slate-300'
                     }`}>
                       {r.environment}
@@ -203,7 +203,7 @@ export function OverviewPage({
                   </div>
                   <button
                     onClick={() => setSelectedRelease(selectedRelease === r.id ? null : r.id)}
-                    className="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
+                    className="text-xs px-2 py-0.5 rounded bg-slate-800/60 text-slate-300 hover:bg-slate-700"
                   >
                     {selectedRelease === r.id ? 'Hide' : 'Artifacts'}
                   </button>
@@ -221,10 +221,10 @@ export function OverviewPage({
         </section>
 
         {/* Deployment Management */}
-        <section data-testid="deployments-section" className="rounded-xl border border-slate-800/60 p-4">
+        <section data-testid="deployments-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-semibold text-white">Deployment Tracking</h3>
-            <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-300">
+            <h3 className="text-base font-semibold text-slate-100">Deployment Tracking</h3>
+            <span className="rounded-full bg-accent-500/20 px-2 py-0.5 text-xs font-medium text-accent-400">
               {deploys.length}
             </span>
           </div>
@@ -249,9 +249,9 @@ export function OverviewPage({
                     <span className="text-sm text-white">{d.name}</span>
                     <span className={`px-1.5 py-0.5 rounded text-xs ${
                       d.environment === 'production'
-                        ? 'bg-green-500/20 text-green-300'
+                        ? 'bg-accent-500/20 text-accent-400'
                         : d.environment === 'staging'
-                        ? 'bg-yellow-500/20 text-yellow-300'
+                        ? 'bg-amber-500/20 text-amber-300'
                         : 'bg-slate-500/20 text-slate-300'
                     }`}>
                       {d.environment}
@@ -263,7 +263,7 @@ export function OverviewPage({
                       href={d.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-400 hover:text-blue-300 truncate max-w-[120px]"
+                      className="text-xs text-accent-400 hover:text-accent-400 truncate max-w-[120px]"
                       title={d.url}
                     >
                       {d.url.replace(/^https?:\/\//, '')}
@@ -276,10 +276,10 @@ export function OverviewPage({
         </section>
 
         {/* Release Health */}
-        <section data-testid="release-health-section" className="rounded-xl border border-slate-800/60 p-6">
+        <section data-testid="release-health-section" className="rounded-lg border border-slate-800/60 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Release Health</h3>
-            <span className="rounded-full bg-purple-500/20 px-2 py-1 text-xs text-purple-300">
+            <h3 className="text-base font-semibold text-slate-100">Release Health</h3>
+            <span className="rounded-full bg-slate-800/60 px-2 py-1 text-xs text-slate-300">
               Health monitoring
             </span>
           </div>
@@ -398,10 +398,10 @@ export function OverviewPage({
         </section>
 
         {/* Alert Rules */}
-        <section data-testid="alert-rules-section" className="rounded-xl border border-slate-800/60 p-6">
+        <section data-testid="alert-rules-section" className="rounded-lg border border-slate-800/60 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Alert Management</h3>
-            <span className="rounded-full bg-orange-500/20 px-2 py-1 text-xs text-orange-300">
+            <h3 className="text-base font-semibold text-slate-100">Alert Management</h3>
+            <span className="rounded-full bg-slate-800/60 px-2 py-1 text-xs text-slate-100">
               {rules.length} rules
             </span>
           </div>
@@ -479,13 +479,13 @@ export function OverviewPage({
       </div>
 
       {/* Issue Groups */}
-      <section data-testid="groups-section" className="rounded-xl border border-slate-800/60 p-6">
+      <section data-testid="groups-section" className="rounded-lg border border-slate-800/60 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Issue Management</h3>
+          <h3 className="text-base font-semibold text-slate-100">Issue Management</h3>
           {(() => {
             const open = groups.filter(g => g.status === 'unresolved').length
             return (
-              <span className={`rounded-full px-2 py-1 text-xs ${open > 0 ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`}>
+              <span className={`rounded-full px-2 py-1 text-xs ${open > 0 ? 'bg-red-500/20 text-red-300' : 'bg-accent-500/20 text-accent-400'}`}>
                 {open} open {open === 1 ? 'issue' : 'issues'}
               </span>
             )
@@ -509,7 +509,7 @@ export function OverviewPage({
                   <td>{g.count}</td>
                   <td className="text-xs">
                     {g.status === 'resolved' ? (
-                      <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded-full">resolved</span>
+                      <span className="bg-accent-500/20 text-accent-400 px-2 py-1 rounded-full">resolved</span>
                     ) : g.status === 'ignored' ? (
                       <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded-full">ignored</span>
                     ) : (
@@ -518,7 +518,7 @@ export function OverviewPage({
                   </td>
                   <td className="text-xs">
                     {g.assignee ? (
-                      <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">{g.assignee}</span>
+                      <span className="bg-accent-500/20 text-accent-400 px-2 py-1 rounded-full">{g.assignee}</span>
                     ) : (
                       <span className="text-slate-500">unassigned</span>
                     )}
@@ -588,8 +588,8 @@ export function OverviewPage({
       {/* Assignment Modal */}
       {assignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 w-96">
-            <h3 className="text-lg font-semibold text-white mb-4">Assign Issue</h3>
+          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-96">
+            <h3 className="text-base font-semibold text-slate-100 mb-4">Assign Issue</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-slate-300 mb-2">Assign to user:</label>
@@ -623,7 +623,7 @@ export function OverviewPage({
                   Cancel
                 </button>
                 <button
-                  className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded text-white"
+                  className="px-3 py-1 text-sm bg-accent-600 hover:bg-accent-700 rounded text-white"
                   onClick={() => {
                     const input = document.querySelector('.fixed input') as HTMLInputElement;
                     const assignee = input?.value || '';
@@ -648,8 +648,8 @@ export function OverviewPage({
       {/* Create Issue Modal */}
       {issueModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" data-testid="issue-modal">
-          <div className="w-[28rem] rounded-xl border border-slate-700 bg-slate-800 p-6">
-            <h3 className="mb-1 text-lg font-semibold text-white">Create Issue</h3>
+          <div className="w-[28rem] rounded-lg border border-slate-700 bg-slate-800 p-6">
+            <h3 className="mb-1 text-base font-semibold text-slate-100">Create Issue</h3>
             <p className="mb-4 truncate text-xs text-slate-400" title={issueModal.group.title}>
               from “{issueModal.group.title}”
             </p>
@@ -702,8 +702,8 @@ export function OverviewPage({
       {/* Comment Modal */}
       {commentModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 w-96">
-            <h3 className="text-lg font-semibold text-white mb-4">Add Comment</h3>
+          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-96">
+            <h3 className="text-base font-semibold text-slate-100 mb-4">Add Comment</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-slate-300 mb-2">Comment:</label>
@@ -721,7 +721,7 @@ export function OverviewPage({
                   Cancel
                 </button>
                 <button
-                  className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 rounded text-white"
+                  className="px-3 py-1 text-sm bg-accent-600 hover:bg-accent-700 rounded text-white"
                   onClick={() => {
                     const textarea = document.querySelector('.fixed textarea') as HTMLTextAreaElement;
                     const body = textarea?.value || '';
@@ -734,7 +734,7 @@ export function OverviewPage({
                         setCommentModal(null);
                         // Show success notification
                         const notification = document.createElement('div');
-                        notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow-lg z-50';
+                        notification.className = 'fixed top-4 right-4 bg-accent-600 text-white px-4 py-2 rounded z-50';
                         notification.textContent = 'Comment added successfully!';
                         document.body.appendChild(notification);
                         setTimeout(() => notification.remove(), 3000);

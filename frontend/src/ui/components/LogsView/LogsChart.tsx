@@ -281,7 +281,7 @@ export const LogsChart = ({
   return (
     <div 
       className={[
-        "rounded-xl border border-slate-800/60 p-3",
+        "rounded-lg border border-slate-800/60 p-3",
         className
       ].filter(Boolean).join(" ")}
       data-testid={testId}

@@ -34,10 +34,10 @@ const STATUS_STYLE: Record<string, string> = {
 }
 const SOURCE_STYLE: Record<string, string> = {
   frontend: 'bg-sky-500/20 text-sky-300',
-  backend: 'bg-violet-500/20 text-violet-300',
-  mobile: 'bg-pink-500/20 text-pink-300',
-  infra: 'bg-orange-500/20 text-orange-300',
-  job: 'bg-teal-500/20 text-teal-300',
+  backend: 'bg-slate-800/60 text-slate-300',
+  mobile: 'bg-slate-800 text-slate-300',
+  infra: 'bg-slate-800/60 text-slate-100',
+  job: 'bg-slate-800 text-slate-300',
   test: 'bg-slate-500/20 text-slate-300',
   other: 'bg-slate-500/20 text-slate-300',
 }
@@ -85,10 +85,10 @@ export function TrackingOverview({ slug }: { slug: string }) {
   const declared = data.tracking.filter(t => t.status !== 'removed')
 
   return (
-    <section data-testid="tracking-overview" className="space-y-6 rounded-xl border border-slate-800/60 bg-slate-900/40 p-6">
+    <section data-testid="tracking-overview" className="space-y-6 rounded-lg border border-slate-800/60 bg-slate-900/40 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-white">What we're monitoring</h3>
+          <h3 className="text-base font-semibold text-slate-100">What we're monitoring</h3>
           <p className="text-sm text-slate-400">The monitors set up for this project (mostly by the AI agent), and what data is actually arriving.</p>
         </div>
         {!editingDesc && (
@@ -173,7 +173,7 @@ export function TrackingOverview({ slug }: { slug: string }) {
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[['Events', s.events_total], ['Issues', s.groups_total], ['Unresolved', s.groups_unresolved], ['Linked tickets', data.external_links_total]].map(([label, val]) => (
             <div key={label as string} className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-3 text-center">
-              <div className="text-xl font-bold text-white">{val as number}</div>
+              <div className="text-xl font-semibold text-white">{val as number}</div>
               <div className="text-xs text-slate-400">{label as string}</div>
             </div>
           ))}

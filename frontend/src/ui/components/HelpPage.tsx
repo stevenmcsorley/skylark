@@ -4,7 +4,7 @@
  * Static content so a new user (or a returning one) can self-serve.
  */
 
-const card = 'rounded-xl border border-slate-800/60 bg-slate-900/40 p-6'
+const card = 'rounded-lg border border-slate-800/60 bg-slate-900/40 p-6'
 const h2 = 'text-lg font-semibold text-white'
 const term = 'text-slate-200 font-medium'
 
@@ -69,7 +69,7 @@ export function HelpPage() {
   return (
     <div className="space-y-6" data-testid="help-page">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Help &amp; Docs</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Help</h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-400">
           Skylark is a self-hosted error-monitoring platform: your apps send errors here, Skylark groups them into
           issues you can triage, chart and turn into tickets — and an AI agent (via MCP) can drive all of it.

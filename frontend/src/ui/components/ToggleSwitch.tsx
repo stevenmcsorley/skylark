@@ -37,8 +37,8 @@ export const ToggleSwitch = ({
         onClick={handleClick}
         data-testid={testId}
         className={`
-          relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900
-          ${enabled ? 'bg-blue-600' : 'bg-slate-700'}
+          relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 focus:ring-offset-slate-900
+          ${enabled ? 'bg-accent-600' : 'bg-slate-700'}
         `}
       >
         <span className="sr-only">Toggle {label || 'setting'}</span>
@@ -51,8 +51,8 @@ export const ToggleSwitch = ({
       </button>
       {enabled && (
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-green-400">LIVE</span>
+          <div className="h-2 w-2 rounded-full bg-accent-500 animate-pulse" />
+          <span className="text-xs text-accent-400">LIVE</span>
         </div>
       )}
     </div>

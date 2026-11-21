@@ -10,7 +10,7 @@ interface CardProps {
 
 const variants = {
   default: 'border border-slate-800/60 bg-slate-800/20',
-  gradient: 'border border-slate-800/60 bg-gradient-to-r from-slate-800/30 to-slate-700/30',
+  gradient: 'border border-slate-800',
   interactive: 'border border-slate-800/60 bg-slate-800/20 hover:bg-slate-800/40 transition-colors cursor-pointer',
   stat: 'border border-slate-800/60 bg-slate-800/20 text-center hover:bg-slate-800/40 transition-colors'
 }
@@ -31,7 +31,7 @@ export const Card = ({
 }: CardProps) => {
   return (
     <div
-      className={`rounded-xl ${variants[variant]} ${paddings[padding]} ${className}`}
+      className={`rounded-lg ${variants[variant]} ${paddings[padding]} ${className}`}
       data-testid={testId}
     >
       {children}
@@ -51,7 +51,7 @@ export const CardHeader = ({ title, description, badge, actions, testId }: CardH
   <div className="mb-4 flex items-center justify-between" data-testid={testId}>
     <div>
       <div className="flex items-center gap-3">
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
+        <h3 className="text-base font-semibold text-slate-100">{title}</h3>
         {badge}
       </div>
       {description && (
@@ -70,16 +70,16 @@ interface StatCardProps {
 }
 
 const statColors = {
-  blue: 'text-blue-400',
-  green: 'text-green-400',
-  orange: 'text-orange-400',
+  blue: 'text-accent-400',
+  green: 'text-accent-400',
+  orange: 'text-slate-100',
   red: 'text-red-400',
-  purple: 'text-purple-400'
+  purple: 'text-slate-300'
 }
 
 export const StatCard = ({ value, label, color = 'blue', testId }: StatCardProps) => (
   <Card variant="stat" testId={testId}>
-    <div className={`text-2xl font-bold ${statColors[color]}`}>{value}</div>
+    <div className={`text-2xl font-semibold ${statColors[color]}`}>{value}</div>
     <div className="text-sm text-slate-300">{label}</div>
   </Card>
 )

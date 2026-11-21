@@ -34,24 +34,24 @@ export function LoginPage() {
   }
 
   const inputCls =
-    'w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500'
+    'w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-accent-500'
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600">
             <svg viewBox="0 0 32 32" className="h-7 w-7 text-white" fill="currentColor" aria-hidden="true">
               <path d="M5 20 C 10.5 12.5, 14 13, 16 17.5 C 18 13, 21.5 12.5, 27 20 C 21.5 17, 18.2 18, 16 22 C 13.8 18, 10.5 17, 5 20 Z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Skylark</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-100">Skylark</h1>
           <p className="text-sm text-slate-400">
             {mode === 'login' ? 'Sign in to your dashboard' : 'Create your account'}
           </p>
         </div>
 
-        <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <form onSubmit={submit} className="space-y-4 rounded-lg border border-slate-800 bg-slate-900/60 p-6">
           {error && (
             <div className="rounded-md border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">
               {error}

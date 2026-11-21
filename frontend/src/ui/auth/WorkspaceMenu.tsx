@@ -50,7 +50,7 @@ export function WorkspaceMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-slate-700 bg-slate-900 py-1 shadow-xl">
+        <div className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-slate-700 bg-slate-900 py-1 ">
           <p className="px-3 pb-1 pt-2 text-xs uppercase text-slate-500">Workspaces</p>
           {workspaces.map(w => (
             <button
@@ -141,9 +141,9 @@ function WorkspaceSettings({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={onClose}>
-      <div className="w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 p-6" onMouseDown={e => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-lg border border-slate-700 bg-slate-900 p-6" onMouseDown={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Workspace settings</h2>
+          <h2 className="text-base font-semibold text-slate-100">Workspace settings</h2>
           <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-white"><Icon icon={X} size="md" /></button>
         </div>
         {err && <div className="mb-3 rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">{err}</div>}

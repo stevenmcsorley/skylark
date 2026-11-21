@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { Check, Copy, Eye, EyeOff } from 'lucide-react'
+import { Icon } from './ui/Icon'
 import { maskSecret } from '../utils/secret'
 
 interface SecretValueProps {
@@ -7,7 +9,7 @@ interface SecretValueProps {
   display?: (revealed: boolean) => string
 }
 
-const buttonStyle = 'rounded px-1 text-xs text-blue-300 focus-visible:ring-2 focus-visible:ring-blue-400 max-md:min-h-11 max-md:min-w-11'
+const buttonStyle = 'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-accent-400 max-md:h-11 max-md:w-11'
 
 const copyWithTextarea = (value: string) => {
   const previousFocus = document.activeElement
@@ -59,16 +61,16 @@ const SecretControls = ({ value, label, display }: SecretValueProps) => {
   }
 
   return (
-    <span data-testid="secret-value" className="inline-flex flex-wrap items-center gap-1">
-      <code className={`break-all whitespace-pre-wrap font-mono text-xs ${revealed ? 'select-text' : 'select-none'}`}>
+    <span data-testid="secret-value" className="inline-flex flex-nowrap items-center gap-1">
+      <code className={`min-w-0 break-all whitespace-pre-wrap font-mono text-xs ${revealed ? 'select-text' : 'select-none'}`}>
         {display ? display(revealed) : revealed ? value : maskSecret(value)}
       </code>
       <button type="button" className={buttonStyle} data-testid="secret-reveal" aria-pressed={revealed}
         aria-label={`${revealed ? 'Hide' : 'Reveal'} ${label}`} onClick={() => setRevealed(!revealed)}>
-        {revealed ? 'Hide' : 'Reveal'}
+        <Icon icon={revealed ? EyeOff : Eye} size="sm" />
       </button>
       <button type="button" className={buttonStyle} data-testid="secret-copy" aria-label={`Copy ${label}`} onClick={copy}>
-        Copy
+        <Icon icon={status === 'Copied' ? Check : Copy} size="sm" />
       </button>
       <span role="status" aria-live="polite" className="text-xs">{status}</span>
     </span>

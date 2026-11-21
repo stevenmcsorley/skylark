@@ -69,12 +69,12 @@ export function IntegrationsPage() {
     load()
   }
 
-  const card = 'rounded-xl border border-slate-800/60 bg-slate-900/40 p-6'
+  const card = 'rounded-lg border border-slate-800/60 bg-slate-900/40 p-6'
 
   return (
     <div className="space-y-6" data-testid="integrations-page">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Integrations</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Integrations</h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-400">
           Connect an issue tracker so you can turn an error group into a ticket — from the UI, the API, or
           the <span className="text-slate-200">MCP</span> agent. New providers plug in via the adapter pattern
@@ -91,7 +91,7 @@ export function IntegrationsPage() {
           <div key={provider} className={card} data-testid={`integration-${provider}`}>
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-white">{meta.name}</h2>
+                <h2 className="text-base font-semibold text-slate-100">{meta.name}</h2>
                 <p className="text-sm text-slate-400">{meta.blurb}</p>
               </div>
               {existing ? (

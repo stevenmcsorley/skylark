@@ -117,7 +117,7 @@ describe('ToggleSwitch', () => {
     expect(screen.getByText('LIVE')).toBeInTheDocument()
     // Check for the animated dot
     const liveDot = screen.getByText('LIVE').previousElementSibling
-    expect(liveDot).toHaveClass('bg-green-500', 'animate-pulse')
+    expect(liveDot).toHaveClass('bg-accent-500', 'animate-pulse')
   })
 
   it('hides live indicator when disabled', () => {

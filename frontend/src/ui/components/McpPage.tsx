@@ -56,13 +56,13 @@ export function McpPage() {
   const command = (token: string) =>
     `claude mcp add --transport http skylark ${mcpUrl} \\\n  --header "Authorization: Bearer ${token}"`
 
-  const card = 'rounded-xl border border-slate-800/60 bg-slate-900/40 p-6'
+  const card = 'rounded-lg border border-slate-800/60 bg-slate-900/40 p-6'
   const pre = 'mt-2 overflow-x-auto rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs text-slate-200'
 
   return (
     <div className="space-y-6" data-testid="mcp-page">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">AI Agent (MCP)</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">MCP &amp; API</h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-400">
           Skylark ships a <span className="text-slate-200">Model Context Protocol</span> server so an AI agent
           (Claude Code, etc.) can triage and manage your errors directly — list and resolve issues, inspect
@@ -72,7 +72,7 @@ export function McpPage() {
 
       {/* Connect */}
       <div className={card}>
-        <h2 className="mb-3 text-lg font-semibold text-white">Connect an agent</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-100">Connect an agent</h2>
         <div className="flex flex-wrap items-center gap-3">
           <input
             value={name}
@@ -102,7 +102,7 @@ export function McpPage() {
 
       {/* How to connect */}
       <div className={card}>
-        <h2 className="mb-3 text-lg font-semibold text-white">Connect to Claude (or any MCP client)</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-100">Connect to Claude (or any MCP client)</h2>
         <p className="mb-4 text-sm text-slate-400">
           Skylark hosts the MCP server — <span className="text-slate-200">no clone, no install</span>. Just add the URL{' '}
           <code className="text-slate-300">{mcpUrl}</code> and an API token (create one above).
@@ -145,7 +145,7 @@ export function McpPage() {
 
       {/* What you can do */}
       <div className={card}>
-        <h2 className="mb-3 text-lg font-semibold text-white">What the agent can do</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-100">What the agent can do</h2>
         <div className="grid gap-2 sm:grid-cols-2">
           {TOOL_GROUPS.map(([group, tools]) => (
             <div key={group} className="rounded-lg border border-slate-800/60 bg-slate-900/40 p-3">
@@ -158,7 +158,7 @@ export function McpPage() {
 
       {/* Existing tokens */}
       <div className={card}>
-        <h2 className="mb-3 text-lg font-semibold text-white">Active tokens</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-100">Active tokens</h2>
         {tokens.length === 0 ? (
           <p className="text-sm text-slate-400">No tokens yet.</p>
         ) : (
