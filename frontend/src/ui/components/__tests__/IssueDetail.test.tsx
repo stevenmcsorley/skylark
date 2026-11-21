@@ -33,7 +33,7 @@ describe('IssueDetail', () => {
     vi.mocked(api).mockImplementation(route())
     renderDetail()
     expect(await screen.findByTestId('issue-title')).toHaveTextContent('KeyError: user_id')
-    expect(api).toHaveBeenCalledWith('/api/events/?group=5&limit=25')
+    expect(api).toHaveBeenCalledWith('/api/events/?group=5&limit=100')
     expect(screen.getByTestId('issue-stack')).toHaveTextContent('at handler (app/routes.py:48:0)')
     expect(screen.getByTestId('issue-details')).toHaveTextContent('1.2.3')
     expect(screen.getByTestId('issue-details')).toHaveTextContent('region')
@@ -41,7 +41,7 @@ describe('IssueDetail', () => {
   })
 
   it('does not repeat the message when it is the first line of the stack', async () => {
-    vi.mocked(api).mockImplementation(route({ 'GET /api/events/?group=5&limit=25': { results: [{ ...events[0], message: "KeyError: 'user_id'" }] } }))
+    vi.mocked(api).mockImplementation(route({ 'GET /api/events/?group=5&limit=100': { results: [{ ...events[0], message: "KeyError: 'user_id'" }] } }))
     renderDetail()
     await screen.findByTestId('issue-stack')
     expect(screen.queryByTestId('issue-event-message')).not.toBeInTheDocument()
@@ -106,6 +106,20 @@ describe('IssueDetail', () => {
     expect(await screen.findByTestId('issue-error')).toHaveTextContent('API Error 404')
     fireEvent.click(screen.getByTestId('issue-back'))
     expect(onBack).toHaveBeenCalled()
+  })
+
+  it('shows the environment split, the issue id and a frequency chart, and hides a message column that never varies', async () => {
+    const ev = (id: number, env: string, hoursAgo: number) => ({ id, message: 'Same', level: 'error', environment: env, received_at: new Date(Date.now() - hoursAgo * 3600_000).toISOString(), stack: null })
+    vi.mocked(api).mockImplementation(async (path: string) => {
+      if (path.startsWith('/api/events/')) return { results: [ev(1, 'staging', 1), ev(2, 'staging', 2), ev(3, 'production', 3)] }
+      if (path.includes('/comments/')) return []
+      return { id: 5, project: 1, title: 'Boom', level: 'error', count: 3, first_seen: new Date(Date.now() - 4 * 3600_000).toISOString(), last_seen: new Date().toISOString(), status: 'unresolved', resolved_at: null, assignee: '', is_bookmarked: false }
+    })
+    renderDetail()
+    expect(await screen.findByTestId('issue-env-split')).toHaveTextContent('staging 2 · production 1')
+    expect(screen.getByTestId('issue-id')).toHaveTextContent('ID 5')
+    expect(screen.getByTestId('issue-frequency-bars')).toBeInTheDocument()
+    expect(screen.queryByRole('columnheader', { name: 'Message' })).not.toBeInTheDocument()
   })
 })
 

@@ -21,6 +21,7 @@ describe('App - Basic Tests', () => {
 
   it('contains the main app title', () => {
     renderApp()
-    expect(screen.getByRole('heading', { name: 'Skylark', level: 1 })).toBeInTheDocument()
+    expect(screen.getAllByText('Skylark').length).toBeGreaterThan(0)
+    expect(screen.queryAllByRole('heading', { level: 1, name: 'Skylark' })).toHaveLength(0)
   })
 })

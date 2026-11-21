@@ -103,7 +103,7 @@ export function IntegrationsPage() {
 
             {existing && (
               <div className="mb-4 rounded-lg border border-slate-800/60 bg-slate-950/40 p-3 text-xs">
-                <div className="mb-1 uppercase tracking-wide text-slate-500">Current config</div>
+                <div className="mb-1 uppercase tracking-wide text-slate-400">Current config</div>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 font-mono text-slate-300">
                   {Object.entries(existing.config).map(([k, v]) => (
                     <span key={k}>{k}=<span className="text-slate-100">{String(v)}</span></span>
@@ -126,7 +126,7 @@ export function IntegrationsPage() {
                       className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none"
                       data-testid={`field-${provider}-${field}`}
                     />
-                    {fm.hint && <p className="mt-1 text-[11px] text-slate-500">{fm.hint}</p>}
+                    {fm.hint && <p className="mt-1 text-xs text-slate-400">{fm.hint}</p>}
                   </div>
                 )
               })}
@@ -156,7 +156,7 @@ export function IntegrationsPage() {
         )
       })}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-400">
         Once connected, open a ticket from an error group under <span className="text-slate-400">Issues</span>,
         or let the agent do it (<code className="text-slate-400">create_github_issue</code>,{' '}
         <code className="text-slate-400">create_ossicone_ticket</code>). Tokens are stored server-side and shown

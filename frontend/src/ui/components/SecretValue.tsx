@@ -9,7 +9,7 @@ interface SecretValueProps {
   display?: (revealed: boolean) => string
 }
 
-const buttonStyle = 'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-accent-400 max-md:h-11 max-md:w-11'
+const buttonStyle = 'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-accent-400 max-md:h-11 max-md:w-11'
 
 const copyWithTextarea = (value: string) => {
   const previousFocus = document.activeElement

@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { LevelBadge } from './LevelBadge'
+import { Button } from './ui/Button'
+import { OverviewStatus } from './OverviewStatus'
+import { issueHref } from './IssuesPage'
+import { timeAgo } from '../utils/date.utils'
 import { TrackingOverview } from './TrackingOverview'
 import { AlertRuleForm } from './forms/AlertRuleForm'
 import { DeploymentForm } from './forms/DeploymentForm'
@@ -76,8 +80,6 @@ export function OverviewPage({
   setGroups,
   snoozeGroup,
 }: OverviewPageProps) {
-  const [assignModal, setAssignModal] = useState<{groupId: number, currentAssignee: string} | null>(null)
-  const [commentModal, setCommentModal] = useState<{groupId: number} | null>(null)
   const [selectedRelease, setSelectedRelease] = useState<number | null>(null)
 
   // Issue-tracker integrations (configure under the Integrations tab).
@@ -118,55 +120,86 @@ export function OverviewPage({
     }
   }
 
+  const attention = groups
+    .filter(g => g.status === 'unresolved')
+    .map(g => ({ group: g, isNew: !!g.first_seen && Date.now() - new Date(g.first_seen).getTime() < 24 * 60 * 60 * 1000 }))
+    .sort((a, b) => Number(b.isNew) - Number(a.isNew) || (a.group.last_seen < b.group.last_seen ? 1 : -1))
+
   const PROVIDER_LABEL: Record<string, string> = { github: 'GitHub issue', ossicone: 'Ossicone ticket' }
 
   return (
     <div data-testid="overview-page" className="space-y-6">
-      {/* Project Header */}
-      <div data-testid="overview-header" className="rounded-lg border border-slate-800/60 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-100" data-testid="project-title">{selected.name}</h1>
-            <p className="text-sm text-slate-400" data-testid="project-description">
-              Recent activity, monitors and how events reach this project.
-            </p>
-          </div>
-          <div className="rounded-lg bg-slate-800/60 px-4 py-2" data-testid="project-info">
-            <div className="text-xs text-slate-400">Project Slug</div>
-            <div className="font-mono text-sm text-slate-200">{selected.slug}</div>
-          </div>
+      <header data-testid="overview-header" className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-100" data-testid="project-title">{selected.name}</h1>
+          <p className="text-sm text-slate-400" data-testid="project-description">
+            Open issues, releases and alert rules for this project.
+          </p>
         </div>
-      </div>
+        <div className="text-right" data-testid="project-info">
+          <div className="text-xs text-slate-400">Project slug</div>
+          <div className="font-mono text-sm text-slate-300">{selected.slug}</div>
+        </div>
+      </header>
 
-      {/* Tracking overview — what's being monitored (declared) vs what's arriving (observed) */}
+      <OverviewStatus slug={selected.slug} groups={groups} />
+
+      <section data-testid="groups-section" className="rounded-lg border border-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+          <h2 className="text-base font-semibold text-slate-100">Needs attention</h2>
+          <a href={`#view=issues&project=${encodeURIComponent(selected.slug)}`} className="inline-flex min-h-8 items-center text-sm text-slate-200 underline underline-offset-2 hover:text-white">View all issues</a>
+        </div>
+        {attention.length === 0 ? (
+          <p className="px-4 py-6 text-sm text-slate-300" data-testid="groups-table">No open issues.</p>
+        ) : (
+          <div className="overflow-x-auto" data-testid="groups-table">
+            <table className="w-full text-sm">
+              <thead className="text-left">
+                <tr><th className="pl-4">Issue</th><th className="pl-3 text-right" title="Total occurrences, including events no longer stored">Total events</th><th className="pl-6">Last seen</th><th className="pr-4 text-right"><span className="sr-only">Actions</span></th></tr>
+              </thead>
+              <tbody>
+                {attention.slice(0, 8).map(({ group: g, isNew }) => (
+                  <tr key={g.id} className="border-t border-slate-800" data-testid={`group-${g.id}`}>
+                    <td className="w-full max-w-0 py-1 pl-4">
+                      <div className="flex items-center gap-2">
+                        <LevelBadge level={g.level} variant="compact" />
+                        <a href={issueHref(selected.slug, g.id)} className="block min-h-9 flex-1 truncate py-2 text-slate-100 hover:underline">{g.title}</a>
+                        {isNew && <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-xs text-slate-200">New</span>}
+                      </div>
+                    </td>
+                    <td className="pl-3 text-right tabular-nums text-slate-200">{g.count.toLocaleString()}</td>
+                    <td className="whitespace-nowrap pl-6 text-slate-300">{timeAgo(g.last_seen)}</td>
+                    <td className="space-x-1 whitespace-nowrap pr-4 text-right">
+                      {rules.length > 0 ? (
+                        <Button size="xs" variant="secondary" data-testid={`snooze-group-${g.id}`} onClick={() => snoozeGroup(g.id, 60)}>Snooze</Button>
+                      ) : null}
+                      {providers.length > 0 ? (
+                        <Button size="xs" variant="secondary" data-testid={`issue-group-${g.id}`} onClick={() => openIssueModal(g)}>Create ticket</Button>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
       <TrackingOverview slug={selected.slug} />
 
-      {/* Quick Actions */}
-      <div data-testid="quick-actions" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-semibold tabular-nums text-accent-400" data-testid="releases-count">{releases.length}</div>
-          <div className="text-sm text-slate-300">Active Releases</div>
-        </div>
-        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-semibold tabular-nums text-accent-400" data-testid="deployments-count">{deploys.length}</div>
-          <div className="text-sm text-slate-300">Deployments</div>
-        </div>
-        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-semibold tabular-nums text-slate-100" data-testid="alert-rules-count">{rules.length}</div>
-          <div className="text-sm text-slate-300">Alert Rules</div>
-        </div>
-        <div className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center hover:bg-slate-800/40 transition-colors">
-          <div className="text-2xl font-semibold tabular-nums text-red-400" data-testid="open-groups-count">{groups.length}</div>
-          <div className="text-sm text-slate-300">Open Issues</div>
-        </div>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <details className="group rounded-lg border border-slate-800" data-testid="setup-section">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm text-slate-200 hover:bg-slate-800/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
+          <span className="font-medium">Releases, deployments and alert rules</span>
+          <span className="text-slate-400">
+            <span data-testid="releases-count">{releases.length}</span> releases · <span data-testid="deployments-count">{deploys.length}</span> deployments · <span data-testid="alert-rules-count">{rules.length}</span> alert rules
+          </span>
+        </summary>
+        <div className="border-t border-slate-800 p-4">
+<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Release Management */}
         <section data-testid="releases-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-semibold text-slate-100">Release Management</h3>
+            <h2 className="text-sm font-semibold text-slate-100">Releases</h2>
             <span className="rounded-full bg-accent-500/20 px-2 py-0.5 text-xs font-medium text-accent-400">
               {releases.length}
             </span>
@@ -179,7 +212,7 @@ export function OverviewPage({
 
           {/* Releases List */}
           {releases.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-2">No releases yet</p>
+            <p className="text-sm text-slate-400 text-center py-2">No releases yet</p>
           ) : (
             <div className="space-y-1.5 max-h-48 overflow-y-auto" data-testid="releases-table">
               {releases.map(r => (
@@ -199,7 +232,7 @@ export function OverviewPage({
                     }`}>
                       {r.environment}
                     </span>
-                    <span className="text-xs text-slate-500">{r.created_at}</span>
+                    <span className="text-xs text-slate-400">{r.created_at}</span>
                   </div>
                   <button
                     onClick={() => setSelectedRelease(selectedRelease === r.id ? null : r.id)}
@@ -223,7 +256,7 @@ export function OverviewPage({
         {/* Deployment Management */}
         <section data-testid="deployments-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-semibold text-slate-100">Deployment Tracking</h3>
+            <h2 className="text-sm font-semibold text-slate-100">Deployments</h2>
             <span className="rounded-full bg-accent-500/20 px-2 py-0.5 text-xs font-medium text-accent-400">
               {deploys.length}
             </span>
@@ -236,7 +269,7 @@ export function OverviewPage({
 
           {/* Deployments List */}
           {deploys.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-2">No deployments yet</p>
+            <p className="text-sm text-slate-400 text-center py-2">No deployments yet</p>
           ) : (
             <div className="space-y-1.5 max-h-48 overflow-y-auto" data-testid="deployments-table">
               {deploys.map(d => (
@@ -256,7 +289,7 @@ export function OverviewPage({
                     }`}>
                       {d.environment}
                     </span>
-                    <span className="text-xs text-slate-500">{d.date_started}</span>
+                    <span className="text-xs text-slate-400">{d.date_started}</span>
                   </div>
                   {d.url && (
                     <a
@@ -276,15 +309,12 @@ export function OverviewPage({
         </section>
 
         {/* Release Health */}
-        <section data-testid="release-health-section" className="rounded-lg border border-slate-800/60 p-6">
+        <section data-testid="release-health-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-100">Release Health</h3>
-            <span className="rounded-full bg-slate-800/60 px-2 py-1 text-xs text-slate-300">
-              Health monitoring
-            </span>
+            <h2 className="text-sm font-semibold text-slate-100">Release health</h2>
           </div>
-          <p className="mb-4 text-sm text-slate-400">
-            Monitor application stability through session tracking and crash-free percentages.
+          <p className="mb-4 text-xs text-slate-400">
+            Crash-free sessions per release. Send test sessions to check the numbers.
           </p>
           
           {/* Session Testing */}
@@ -296,18 +326,18 @@ export function OverviewPage({
                 value={sessionUser} 
                 onChange={e => setSessionUser(e.target.value)} 
                 placeholder="user id" 
-                className="rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                className="h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
               />
               <button 
                 data-testid="send-ok-session"
-                className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+                className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
                 onClick={() => sendSession('ok')}
               >
                 Send ok session
               </button>
               <button 
                 data-testid="send-crashed-session"
-                className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+                className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
                 onClick={() => sendSession('crashed')}
               >
                 Send crashed session
@@ -320,7 +350,7 @@ export function OverviewPage({
             <label className="text-xs text-slate-400">Range</label>
             <select 
               data-testid="health-range-select"
-              className="rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+              className="h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
               value={range} 
               onChange={e => setRange(e.target.value as any)}
             >
@@ -330,7 +360,7 @@ export function OverviewPage({
             <label className="text-xs text-slate-400">Interval</label>
             <select 
               data-testid="health-interval-select"
-              className="rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+              className="h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
               value={interval} 
               onChange={e => setInterval(e.target.value as any)}
             >
@@ -339,7 +369,7 @@ export function OverviewPage({
             </select>
             <button 
               data-testid="refresh-health"
-              className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+              className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
               onClick={refreshSeries}
             >
               Refresh
@@ -398,16 +428,13 @@ export function OverviewPage({
         </section>
 
         {/* Alert Rules */}
-        <section data-testid="alert-rules-section" className="rounded-lg border border-slate-800/60 p-6">
+        <section data-testid="alert-rules-section" className="rounded-lg border border-slate-800/60 p-4">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-100">Alert Management</h3>
+            <h2 className="text-sm font-semibold text-slate-100">Alert rules</h2>
             <span className="rounded-full bg-slate-800/60 px-2 py-1 text-xs text-slate-100">
               {rules.length} rules
             </span>
           </div>
-          <p className="mb-4 text-sm text-slate-400">
-            Configure automated alerts for error thresholds with email or webhook notifications.
-          </p>
           
           <div data-testid="alert-rule-form">
             <AlertRuleForm onCreate={createRule} />
@@ -424,7 +451,7 @@ export function OverviewPage({
                     value={editRule.threshold} 
                     onChange={e => setEditRule({...editRule, threshold: parseInt(e.target.value)})} 
                     placeholder="threshold" 
-                    className="w-20 rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                    className="w-20 h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
                   />
                   <input 
                     data-testid="rule-window-input"
@@ -432,7 +459,7 @@ export function OverviewPage({
                     value={editRule.window} 
                     onChange={e => setEditRule({...editRule, window: parseInt(e.target.value)})} 
                     placeholder="window (min)" 
-                    className="w-24 rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                    className="w-24 h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
                   />
                   <input 
                     data-testid="rule-notify-input"
@@ -440,11 +467,11 @@ export function OverviewPage({
                     value={editRule.notify} 
                     onChange={e => setEditRule({...editRule, notify: parseInt(e.target.value)})} 
                     placeholder="notify (min)" 
-                    className="w-24 rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                    className="w-24 h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
                   />
                   <button 
                     data-testid="update-rule-button"
-                    className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+                    className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
                     onClick={updateFirstRule}
                   >
                     Update
@@ -477,173 +504,8 @@ export function OverviewPage({
           </div>
         </section>
       </div>
-
-      {/* Issue Groups */}
-      <section data-testid="groups-section" className="rounded-lg border border-slate-800/60 p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-semibold text-slate-100">Issue Management</h3>
-          {(() => {
-            const open = groups.filter(g => g.status === 'unresolved').length
-            return (
-              <span className={`rounded-full px-2 py-1 text-xs ${open > 0 ? 'bg-red-500/20 text-red-300' : 'bg-accent-500/20 text-accent-400'}`}>
-                {open} open {open === 1 ? 'issue' : 'issues'}
-              </span>
-            )
-          })()}
         </div>
-        <p className="mb-4 text-sm text-slate-400">
-          Manage and triage error groups with resolve, ignore, assign, and comment actions.
-        </p>
-        
-        <div className="overflow-x-auto" data-testid="groups-table">
-          <table className="w-full text-sm">
-            <thead className="text-left text-slate-400">
-              <tr><th>Last Seen</th><th>Level</th><th>Title</th><th>Count</th><th>Status</th><th>Assignee</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {groups.map(g => (
-                <tr key={g.id} className="border-t border-slate-800/60" data-testid={`group-${g.id}`}>
-                  <td className="py-2">{g.last_seen}</td>
-                  <td><LevelBadge level={g.level} /></td>
-                  <td className="max-w-64 truncate">{g.title}</td>
-                  <td>{g.count}</td>
-                  <td className="text-xs">
-                    {g.status === 'resolved' ? (
-                      <span className="bg-accent-500/20 text-accent-400 px-2 py-1 rounded-full">resolved</span>
-                    ) : g.status === 'ignored' ? (
-                      <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded-full">ignored</span>
-                    ) : (
-                      <span className="bg-red-500/20 text-red-300 px-2 py-1 rounded-full">open</span>
-                    )}
-                  </td>
-                  <td className="text-xs">
-                    {g.assignee ? (
-                      <span className="bg-accent-500/20 text-accent-400 px-2 py-1 rounded-full">{g.assignee}</span>
-                    ) : (
-                      <span className="text-slate-500">unassigned</span>
-                    )}
-                  </td>
-                  <td className="space-x-1">
-                    <button 
-                      data-testid={`resolve-group-${g.id}`}
-                      className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
-                      onClick={() => api(`/api/groups/${g.id}/resolve/`, {method:'POST'}).then(()=>api(`/api/groups/?project=${selected!.slug}/`).then(setGroups))}
-                    >
-                      Resolve
-                    </button>
-                    <button 
-                      data-testid={`unresolve-group-${g.id}`}
-                      className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
-                      onClick={() => api(`/api/groups/${g.id}/unresolve/`, {method:'POST'}).then(()=>api(`/api/groups/?project=${selected!.slug}/`).then(setGroups))}
-                    >
-                      Unresolve
-                    </button>
-                    <button 
-                      data-testid={`ignore-group-${g.id}`}
-                      className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
-                      onClick={() => api(`/api/groups/${g.id}/ignore/`, {method:'POST'}).then(()=>api(`/api/groups/?project=${selected!.slug}/`).then(setGroups))}
-                    >
-                      Ignore
-                    </button>
-                    <button 
-                      data-testid={`assign-group-${g.id}`}
-                      className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
-                      onClick={() => setAssignModal({groupId: g.id, currentAssignee: g.assignee || ''})}
-                    >
-                      Assign
-                    </button>
-                    <button 
-                      data-testid={`comment-group-${g.id}`}
-                      className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
-                      onClick={() => setCommentModal({groupId: g.id})}
-                    >
-                      Comment
-                    </button>
-                    {rules.length > 0 ? (
-                      <button
-                        data-testid={`snooze-group-${g.id}`}
-                        className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60"
-                        onClick={() => snoozeGroup(g.id, 60)}
-                      >
-                        Snooze
-                      </button>
-                    ) : null}
-                    {providers.length > 0 ? (
-                      <button
-                        data-testid={`issue-group-${g.id}`}
-                        className="rounded border border-emerald-700/60 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-900/30"
-                        onClick={() => openIssueModal(g)}
-                      >
-                        Create Issue
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Assignment Modal */}
-      {assignModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-96">
-            <h3 className="text-base font-semibold text-slate-100 mb-4">Assign Issue</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-slate-300 mb-2">Assign to user:</label>
-                <input
-                  type="text"
-                  placeholder="Enter username or email"
-                  defaultValue={assignModal.currentAssignee}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white text-sm"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      const assignee = (e.target as HTMLInputElement).value;
-                      api(`/api/groups/${assignModal.groupId}/assign/`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({assignee})
-                      }).then(() => {
-                        api(`/api/groups/?project=${selected!.slug}/`).then(setGroups);
-                        setAssignModal(null);
-                      });
-                    }
-                  }}
-                  autoFocus
-                />
-                <p className="text-xs text-slate-400 mt-1">Press Enter to assign, or leave empty to unassign</p>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <button
-                  className="px-3 py-1 text-sm border border-slate-600 rounded hover:bg-slate-700"
-                  onClick={() => setAssignModal(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-1 text-sm bg-accent-600 hover:bg-accent-700 rounded text-white"
-                  onClick={() => {
-                    const input = document.querySelector('.fixed input') as HTMLInputElement;
-                    const assignee = input?.value || '';
-                    api(`/api/groups/${assignModal.groupId}/assign/`, {
-                      method: 'POST',
-                      headers: {'Content-Type': 'application/json'},
-                      body: JSON.stringify({assignee})
-                    }).then(() => {
-                      api(`/api/groups/?project=${selected!.slug}/`).then(setGroups);
-                      setAssignModal(null);
-                    });
-                  }}
-                >
-                  Assign
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </details>
 
       {/* Create Issue Modal */}
       {issueModal && (
@@ -656,7 +518,7 @@ export function OverviewPage({
 
             {issueModal.links.length > 0 && (
               <div className="mb-4 rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
-                <div className="mb-2 text-xs uppercase tracking-wide text-slate-500">Linked issues</div>
+                <div className="mb-2 text-xs uppercase tracking-wide text-slate-400">Linked issues</div>
                 <ul className="space-y-1 text-sm">
                   {issueModal.links.map(l => (
                     <li key={l.id}>
@@ -670,7 +532,7 @@ export function OverviewPage({
             )}
 
             <div className="space-y-2">
-              <div className="text-xs uppercase tracking-wide text-slate-500">Open a new issue in</div>
+              <div className="text-xs uppercase tracking-wide text-slate-400">Open a new issue in</div>
               {providers.map(p => (
                 <button
                   key={p}
@@ -699,56 +561,6 @@ export function OverviewPage({
         </div>
       )}
 
-      {/* Comment Modal */}
-      {commentModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-96">
-            <h3 className="text-base font-semibold text-slate-100 mb-4">Add Comment</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-slate-300 mb-2">Comment:</label>
-                <textarea
-                  placeholder="Enter your comment..."
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white text-sm h-24 resize-none"
-                  autoFocus
-                />
-              </div>
-              <div className="flex gap-2 justify-end">
-                <button
-                  className="px-3 py-1 text-sm border border-slate-600 rounded hover:bg-slate-700"
-                  onClick={() => setCommentModal(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-1 text-sm bg-accent-600 hover:bg-accent-700 rounded text-white"
-                  onClick={() => {
-                    const textarea = document.querySelector('.fixed textarea') as HTMLTextAreaElement;
-                    const body = textarea?.value || '';
-                    if (body.trim()) {
-                      api(`/api/groups/${commentModal.groupId}/comments/`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({author: 'ui', body})
-                      }).then(() => {
-                        setCommentModal(null);
-                        // Show success notification
-                        const notification = document.createElement('div');
-                        notification.className = 'fixed top-4 right-4 bg-accent-600 text-white px-4 py-2 rounded z-50';
-                        notification.textContent = 'Comment added successfully!';
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 3000);
-                      });
-                    }
-                  }}
-                >
-                  Add Comment
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

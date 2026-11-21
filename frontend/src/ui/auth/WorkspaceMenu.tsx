@@ -51,7 +51,7 @@ export function WorkspaceMenu() {
 
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-slate-700 bg-slate-900 py-1 ">
-          <p className="px-3 pb-1 pt-2 text-xs uppercase text-slate-500">Workspaces</p>
+          <p className="px-3 pb-1 pt-2 text-xs uppercase text-slate-400">Workspaces</p>
           {workspaces.map(w => (
             <button
               key={w.id}
@@ -83,7 +83,7 @@ export function WorkspaceMenu() {
             </button>
           )}
           <div className="my-1 border-t border-slate-800" />
-          <div className="truncate px-3 py-1 text-xs text-slate-500">{user?.email}</div>
+          <div className="truncate px-3 py-1 text-xs text-slate-400">{user?.email}</div>
           <button onClick={logout} className="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-slate-800">
             Sign out
           </button>
@@ -148,25 +148,25 @@ function WorkspaceSettings({ onClose }: { onClose: () => void }) {
         </div>
         {err && <div className="mb-3 rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">{err}</div>}
 
-        <label className="mb-1 block text-xs uppercase text-slate-500">Name</label>
+        <label className="mb-1 block text-xs uppercase text-slate-400">Name</label>
         <div className="mb-4 flex gap-2">
           <input value={name} onChange={e => setName(e.target.value)} className={`flex-1 ${input}`} />
           <button onClick={save} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">Save</button>
         </div>
 
-        <label className="mb-1 block text-xs uppercase text-slate-500">Members</label>
+        <label className="mb-1 block text-xs uppercase text-slate-400">Members</label>
         <div className="mb-4 max-h-40 overflow-auto rounded-md border border-slate-800">
           {members.map(m => (
             <div key={m.id} className="flex items-center justify-between px-3 py-2 text-sm text-slate-200">
               <span className="truncate">
-                {m.user.name} <span className="text-slate-500">{m.user.email}</span>
+                {m.user.name} <span className="text-slate-400">{m.user.email}</span>
               </span>
               <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">{m.role}</span>
             </div>
           ))}
         </div>
 
-        <label className="mb-1 block text-xs uppercase text-slate-500">Invite someone</label>
+        <label className="mb-1 block text-xs uppercase text-slate-400">Invite someone</label>
         <div className="flex gap-2">
           <input placeholder="email@example.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} className={`flex-1 ${input}`} />
           <select value={inviteRole} onChange={e => setInviteRole(e.target.value as WorkspaceRole)} className={input}>

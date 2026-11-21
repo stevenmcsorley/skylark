@@ -23,12 +23,12 @@ const variants = {
 
 const sizes = {
   xs: 'h-6 px-2 text-xs',
-  sm: 'h-7 px-3 text-[13px]',
+  sm: 'h-7 px-3 text-sm',
   md: 'h-8 px-3.5 text-sm',
   lg: 'h-10 px-5 text-sm'
 }
 
-const disabledStyles = 'cursor-not-allowed border border-slate-800 bg-slate-800/60 text-slate-500 hover:bg-slate-800/60'
+const disabledStyles = 'cursor-not-allowed border border-slate-800 bg-slate-800/60 text-slate-400 hover:bg-slate-800/60'
 
 export const Button = ({
   children,

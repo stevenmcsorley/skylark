@@ -12,9 +12,9 @@ const baseInputStyles = `
   w-full px-3 py-2
   border border-slate-700 bg-slate-800 text-white
   rounded-lg
-  placeholder:text-slate-500
+  placeholder:text-slate-400
   focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent
-  disabled:bg-slate-900 disabled:text-slate-500 disabled:cursor-not-allowed
+  disabled:bg-slate-900 disabled:text-slate-400 disabled:cursor-not-allowed
   transition-colors
 `
 
@@ -54,7 +54,7 @@ export const Input = ({
       <p className="mt-1 text-sm text-red-400">{error}</p>
     )}
     {helpText && !error && (
-      <p className="mt-1 text-sm text-slate-500">{helpText}</p>
+      <p className="mt-1 text-sm text-slate-400">{helpText}</p>
     )}
   </div>
 )

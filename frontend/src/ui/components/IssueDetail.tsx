@@ -10,9 +10,11 @@ import { StatusLabel } from './IssuesPage'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
 import { Icon } from './ui/Icon'
+import { EventBars } from './EventBars'
+import type { BarRow } from './EventBars'
 import { useToast } from './ui/Toast'
 
-const control = 'rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500'
+const control = 'rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500'
 
 /** Tags arrive as a dict, a list of strings or a list of {key, value}; show them all as "key: value". */
 export const tagPairs = (tags: IssueEvent['tags']): Array<[string, string]> => {
@@ -34,6 +36,38 @@ const details = (event: IssueEvent): Array<[string, string]> => {
   return rows.filter((r): r is [string, string] => Boolean(r[1]))
 }
 
+const HOUR = 3600_000
+const DAY = 24 * HOUR
+
+/**
+ * Count events per hour over the last 24 hours, or per day over the last 14 days when the stored events reach
+ * back further than two days. The window is fixed, so empty hours show as gaps and bars sit at even spacing.
+ */
+export const bucketEvents = (events: IssueEvent[], now: number = Date.now()): { rows: BarRow[]; unit: 'hour' | 'day' } => {
+  const times = events.map(e => new Date(e.received_at).getTime()).filter(n => !Number.isNaN(n))
+  const oldest = times.length ? Math.min(...times) : now
+  const unit = now - oldest > 2 * DAY ? 'day' : 'hour'
+  const size = unit === 'day' ? DAY : HOUR
+  const count = unit === 'day' ? 14 : 24
+  const end = Math.floor(now / size) * size
+  const start = end - (count - 1) * size
+  const rows: BarRow[] = Array.from({ length: count }, (_, i) => ({ bucket: new Date(start + i * size).toISOString(), error: 0, other: 0 }))
+  for (const e of events) {
+    const at = new Date(e.received_at).getTime()
+    if (Number.isNaN(at) || at < start) continue
+    const i = Math.min(count - 1, Math.floor((at - start) / size))
+    if (['error', 'fatal'].includes(e.level.toLowerCase())) rows[i].error += 1; else rows[i].other += 1
+  }
+  return { rows, unit }
+}
+
+/** "staging 7 · production 5", most common first. */
+export const environmentSplit = (events: IssueEvent[]): Array<[string, number]> => {
+  const counts = new Map<string, number>()
+  for (const e of events) if (e.environment) counts.set(e.environment, (counts.get(e.environment) ?? 0) + 1)
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])
+}
+
 interface IssueDetailProps {
   issueId: number
   onBack: () => void
@@ -51,13 +85,14 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
   const [assignee, setAssignee] = useState('')
   const [draft, setDraft] = useState('')
   const [copied, setCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   const load = useCallback(async () => {
     setError(null)
     try {
       const [g, ev, cm] = await Promise.all([
         api(`/api/groups/${issueId}/`),
-        api(`/api/events/?group=${issueId}&limit=25`),
+        api(`/api/events/?group=${issueId}&limit=100`),
         api(`/api/groups/${issueId}/comments/`),
       ])
       setIssue(g); setAssignee(g.assignee ?? '')
@@ -107,8 +142,12 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
     try { await navigator.clipboard.writeText(selected.stack); setCopied(true); window.setTimeout(() => setCopied(false), 1500) } catch { toast.addToast('error', 'Copy failed') }
   }
 
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}#view=issues&project=${new URLSearchParams(window.location.hash.slice(1)).get('project') ?? ''}&issue=${issueId}`); setLinkCopied(true); window.setTimeout(() => setLinkCopied(false), 1500) } catch { toast.addToast('error', 'Copy failed') }
+  }
+
   const back = (
-    <button type="button" onClick={onBack} className="inline-flex items-center gap-1 text-[13px] text-slate-400 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-back">
+    <button type="button" onClick={onBack} className="inline-flex min-h-8 items-center gap-1 text-sm text-slate-300 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-back">
       <Icon icon={ArrowLeft} size="sm" /> Issues
     </button>
   )
@@ -117,6 +156,10 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
   if (!issue) return <div className="space-y-4" aria-busy="true" data-testid="issue-loading">{back}<div className="h-24 animate-pulse rounded-md bg-slate-800/50" /></div>
 
   const lines = (selected?.stack ?? '').split('\n')
+  const split = environmentSplit(events)
+  const buckets = bucketEvents(events)
+  const hasRelease = events.some(e => typeof e.payload?.release === 'string')
+  const messagesDiffer = new Set(events.map(e => e.message)).size > 1
 
   return (
     <div className="space-y-6" data-testid="issue-detail">
@@ -127,23 +170,27 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
           <span className="mt-2"><LevelBadge level={issue.level} variant="compact" /></span>
           <h1 className="min-w-0 break-words text-xl font-semibold text-slate-100" data-testid="issue-title">{issue.title}</h1>
         </div>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-slate-400">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-400">
           <StatusLabel status={issue.status} />
-          <span className="tabular-nums">{issue.count.toLocaleString()} events</span>
+          <span className="tabular-nums">{issue.count.toLocaleString()} events in total</span>
           <span title={fmtDate(issue.first_seen)}>First seen {timeAgo(issue.first_seen)}</span>
           <span title={fmtDate(issue.last_seen)}>Last seen {timeAgo(issue.last_seen)}</span>
+          {split.length > 0 && <span data-testid="issue-env-split">{split.map(([env, n]) => `${env} ${n}`).join(' · ')} in the latest {events.length} stored</span>}
+          <button type="button" onClick={copyLink} className="inline-flex min-h-8 items-center gap-1 tabular-nums text-slate-300 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-id" aria-label={`Copy link to issue ${issue.id}`}>
+            ID {issue.id} <Icon icon={linkCopied ? Check : Copy} size="xs" />
+          </button>
         </p>
       </header>
 
       <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Issue actions">
         {issue.status === 'resolved'
-          ? <Button size="sm" variant="secondary" loading={busy === 'unresolve'} onClick={() => act('unresolve', 'unresolve')} testId="issue-unresolve">Reopen</Button>
-          : <Button size="sm" variant="primary" loading={busy === 'resolve'} onClick={() => act('resolve', 'resolve')} testId="issue-resolve">Resolve</Button>}
-        {issue.status !== 'ignored' && <Button size="sm" variant="secondary" loading={busy === 'ignore'} onClick={() => act('ignore', 'ignore')} testId="issue-ignore">Ignore</Button>}
-        <Button size="sm" variant="ghost" aria-pressed={issue.is_bookmarked} aria-label={issue.is_bookmarked ? 'Remove bookmark' : 'Bookmark'}
+          ? <Button size="md" variant="secondary" loading={busy === 'unresolve'} onClick={() => act('unresolve', 'unresolve')} testId="issue-unresolve">Reopen</Button>
+          : <Button size="md" variant="primary" loading={busy === 'resolve'} onClick={() => act('resolve', 'resolve')} testId="issue-resolve">Resolve</Button>}
+        {issue.status !== 'ignored' && <Button size="md" variant="secondary" loading={busy === 'ignore'} onClick={() => act('ignore', 'ignore')} testId="issue-ignore">Ignore</Button>}
+        <Button size="md" variant="ghost" aria-pressed={issue.is_bookmarked} aria-label={issue.is_bookmarked ? 'Remove bookmark' : 'Bookmark'}
           icon={<Icon icon={Bookmark} size="sm" className={issue.is_bookmarked ? 'fill-current' : ''} />}
           onClick={() => act('bookmark', issue.is_bookmarked ? 'unbookmark' : 'bookmark')} testId="issue-bookmark">{issue.is_bookmarked ? 'Bookmarked' : 'Bookmark'}</Button>
-        <label className="ml-auto flex items-center gap-2 text-[13px] text-slate-400">
+        <label className="ml-auto flex items-center gap-2 text-sm text-slate-400">
           Assignee
           <input value={assignee} onChange={e => setAssignee(e.target.value)} onBlur={saveAssignee} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
             placeholder="Unassigned" className={`${control} h-8 w-48`} data-testid="issue-assignee" />
@@ -154,47 +201,58 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         <section aria-label="Event" className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-semibold text-slate-100">Latest event</h2>
-            <span className="text-[13px] text-slate-500" title={fmtDate(selected.received_at)}>{timeAgo(selected.received_at)}</span>
+            <span className="text-sm text-slate-400" title={fmtDate(selected.received_at)}>{timeAgo(selected.received_at)}</span>
           </div>
           {selected.stack?.split('\n')[0]?.trim() !== selected.message.trim() && <p className="break-words text-sm text-slate-200" data-testid="issue-event-message">{selected.message}</p>}
 
           {selected.stack ? (
             <div className="relative rounded-lg border border-slate-800 bg-slate-900/60">
-              <button type="button" onClick={copyStack} aria-label="Copy stack trace" className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
+              <button type="button" onClick={copyStack} aria-label="Copy stack trace" className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
                 <Icon icon={copied ? Check : Copy} size="sm" />
               </button>
-              <pre className="overflow-x-auto p-4 pr-12 font-mono text-xs leading-5" data-testid="issue-stack">
-                {lines.map((line, i) => <div key={i} className={i === 0 ? 'font-semibold text-slate-100' : 'text-slate-400'}>{line || ' '}</div>)}
+              <pre className="overflow-x-auto p-5 pr-12 font-mono text-sm leading-6" data-testid="issue-stack">
+                {lines.map((line, i) => <div key={i} className={i === 0 ? 'font-semibold text-slate-100' : 'text-slate-300'}>{line || ' '}</div>)}
               </pre>
             </div>
-          ) : <p className="text-sm text-slate-500">This event has no stack trace.</p>}
+          ) : <p className="text-sm text-slate-400">This event has no stack trace.</p>}
 
           {(details(selected).length > 0 || tagPairs(selected.tags).length > 0) && (
             <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2" data-testid="issue-details">
               {details(selected).map(([k, v]) => (
-                <div key={k} className="flex gap-3"><dt className="w-24 shrink-0 text-slate-500">{k}</dt><dd className="min-w-0 break-words text-slate-200">{v}</dd></div>
+                <div key={k} className="flex gap-3"><dt className="w-24 shrink-0 text-slate-400">{k}</dt><dd className="min-w-0 break-words text-slate-200">{v}</dd></div>
               ))}
               {tagPairs(selected.tags).map(([k, v]) => (
-                <div key={`tag-${k}-${v}`} className="flex gap-3"><dt className="w-24 shrink-0 truncate text-slate-500">{k}</dt><dd className="min-w-0 break-words font-mono text-[13px] text-slate-200">{v}</dd></div>
+                <div key={`tag-${k}-${v}`} className="flex gap-3"><dt className="w-24 shrink-0 truncate text-slate-400">{k}</dt><dd className="min-w-0 break-words font-mono text-sm text-slate-200">{v}</dd></div>
               ))}
             </dl>
           )}
         </section>
-      ) : <p className="text-sm text-slate-500">No events are stored for this issue.</p>}
+      ) : <p className="text-sm text-slate-400">No events are stored for this issue.</p>}
+
+      {events.length > 1 && (
+        <section aria-label="Frequency" className="space-y-2" data-testid="issue-frequency">
+          <h2 className="text-base font-semibold text-slate-100">Frequency</h2>
+          <EventBars rows={buckets.rows} height={56} startLabel={buckets.unit === 'day' ? '14 days ago' : '24 hours ago'} endLabel="now"
+            unit={`events per ${buckets.unit}, latest ${events.length}`} testId="issue-frequency-bars" />
+          <p className="text-xs text-slate-400">The latest {events.length} stored events, per {buckets.unit}, over {buckets.unit === 'day' ? '14 days' : '24 hours'}. Red is error level; the issue has {issue.count.toLocaleString()} events in total.</p>
+        </section>
+      )}
 
       {events.length > 1 && (
         <section aria-label="Recent events" className="space-y-2">
           <h2 className="text-base font-semibold text-slate-100">Recent events</h2>
+          {!messagesDiffer && <p className="text-sm text-slate-400">Every event has the same message, so it is shown once above.</p>}
           <div className="overflow-x-auto rounded-lg border border-slate-800">
             <table className="w-full text-sm">
-              <thead><tr className="border-b border-slate-800"><th className="py-2.5 pl-4">When</th><th className="py-2.5 pl-6">Environment</th><th className="w-full py-2.5 pl-6 pr-4">Message</th></tr></thead>
+              <thead><tr className="border-b border-slate-800"><th className="py-2.5 pl-4">When</th><th className="py-2.5 pl-6">Environment</th>{hasRelease && <th className="py-2.5 pl-6">Release</th>}{messagesDiffer && <th className="w-full py-2.5 pl-6 pr-4">Message</th>}</tr></thead>
               <tbody className="divide-y divide-slate-800">
                 {events.map(ev => (
                   <tr key={ev.id} data-testid={`issue-event-${ev.id}`} onClick={() => setSelectedId(ev.id)} aria-selected={ev.id === selected?.id}
                     className={`cursor-pointer hover:bg-slate-800/40 ${ev.id === selected?.id ? 'bg-slate-800/60' : ''}`}>
-                    <td className="whitespace-nowrap py-2 pl-4 text-slate-300">{fmtDate(ev.received_at)}</td>
-                    <td className="whitespace-nowrap py-2 pl-6 text-slate-400">{ev.environment ?? ''}</td>
-                    <td className="w-full max-w-0 truncate py-2 pl-6 pr-4 text-slate-300">{ev.message}</td>
+                    <td className="whitespace-nowrap py-2.5 pl-4 text-slate-300" title={fmtDate(ev.received_at)}>{timeAgo(ev.received_at)}</td>
+                    <td className="whitespace-nowrap py-2.5 pl-6 text-slate-300">{ev.environment ?? ''}</td>
+                    {hasRelease && <td className="whitespace-nowrap py-2.5 pl-6 text-slate-300">{typeof ev.payload?.release === 'string' ? ev.payload.release : ''}</td>}
+                    {messagesDiffer && <td className="w-full max-w-0 truncate py-2.5 pl-6 pr-4 text-slate-300">{ev.message}</td>}
                   </tr>
                 ))}
               </tbody>
@@ -208,13 +266,13 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         <form onSubmit={addComment} className="space-y-2">
           <label className="sr-only" htmlFor="issue-comment">Add a comment</label>
           <textarea id="issue-comment" value={draft} onChange={e => setDraft(e.target.value)} rows={3} placeholder="Add a comment" className={`${control} w-full py-2`} data-testid="issue-comment-input" />
-          <Button type="submit" size="sm" variant="secondary" loading={busy === 'comment'} disabled={!draft.trim()} testId="issue-comment-submit">Comment</Button>
+          <Button type="submit" size="md" variant="secondary" loading={busy === 'comment'} disabled={!draft.trim()} testId="issue-comment-submit">Comment</Button>
         </form>
-        {comments.length === 0 ? <p className="text-sm text-slate-500">No comments yet.</p> : (
+        {comments.length === 0 ? <p className="text-sm text-slate-400">No comments yet.</p> : (
           <ul className="divide-y divide-slate-800 rounded-lg border border-slate-800" data-testid="issue-comments">
             {comments.map(c => (
               <li key={c.id} className="space-y-1 px-4 py-3">
-                <div className="flex items-baseline justify-between gap-3 text-[13px]"><span className="font-medium text-slate-200">{c.author}</span><span className="text-slate-500" title={fmtDate(c.created_at)}>{timeAgo(c.created_at)}</span></div>
+                <div className="flex items-baseline justify-between gap-3 text-sm"><span className="font-medium text-slate-200">{c.author}</span><span className="text-slate-400" title={fmtDate(c.created_at)}>{timeAgo(c.created_at)}</span></div>
                 <p className="whitespace-pre-wrap break-words text-sm text-slate-300">{c.body}</p>
               </li>
             ))}
