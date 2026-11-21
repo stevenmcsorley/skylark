@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useProjectService } from '../useProjectService'
-import { mockProjects, resetMockData } from '../../../mocks/handlers'
+import { http, HttpResponse } from 'msw'
+import { server } from '../../../mocks/server'
+import { resetMockData } from '../../../mocks/handlers'
 
 describe('useProjectService', () => {
   const mockOnProjectCreated = vi.fn()
@@ -25,6 +27,9 @@ describe('useProjectService', () => {
 
   it('should create a new project successfully', async () => {
     const { result } = renderHook(() => useProjectService(defaultParams))
+
+    // Django redirects a slashless POST, and the browser follows it as a GET.
+    server.use(http.post(/\/api\/projects$/, ({ request }) => HttpResponse.redirect(new URL('/api/projects/', request.url), 301)))
 
     await result.current.createProject('My New Project')
 
