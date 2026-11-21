@@ -6,6 +6,7 @@ import { fmtDate, timeAgo } from '../utils/date.utils'
 import type { Project } from '../types/app.types'
 import type { Issue } from '../types/issue.types'
 import type { IssueStatusFilter } from '../hooks/useAppRouting'
+import { ConnectApp } from './ConnectApp'
 import { LevelBadge } from './LevelBadge'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
@@ -121,9 +122,13 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
           {[0, 1, 2, 3].map(i => <div key={i} className="h-12 animate-pulse rounded-md bg-slate-800/50" />)}
         </div>
       ) : issues.length === 0 ? (
-        <EmptyState icon={CircleCheck} title="No issues yet"
-          description="Errors sent to this project show up here, grouped by cause. Connect an app from the Projects page to start receiving them."
-          action={<a href={`#view=projects&project=${encodeURIComponent(project.slug)}`} className="text-sm text-accent-400 hover:underline">Open Projects</a>} testId="issues-empty" />
+        <section className="space-y-4 rounded-lg border border-slate-800 p-5" data-testid="issues-empty">
+          <div>
+            <h2 className="text-base font-semibold text-slate-100">Connect your first app</h2>
+            <p className="mt-1 text-sm text-slate-400">No errors have arrived for this project yet. Add the snippet below to your app; issues appear here as soon as the first error is reported.</p>
+          </div>
+          <ConnectApp project={project} />
+        </section>
       ) : visible.length === 0 ? (
         <EmptyState icon={Search} title="No issues match" description="Try a different status or search term."
           action={<Button variant="secondary" size="sm" onClick={() => { onStatus('all'); onQuery('') }}>Clear filters</Button>} testId="issues-no-match" />
