@@ -51,7 +51,7 @@ describe('useAppRouting', () => {
   it('should initialize with default values', () => {
     const { result } = renderHook(() => useAppRouting([]))
 
-    expect(result.current.activeTab).toBe('logs')
+    expect(result.current.activeTab).toBe('estate')
     expect(result.current.selected).toBeNull()
     expect(result.current.search).toBe('')
     expect(result.current.filterLevel).toBe('')
@@ -113,7 +113,7 @@ describe('useAppRouting', () => {
       expect(result.current.initializedFromURL).toBe(true)
     })
 
-    expect(result.current.activeTab).toBe('logs') // Should remain default
+    expect(result.current.activeTab).toBe('estate') // Should remain default
   })
 
   it('should select project from URL parameter', async () => {

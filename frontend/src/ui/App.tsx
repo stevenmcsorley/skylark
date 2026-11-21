@@ -15,7 +15,7 @@ import { ProjectsTab } from './components/ProjectsTab'
 import { ReleasesPage } from './components/ReleasesPage'
 import { AlertsPage } from './components/AlertsPage'
 import { ToastProvider } from './components/ui'
-import { NoProjectSelected } from './components/ui'
+import { EmptyState, NoProjectSelected } from './components/ui'
 import { McpPage } from './components/McpPage'
 import { IntegrationsPage } from './components/IntegrationsPage'
 import { HelpPage } from './components/HelpPage'
@@ -123,7 +123,7 @@ export const App = () => {
       <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
         <div className="w-full px-6 py-4">
           {/* Header */}
-          <header className="mb-6 flex items-center justify-between">
+          <header className="mb-6 flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-white">Skylark</h1>
               <p className="text-sm text-slate-400">Error monitoring and performance tracking</p>
@@ -139,9 +139,9 @@ export const App = () => {
             </div>
           </header>
 
-          <div className="grid grid-cols-[56px_1fr] gap-6">
+          <div className="flex flex-col gap-6 lg:flex-row">
             <NavRail activeTab={routing.activeTab} onChange={routing.setActiveTab} />
-            <main className="min-w-0 flex-1">
+            <main className="min-w-0 flex-1 overflow-x-auto">
               <div className="space-y-6">
                 {routing.activeTab === 'estate' ? (
                   <EstatePage
@@ -150,6 +150,8 @@ export const App = () => {
                       if (p) { routing.setSelected(p); routing.setActiveTab('overview') }
                     }}
                   />
+                ) : routing.activeTab === 'issues' ? (
+                  <EmptyState title="Issues are coming next" />
                 ) : routing.activeTab === 'projects' ? (
                   <ProjectsTab
                     projects={projects}
