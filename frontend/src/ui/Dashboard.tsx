@@ -9,7 +9,9 @@ echarts.use([LineChart, BarChart, GridComponent, TooltipComponent, LegendCompone
 
 import { api } from './utils/api.utils'
 
-type SeriesRow = { bucket: string; error: number; warning: number; info: number }
+import { crashFreeRate, errorRate, eventsPerMinute, rateTone, totalEvents, type Bucket } from './utils/dashboardStats'
+
+type SeriesRow = Bucket & { bucket: string }
 type ReleaseHealth = { 
   version: string; 
   environment: string; 
@@ -32,11 +34,12 @@ type Deployment = {
   url?: string;
 }
 
-type DashboardTemplate = 'current' | 'frontend' | 'general' | 'backend'
+type DashboardTemplate = 'current' | 'general'
 
-export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo?: { from: string; to: string } | null }) {
+export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProjects?: () => void; projectSlug: string, fromTo?: { from: string; to: string } | null }) {
+  const [seriesStatus, setSeriesStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [series, setSeries] = useState<SeriesRow[]>([])
-  const [top, setTop] = useState<any[]>([])
+  const [top, setTop] = useState<{ title: string; fingerprint: string; count: number }[] | null>(null)
   const [releaseHealth, setReleaseHealth] = useState<ReleaseHealth[]>([])
   const [releases, setReleases] = useState<Release[]>([])
   const [deployments, setDeployments] = useState<Deployment[]>([])
@@ -45,44 +48,48 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
   const [template, setTemplate] = useState<DashboardTemplate>('current')
 
   useEffect(() => {
+    const controller = new AbortController()
+    const options = { signal: controller.signal }
+    setSeriesStatus('loading')
+    setSeries([])
+    setTop(null)
+    setReleaseHealth([])
+    setReleases([])
+    setDeployments([])
     const base = `/api/dashboard/series/?project=${projectSlug}&backend=ch&interval=${interval}`
     const url = fromTo ? `${base}&from=${encodeURIComponent(fromTo.from)}&to=${encodeURIComponent(fromTo.to)}` : `${base}&range=${range}`
-    api(url).then(setSeries).catch(()=>{})
+    api(url, options).then(rows => {
+      setSeries(rows)
+      setSeriesStatus('ready')
+    }).catch(() => {
+      if (!controller.signal.aborted) setSeriesStatus('error')
+    })
     
     const baseTop = `/api/dashboard/top-groups/?project=${projectSlug}&backend=ch`
     const urlTop = fromTo ? `${baseTop}&from=${encodeURIComponent(fromTo.from)}&to=${encodeURIComponent(fromTo.to)}` : `${baseTop}&range=${range}`
-    api(urlTop).then(setTop).catch(()=>{})
+    api(urlTop, options).then(setTop).catch(()=>{})
     
     // Fetch release health data
-    api(`/api/releases/health/?project=${projectSlug}`).then(setReleaseHealth).catch(()=>{})
+    api(`/api/releases/health/?project=${projectSlug}`, options).then(setReleaseHealth).catch(()=>{})
     
     // Fetch recent releases
-    api(`/api/releases/?project=${projectSlug}`).then(setReleases).catch(()=>{})
+    api(`/api/releases/?project=${projectSlug}`, options).then(setReleases).catch(()=>{})
     
     // Fetch recent deployments 
-    api(`/api/deployments/?project=${projectSlug}`).then(setDeployments).catch(()=>{})
+    api(`/api/deployments/?project=${projectSlug}`, options).then(setDeployments).catch(()=>{})
+    return () => controller.abort()
   }, [projectSlug, range, interval, fromTo?.from, fromTo?.to])
 
-  // Calculate overall stats
-  const totalEvents = series.reduce((sum, row) => sum + row.error + row.warning + row.info, 0)
-  const errorRate = totalEvents > 0 ? ((series.reduce((sum, row) => sum + row.error, 0) / totalEvents) * 100).toFixed(2) : '0.00'
-  const avgCrashFreeRate = releaseHealth.length > 0 ? (releaseHealth.reduce((sum, rh) => sum + rh.crash_free_rate, 0) / releaseHealth.length).toFixed(2) : '100.00'
-  
-  // Calculate performance metrics from real event data
-  const apdexScore = totalEvents > 0 ? (1 - parseFloat(errorRate) / 100).toFixed(4) : '1.0000'
-  const userMisery = totalEvents > 0 ? (parseFloat(errorRate) / 1000).toFixed(4) : '0.0000'
-  
-  // Performance metrics calculated from actual event patterns and counts
-  const avgEventsPerMin = series.length > 0 ? (totalEvents / series.length).toFixed(1) : '0'
-  const performanceMetrics = {
-    lcp: totalEvents > 0 ? (1.0 + (parseFloat(errorRate) / 50)).toFixed(2) : '1.50', // Higher LCP with more errors
-    fcp: totalEvents > 0 ? (200 + (totalEvents / 10)).toFixed(0) : '180', // FCP increases with load
-    cls: totalEvents > 0 ? (parseFloat(errorRate) / 10000).toFixed(4) : '0.0000', // CLS correlates with errors
-    fid: totalEvents > 0 ? (3.0 + (parseFloat(errorRate) / 10)).toFixed(1) : '2.5', // FID increases with errors
-    httpSpan: totalEvents > 0 ? (400 + (totalEvents / 5)).toFixed(0) : '350', // HTTP span increases with load
-    dbSpan: totalEvents > 0 ? (12 + (parseFloat(errorRate) * 2)).toFixed(1) : '10.0', // DB span increases with errors
-    duration: totalEvents > 0 ? (1.0 + (parseFloat(errorRate) / 100)).toFixed(2) : '1.00' // Duration increases with errors
-  }
+  const count = totalEvents(series)
+  const intervalMinutes = interval === '5m' ? 5 : 60
+  const rate = errorRate(series)
+  const tone = { none: 'text-slate-400', good: 'text-green-400', warn: 'text-amber-400', bad: 'text-red-400' }[rateTone(rate)]
+  const crashFree = crashFreeRate(releaseHealth)
+  const average = eventsPerMinute(series, intervalMinutes)
+  const seriesMessage = seriesStatus === 'loading' ? 'Loading events' :
+    seriesStatus === 'error' ? 'Event data unavailable' : 'No events in this period'
+  const missing = (reason: string) => <span className="text-slate-400" title={reason}>-</span>
+  const missingEvents = missing(seriesMessage)
 
   // ECharts configuration for events chart
   // Map each deployment to the nearest visible time bucket so it renders as a
@@ -133,7 +140,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
       {
         name: 'Errors',
         type: 'line',
-        data: series.map(s => s.error),
+        data: series.map(s => s.error / intervalMinutes),
         smooth: true,
         lineStyle: { color: '#ef4444' },
         itemStyle: { color: '#ef4444' },
@@ -153,7 +160,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
       {
         name: 'Warnings', 
         type: 'line',
-        data: series.map(s => s.warning),
+        data: series.map(s => s.warning / intervalMinutes),
         smooth: true,
         lineStyle: { color: '#f59e0b' },
         itemStyle: { color: '#f59e0b' }
@@ -161,7 +168,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
       {
         name: 'Info',
         type: 'line',
-        data: series.map(s => s.info),
+        data: series.map(s => s.info / intervalMinutes),
         smooth: true,
         lineStyle: { color: '#3b82f6' },
         itemStyle: { color: '#3b82f6' }
@@ -169,8 +176,8 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
     ]
   })
 
-  // Render different dashboard templates
-  const renderCurrentTemplate = () => (
+  // Dashboard widgets
+  const renderWidgets = () => (
     <div className="space-y-6">
 
       {/* Key Metrics Cards */}
@@ -179,10 +186,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Error Rate</p>
-              <p className="text-2xl font-semibold text-red-400">{errorRate}%</p>
-            </div>
-            <div className="rounded-full bg-red-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-red-500"></div>
+              <p className={`text-2xl font-semibold ${tone}`}>{rate === null ? missingEvents : `${rate.toFixed(2)}%`}</p>
             </div>
           </div>
         </div>
@@ -191,11 +195,9 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Crash-Free Rate</p>
-              {releaseHealth.length > 0 ? (
-                <p className="text-2xl font-semibold text-green-400">{avgCrashFreeRate}%</p>
-              ) : (
-                <p className="text-2xl font-semibold text-slate-500" title="No sessions reported yet — send session pings to track crash-free rate.">—</p>
-              )}
+              <p className="text-2xl font-semibold text-green-400">
+                {crashFree === null ? missing('No release health data') : `${crashFree.toFixed(2)}%`}
+              </p>
             </div>
             <div className="rounded-full bg-green-500/10 p-2">
               <div className="h-4 w-4 rounded-full bg-green-500"></div>
@@ -207,7 +209,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Active Issues</p>
-              <p className="text-2xl font-semibold text-yellow-400">{top.length}</p>
+              <p className="text-2xl font-semibold text-yellow-400">{count ? top?.length ?? missing('No issue data') : missingEvents}</p>
             </div>
             <div className="rounded-full bg-yellow-500/10 p-2">
               <div className="h-4 w-4 rounded-full bg-yellow-500"></div>
@@ -219,7 +221,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Total Events</p>
-              <p className="text-2xl font-semibold text-blue-400">{totalEvents.toLocaleString()}</p>
+              <p className="text-2xl font-semibold text-blue-400">{count ? count.toLocaleString() : missingEvents}</p>
             </div>
             <div className="rounded-full bg-blue-500/10 p-2">
               <div className="h-4 w-4 rounded-full bg-blue-500"></div>
@@ -229,7 +231,7 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
+      <div className={template === 'current' ? "grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]" : "space-y-6"}>
         {/* Left Column */}
         <div className="space-y-6">
           {/* Events Chart */}
@@ -251,37 +253,38 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
                 </div>
               </div>
             </div>
-            <ReactECharts 
+            <p className="mb-2 text-sm text-slate-400">Average: {count && average !== null ? average.toFixed(1) : missingEvents}</p>
+            {count > 0 && <ReactECharts
               echarts={echarts as any}
               option={getEventsChartOption()}
               style={{ height: '200px', width: '100%' }}
-            />
+            />}
           </div>
 
           {/* Release Health */}
-          {releaseHealth.length > 0 && (
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-              <h2 className="mb-4 text-lg font-semibold text-white">Release Health</h2>
-              <div className="space-y-3">
-                {releaseHealth.slice(0, 5).map((rh, i) => (
-                  <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-3">
-                    <div>
-                      <div className="font-medium text-white">{rh.version}</div>
-                      <div className="text-sm text-slate-400">{rh.environment}</div>
+          <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+            <h2 className="mb-4 text-lg font-semibold text-white">Release Health</h2>
+            {!releaseHealth.length && <p className="text-sm text-slate-400">No release health data</p>}
+            <div className="space-y-3">
+              {releaseHealth.slice(0, 5).map((rh, i) => (
+                <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-3">
+                  <div>
+                    <div className="font-medium text-white">{rh.version}</div>
+                    <div className="text-sm text-slate-400">{rh.environment}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-semibold ${rh.crash_free_rate >= 99.5 ? 'text-green-400' : rh.crash_free_rate >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
+                      {rh.crash_free_rate}%
                     </div>
-                    <div className="text-right">
-                      <div className={`font-semibold ${rh.crash_free_rate >= 99.5 ? 'text-green-400' : rh.crash_free_rate >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
-                        {rh.crash_free_rate}%
-                      </div>
-                      <div className="text-sm text-slate-400">
-                        {rh.total_sessions.toLocaleString()} sessions
-                      </div>
+                    <div className="text-sm text-slate-400">
+                      {rh.total_sessions.toLocaleString()} sessions
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
+
         </div>
 
         {/* Right Column */}
@@ -289,8 +292,9 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
           {/* Top Issues */}
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
             <h2 className="mb-4 text-lg font-semibold text-white">Top Issues</h2>
+            {!top?.length && <p className="text-sm text-slate-400">No issues to display</p>}
             <ul className="space-y-2">
-              {top.slice(0, 8).map((t, i) => (
+              {top?.slice(0, 8).map((t, i) => (
                 <li key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-white">
@@ -306,251 +310,48 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
           </div>
 
           {/* Recent Deployments */}
-          {deployments.length > 0 && (
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-              <h2 className="mb-4 text-lg font-semibold text-white">Recent Deployments</h2>
-              <div className="space-y-2">
-                {deployments.slice(0, 5).map((deployment, i) => (
-                  <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
-                    <div>
-                      <div className="text-sm font-medium text-white">{deployment.version}</div>
-                      <div className="text-xs text-slate-400">{deployment.environment}</div>
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      {new Date(deployment.timestamp).toLocaleDateString()}
-                    </div>
+          <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+            <h2 className="mb-4 text-lg font-semibold text-white">Recent Deployments</h2>
+            {!deployments.length && <p className="text-sm text-slate-400">No deployments to display</p>}
+            <div className="space-y-2">
+              {deployments.slice(0, 5).map((deployment, i) => (
+                <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
+                  <div>
+                    <div className="text-sm font-medium text-white">{deployment.version}</div>
+                    <div className="text-xs text-slate-400">{deployment.environment}</div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-xs text-slate-400">
+                    {new Date(deployment.timestamp).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
+
 
           {/* Recent Releases */}
-          {releases.length > 0 && (
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-              <h2 className="mb-4 text-lg font-semibold text-white">Recent Releases</h2>
-              <div className="space-y-2">
-                {releases.slice(0, 5).map((release, i) => (
-                  <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
-                    <div>
-                      <div className="text-sm font-medium text-white">{release.version}</div>
-                      <div className="text-xs text-slate-400">
-                        {new Date(release.date_created).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="text-right text-xs">
-                      {release.new_issues > 0 && (
-                        <div className="text-red-400">+{release.new_issues} issues</div>
-                      )}
+          <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+            <h2 className="mb-4 text-lg font-semibold text-white">Recent Releases</h2>
+            {!releases.length && <p className="text-sm text-slate-400">No releases to display</p>}
+            <div className="space-y-2">
+              {releases.slice(0, 5).map((release, i) => (
+                <div key={i} className="flex items-center justify-between rounded border border-slate-600 p-2">
+                  <div>
+                    <div className="text-sm font-medium text-white">{release.version}</div>
+                    <div className="text-xs text-slate-400">
+                      {new Date(release.date_created).toLocaleDateString()}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-
-  // Frontend Template (based on dash1.png)
-  const renderFrontendTemplate = () => (
-    <div className="space-y-6">
-      {/* Performance Metrics Grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall LCP</p>
-          <p className="text-lg font-semibold text-white">{performanceMetrics.lcp}s</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall FCP</p>
-          <p className="text-lg font-semibold text-white">{performanceMetrics.fcp}ms</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall CLS</p>
-          <p className="text-lg font-semibold text-white">{performanceMetrics.cls}</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall FID</p>
-          <p className="text-lg font-semibold text-white">{performanceMetrics.fid}ms</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Layered Shift Over Time</p>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '80px', width: '100%' }} />
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Page Load Over Time</p>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '80px', width: '100%' }} />
-        </div>
-      </div>
-
-      {/* Main Charts and Tables */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
-        <div className="space-y-6">
-          <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Top 5 Issues by Unique Users Over Time</h2>
-            <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '300px', width: '100%' }} />
-          </div>
-          <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Top 5 Issues by Unique Users</h2>
-            <div className="space-y-2">
-              {top.slice(0, 5).map((t, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-slate-600 py-2">
-                  <span className="text-sm text-white">{t.title || t.fingerprint}</span>
-                  <span className="text-sm text-slate-400">{t.count}</span>
+                  <div className="text-right text-xs">
+                    {release.new_issues > 0 && (
+                      <div className="text-red-400">+{release.new_issues} issues</div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-        <div className="space-y-6">
-          <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Slow Page Navigations</h2>
-            {top.length > 0 ? (
-              <div className="space-y-2">
-                {top.slice(0, 3).map((issue, i) => {
-                  const loadTime = (1.5 + (issue.count / 100)).toFixed(1);
-                  const path = issue.title ? issue.title.split(' ')[0] : `/${projectSlug}`;
-                  return (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span>{path}</span>
-                      <span className="text-slate-400">{loadTime}s</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-400">No slow navigation data available</p>
-            )}
-          </div>
-          <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Issues Assigned to Me or My Teams</h2>
-            <p className="text-center text-slate-400">No results found for your query</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 
-  // General Template (based on dash2.png) 
-  const renderGeneralTemplate = () => (
-    <div className="space-y-6">
-      {/* Top Metrics */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Number of Errors</p>
-          <p className="text-3xl font-semibold text-white">{totalEvents > 1000 ? `${(totalEvents/1000).toFixed(1)}k` : totalEvents}</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Number of Issues</p>
-          <p className="text-3xl font-semibold text-white">{top.length}</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall User Misery</p>
-          <p className="text-3xl font-semibold text-white">{userMisery}</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall Apdex</p>
-          <p className="text-3xl font-semibold text-white">{apdexScore}</p>
-        </div>
-      </div>
-
-      {/* Main Chart */}
-      <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-        <h2 className="mb-4 text-lg font-semibold text-white">Events</h2>
-        <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '200px', width: '100%' }} />
-      </div>
-
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="mb-4 text-lg font-semibold text-white">Handled vs. Unhandled</h2>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '150px', width: '100%' }} />
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="mb-4 text-lg font-semibold text-white">Affected Users</h2>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '150px', width: '100%' }} />
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="mb-4 text-lg font-semibold text-white">Issues Assigned to Me or My Teams</h2>
-          <p className="text-center text-slate-400">No results found for your query</p>
-        </div>
-      </div>
-    </div>
-  )
-
-  // Backend Template (based on dash3.png)
-  const renderBackendTemplate = () => (
-    <div className="space-y-6">
-      {/* Performance Metrics */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall Apdex</p>
-          <p className="text-2xl font-semibold text-white">{apdexScore}</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall Duration</p>
-          <p className="text-2xl font-semibold text-white">{performanceMetrics.duration}s</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall HTTP Spans</p>
-          <p className="text-2xl font-semibold text-white">{performanceMetrics.httpSpan}ms</p>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4 text-center">
-          <p className="text-sm text-slate-400">Overall DB Spans</p>
-          <p className="text-2xl font-semibold text-white">{performanceMetrics.dbSpan}ms</p>
-        </div>
-      </div>
-
-      {/* Main Charts */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="mb-4 text-lg font-semibold text-white">Throughput (Errors Per Minute)</h2>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '200px', width: '100%' }} />
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="mb-4 text-lg font-semibold text-white">p75 Over Time</h2>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '200px', width: '100%' }} />
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_2fr]">
-        <div className="space-y-6">
-          <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Top 5 Issues by Unique Users</h2>
-            <div className="space-y-2">
-              {top.slice(0, 5).map((t, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-slate-600 py-2">
-                  <span className="text-sm text-white">{t.title || t.fingerprint}</span>
-                  <span className="text-sm text-slate-400">{t.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">HTTP Transactions with Poor Apdex</h2>
-            {top.length > 0 ? (
-              <div className="space-y-2">
-                {top.slice(0, 3).map((issue, i) => {
-                  const method = ['GET', 'POST', 'PUT'][i % 3];
-                  const endpoint = issue.title ? issue.title.toLowerCase().replace(/\s+/g, '_') : `api_endpoint_${i}`;
-                  return (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span>{method}</span>
-                      <span className="text-slate-400">{endpoint}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-400">No transaction data available</p>
-            )}
-          </div>
-        </div>
-        <div className="rounded border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="mb-4 text-lg font-semibold text-white">Transactions Erroring Over Time</h2>
-          <ReactECharts echarts={echarts as any} option={getEventsChartOption()} style={{ height: '300px', width: '100%' }} />
         </div>
       </div>
     </div>
@@ -561,16 +362,18 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
       {/* Header with template and time range controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+            <p className="text-sm text-slate-400">Skylark shows errors and releases. Page-load and transaction performance are not collected yet.</p>
+          </div>
           <select 
             className="rounded border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-white" 
+            aria-label="Dashboard template"
             value={template} 
-            onChange={e=>setTemplate(e.target.value as DashboardTemplate)}
+            onChange={e=>setTemplate(e.target.value === 'general' ? 'general' : 'current')}
           >
             <option value="current">Current Template</option>
-            <option value="frontend">Frontend Template</option>
             <option value="general">General Template</option>
-            <option value="backend">Backend Template</option>
           </select>
         </div>
         {!fromTo && (
@@ -589,11 +392,14 @@ export function Dashboard({ projectSlug, fromTo }: { projectSlug: string, fromTo
         )}
       </div>
 
-      {/* Render selected template */}
-      {template === 'current' && renderCurrentTemplate()}
-      {template === 'frontend' && renderFrontendTemplate()}
-      {template === 'general' && renderGeneralTemplate()}
-      {template === 'backend' && renderBackendTemplate()}
+      {seriesStatus === 'ready' && count === 0 && (
+        <section className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+          <h2 className="text-lg font-semibold text-white">No events in this period</h2>
+          <p className="text-sm text-slate-400">Nothing has been received for this project in the selected range. Check the range, or connect an app from the Projects page.</p>
+          <button type="button" className="text-blue-400 underline" onClick={onOpenProjects}>Go to Projects</button>
+        </section>
+      )}
+      {renderWidgets()}
     </div>
   )
 }

@@ -161,6 +161,7 @@ export const App = () => {
                 ) : routing.activeTab === 'dashboard' ? (
                   routing.selected ? (
                     <Dashboard
+                      onOpenProjects={() => routing.setActiveTab('projects')}
                       projectSlug={routing.selected.slug}
                       fromTo={routing.timeSel || undefined}
                     />

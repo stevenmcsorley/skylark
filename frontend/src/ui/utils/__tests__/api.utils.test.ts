@@ -25,7 +25,7 @@ describe('api utility', () => {
 
     const result = await api('/api/test')
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/test', undefined)
+    expect(mockFetch).toHaveBeenCalledWith('/api/test', { headers: {} })
     expect(result).toEqual(mockResponse)
   })
 
@@ -60,7 +60,7 @@ describe('api utility', () => {
     } as any)
 
     await expect(api('/api/notfound')).rejects.toThrow('API Error 404: Not Found')
-    expect(mockFetch).toHaveBeenCalledWith('/api/notfound', undefined)
+    expect(mockFetch).toHaveBeenCalledWith('/api/notfound', { headers: {} })
   })
 
   it('throws error for non-JSON content type', async () => {
