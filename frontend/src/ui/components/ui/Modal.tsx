@@ -51,7 +51,7 @@ export const Modal = ({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 "
         onClick={onClose}
         aria-hidden="true"
       />
@@ -60,7 +60,7 @@ export const Modal = ({
       <div
         className={`
           relative w-full ${sizes[size]} mx-4
-          bg-slate-800 border border-slate-700 rounded-xl shadow-2xl
+          bg-slate-800 border border-slate-700 rounded-lg 
           transform transition-all
         `}
         role="dialog"

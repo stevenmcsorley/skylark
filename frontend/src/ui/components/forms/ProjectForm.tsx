@@ -58,7 +58,7 @@ export const ProjectForm = ({
         onChange={handleChange}
         onKeyPress={handleKeyPress}
         placeholder="Enter project name"
-        className="flex-1 px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-1 px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-accent-500"
         disabled={isLoading || isSubmitting}
         data-testid="project-name-input"
         autoComplete="off"
@@ -69,7 +69,7 @@ export const ProjectForm = ({
         className={`px-4 py-2 rounded font-medium transition-colors ${
           disabled 
             ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
-            : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+            : 'bg-accent-600 text-white hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500'
         }`}
         data-testid="create-project-button"
       >

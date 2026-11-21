@@ -59,3 +59,22 @@ describe('LevelBadge', () => {
     expect(screen.getByText(level)).toBeInTheDocument()
   })
 })
+
+describe('quiet styling guard', () => {
+  const files = () => sourceFiles(SRC).filter(f => f.endsWith('.tsx'))
+
+  it('has no gradients except the logo tile', () => {
+    const hits = files().filter(f => /bg-gradient/.test(readFileSync(f, 'utf8')) && !f.endsWith('LoginPage.tsx'))
+    expect(hits).toEqual([])
+  })
+
+  it('has no glow, heavy shadow or blur on content', () => {
+    const hits = files().filter(f => /shadow-(xl|2xl|lg)|backdrop-blur/.test(readFileSync(f, 'utf8')))
+    expect(hits).toEqual([])
+  })
+
+  it('uses the single accent instead of decorative blue, purple, indigo or orange', () => {
+    const hits = files().filter(f => /\b(?:bg|text|border|ring)-(?:blue|purple|violet|indigo|orange|pink|teal|cyan)-\d/.test(readFileSync(f, 'utf8')))
+    expect(hits).toEqual([])
+  })
+})

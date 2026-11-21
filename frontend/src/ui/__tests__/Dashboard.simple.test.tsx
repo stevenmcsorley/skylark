@@ -36,7 +36,7 @@ describe('Dashboard', () => {
     const series = [{ bucket: '2024-01-01', error: 0, warning: 20, info: 10 }]
     server.use(http.get('*/api/dashboard/series/', () => HttpResponse.json(series)))
     render(<Dashboard projectSlug="test-project" />)
-    expect(await screen.findByText(`${errorRate(series)?.toFixed(2)}%`)).toHaveClass('text-green-400')
+    expect(await screen.findByText(`${errorRate(series)?.toFixed(2)}%`)).toHaveClass('text-accent-400')
     expect(screen.getByText(`Average: ${eventsPerMinute(series, 5)?.toFixed(1)}`)).toBeInTheDocument()
     fireEvent.change(screen.getByDisplayValue('5m'), { target: { value: '1h' } })
     expect(await screen.findByText(`Average: ${eventsPerMinute(series, 60)?.toFixed(1)}`)).toBeInTheDocument()

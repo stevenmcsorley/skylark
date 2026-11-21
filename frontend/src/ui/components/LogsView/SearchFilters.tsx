@@ -35,7 +35,7 @@ export const SearchFilters = ({
       <select 
         value={filterLevel} 
         onChange={onLevelChange}
-        className="rounded-full border border-slate-700 bg-slate-800 text-white px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="rounded-full border border-slate-700 bg-slate-800 text-white px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500"
         data-testid="severity-filter"
       >
         <option value="">severity:any</option>
@@ -81,7 +81,7 @@ export const SearchFilters = ({
       
       <button 
         type="button"
-        className="rounded-full border border-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+        className="rounded-full border border-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
         onClick={onClearAll}
         data-testid="clear-filters-button"
       >

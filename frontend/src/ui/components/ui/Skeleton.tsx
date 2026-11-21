@@ -47,7 +47,7 @@ export const SkeletonText = ({ lines = 3, className = '' }: { lines?: number; cl
 )
 
 export const SkeletonCard = ({ className = '' }: { className?: string }) => (
-  <div className={`rounded-xl border border-slate-800/60 bg-slate-800/20 p-6 ${className}`}>
+  <div className={`rounded-lg border border-slate-800/60 bg-slate-800/20 p-6 ${className}`}>
     <div className="flex items-center justify-between mb-4">
       <Skeleton variant="text" className="w-32 h-6" />
       <Skeleton variant="rectangular" className="w-20 h-6" />
@@ -78,7 +78,7 @@ export const SkeletonTable = ({ rows = 5, columns = 4 }: { rows?: number; column
 export const SkeletonStats = ({ count = 4 }: { count?: number }) => (
   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
     {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="rounded-xl border border-slate-800/60 bg-slate-800/20 p-4 text-center">
+      <div key={i} className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-4 text-center">
         <Skeleton variant="text" className="w-16 h-8 mx-auto mb-2" />
         <Skeleton variant="text" className="w-24 h-4 mx-auto" />
       </div>
@@ -93,7 +93,7 @@ interface LoadingOverlayProps {
 
 export const LoadingOverlay = ({ message = 'Loading...', testId }: LoadingOverlayProps) => (
   <div
-    className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm rounded-xl z-10"
+    className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 rounded-lg z-10"
     data-testid={testId}
   >
     <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-blue-500" />

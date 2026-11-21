@@ -42,8 +42,8 @@ describe('ReleasesPage', () => {
       />
     )
 
-    expect(screen.getByText('Release Management')).toBeInTheDocument()
-    expect(screen.getByText('Manage application versions, upload source maps, and track deployments for')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Releases' })).toBeInTheDocument()
+    expect(screen.getByText(/that errors are reported against/)).toBeInTheDocument()
     expect(screen.getByText('test-project')).toBeInTheDocument()
     expect(screen.getByText('Create New Release')).toBeInTheDocument()
   })

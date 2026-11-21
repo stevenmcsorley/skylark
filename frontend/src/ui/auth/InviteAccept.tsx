@@ -45,10 +45,10 @@ export function InviteAccept({ token }: { token: string }) {
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-white">Skylark</h1>
+          <h1 className="text-xl font-semibold text-slate-100">Skylark</h1>
           <p className="mt-1 text-sm text-slate-400">Workspace invitation</p>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-6">
           {loading ? (
             <p className="text-sm text-slate-400">Loading…</p>
           ) : error && !info ? (

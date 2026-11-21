@@ -83,7 +83,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
   const count = totalEvents(series)
   const intervalMinutes = interval === '5m' ? 5 : 60
   const rate = errorRate(series)
-  const tone = { none: 'text-slate-400', good: 'text-green-400', warn: 'text-amber-400', bad: 'text-red-400' }[rateTone(rate)]
+  const tone = { none: 'text-slate-400', good: 'text-accent-400', warn: 'text-amber-400', bad: 'text-red-400' }[rateTone(rate)]
   const crashFree = crashFreeRate(releaseHealth)
   const average = eventsPerMinute(series, intervalMinutes)
   const seriesMessage = seriesStatus === 'loading' ? 'Loading events' :
@@ -195,12 +195,12 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Crash-Free Rate</p>
-              <p className="text-2xl font-semibold text-green-400">
+              <p className="text-2xl font-semibold tabular-nums text-accent-400">
                 {crashFree === null ? missing('No release health data') : `${crashFree.toFixed(2)}%`}
               </p>
             </div>
-            <div className="rounded-full bg-green-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-green-500"></div>
+            <div className="rounded-full bg-accent-500/10 p-2">
+              <div className="h-4 w-4 rounded-full bg-accent-500"></div>
             </div>
           </div>
         </div>
@@ -209,10 +209,10 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Active Issues</p>
-              <p className="text-2xl font-semibold text-yellow-400">{count ? top?.length ?? missing('No issue data') : missingEvents}</p>
+              <p className="text-2xl font-semibold tabular-nums text-amber-400">{count ? top?.length ?? missing('No issue data') : missingEvents}</p>
             </div>
-            <div className="rounded-full bg-yellow-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-yellow-500"></div>
+            <div className="rounded-full bg-amber-500/10 p-2">
+              <div className="h-4 w-4 rounded-full bg-amber-500"></div>
             </div>
           </div>
         </div>
@@ -221,10 +221,10 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Total Events</p>
-              <p className="text-2xl font-semibold text-blue-400">{count ? count.toLocaleString() : missingEvents}</p>
+              <p className="text-2xl font-semibold tabular-nums text-accent-400">{count ? count.toLocaleString() : missingEvents}</p>
             </div>
-            <div className="rounded-full bg-blue-500/10 p-2">
-              <div className="h-4 w-4 rounded-full bg-blue-500"></div>
+            <div className="rounded-full bg-accent-500/10 p-2">
+              <div className="h-4 w-4 rounded-full bg-accent-500"></div>
             </div>
           </div>
         </div>
@@ -237,18 +237,18 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
           {/* Events Chart */}
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Events per minute</h2>
+              <h2 className="text-base font-semibold text-slate-100">Events per minute</h2>
               <div className="flex space-x-4 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="h-3 w-3 rounded-full bg-red-500"></div>
                   <span className="text-slate-300">Errors</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                  <div className="h-3 w-3 rounded-full bg-amber-500"></div>
                   <span className="text-slate-300">Warnings</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                  <div className="h-3 w-3 rounded-full bg-accent-500"></div>
                   <span className="text-slate-300">Info</span>
                 </div>
               </div>
@@ -263,7 +263,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
 
           {/* Release Health */}
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Release Health</h2>
+            <h2 className="mb-4 text-base font-semibold text-slate-100">Release Health</h2>
             {!releaseHealth.length && <p className="text-sm text-slate-400">No release health data</p>}
             <div className="space-y-3">
               {releaseHealth.slice(0, 5).map((rh, i) => (
@@ -273,7 +273,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
                     <div className="text-sm text-slate-400">{rh.environment}</div>
                   </div>
                   <div className="text-right">
-                    <div className={`font-semibold ${rh.crash_free_rate >= 99.5 ? 'text-green-400' : rh.crash_free_rate >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
+                    <div className={`font-semibold ${rh.crash_free_rate >= 99.5 ? 'text-accent-400' : rh.crash_free_rate >= 95 ? 'text-amber-400' : 'text-red-400'}`}>
                       {rh.crash_free_rate}%
                     </div>
                     <div className="text-sm text-slate-400">
@@ -291,7 +291,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
         <div className="space-y-6">
           {/* Top Issues */}
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Top Issues</h2>
+            <h2 className="mb-4 text-base font-semibold text-slate-100">Top Issues</h2>
             {!top?.length && <p className="text-sm text-slate-400">No issues to display</p>}
             <ul className="space-y-2">
               {top?.slice(0, 8).map((t, i) => (
@@ -311,7 +311,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
 
           {/* Recent Deployments */}
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Recent Deployments</h2>
+            <h2 className="mb-4 text-base font-semibold text-slate-100">Recent Deployments</h2>
             {!deployments.length && <p className="text-sm text-slate-400">No deployments to display</p>}
             <div className="space-y-2">
               {deployments.slice(0, 5).map((deployment, i) => (
@@ -331,7 +331,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
 
           {/* Recent Releases */}
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-            <h2 className="mb-4 text-lg font-semibold text-white">Recent Releases</h2>
+            <h2 className="mb-4 text-base font-semibold text-slate-100">Recent Releases</h2>
             {!releases.length && <p className="text-sm text-slate-400">No releases to display</p>}
             <div className="space-y-2">
               {releases.slice(0, 5).map((release, i) => (
@@ -363,7 +363,7 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+            <h1 className="text-xl font-semibold text-slate-100">Dashboard</h1>
             <p className="text-sm text-slate-400">Skylark shows errors and releases. Page-load and transaction performance are not collected yet.</p>
           </div>
           <select 
@@ -394,9 +394,9 @@ export function Dashboard({ projectSlug, fromTo, onOpenProjects }: { onOpenProje
 
       {seriesStatus === 'ready' && count === 0 && (
         <section className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
-          <h2 className="text-lg font-semibold text-white">No events in this period</h2>
+          <h2 className="text-base font-semibold text-slate-100">No events in this period</h2>
           <p className="text-sm text-slate-400">Nothing has been received for this project in the selected range. Check the range, or connect an app from the Projects page.</p>
-          <button type="button" className="text-blue-400 underline" onClick={onOpenProjects}>Go to Projects</button>
+          <button type="button" className="text-accent-400 underline" onClick={onOpenProjects}>Go to Projects</button>
         </section>
       )}
       {renderWidgets()}

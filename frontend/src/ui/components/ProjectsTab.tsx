@@ -54,7 +54,7 @@ export const ProjectsTab = ({
   return (
     <section 
       className={[
-        "rounded-xl border border-slate-800/60 p-4",
+        "rounded-lg border border-slate-800/60 p-4",
         className
       ].filter(Boolean).join(" ")} 
       data-testid={testId}
@@ -64,7 +64,7 @@ export const ProjectsTab = ({
       <form onSubmit={handleCreate} className="mb-3 flex flex-wrap items-center gap-2">
         <input 
           type="text"
-          className="rounded border border-slate-700 bg-slate-800 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+          className="rounded border border-slate-700 bg-slate-800 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500" 
           value={name} 
           onChange={handleNameChange}
           placeholder="Project name" 
@@ -78,7 +78,7 @@ export const ProjectsTab = ({
           className={`px-4 py-2 rounded font-medium transition-colors ${
             !name.trim() || isCreating
               ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
-              : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+              : 'bg-accent-600 text-white hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500'
           }`}
           data-testid="create-project-button"
         >
@@ -113,7 +113,7 @@ export const ProjectsTab = ({
                 <td className="py-2">
                   <button 
                     type="button"
-                    className="rounded border border-slate-700 px-3 py-1 text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                    className="rounded border border-slate-700 px-3 py-1 text-white hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
                     onClick={() => handleSelectProject(p)}
                     data-testid={`select-project-${p.id}`}
                   >

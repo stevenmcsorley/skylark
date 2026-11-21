@@ -129,9 +129,9 @@ export const ReleasesPage = ({
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Release Management</h1>
-            <p className="text-slate-300 mt-1">
-              Manage application versions, upload source maps, and track deployments for <span className="font-mono text-blue-300">{selected.slug}</span>
+            <h1 className="text-xl font-semibold text-slate-100">Releases</h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Versions of <span className="font-mono text-slate-200">{selected.slug}</span> that errors are reported against.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -143,7 +143,7 @@ export const ReleasesPage = ({
             </button>
             <div className="rounded-lg bg-slate-800/60 px-4 py-2">
               <div className="text-xs text-slate-400">Total Releases</div>
-              <div className="text-2xl font-bold text-blue-400">{releases.length}</div>
+              <div className="text-2xl font-semibold tabular-nums text-accent-400">{releases.length}</div>
             </div>
           </div>
         </div>
@@ -151,8 +151,8 @@ export const ReleasesPage = ({
 
       {/* Upload Guide */}
       {showUploadGuide && (
-        <div className="mb-6 rounded-xl border border-blue-500/30 bg-blue-900/20 p-6">
-          <h3 className="text-lg font-semibold text-blue-300 mb-3">Source map upload guide</h3>
+        <div className="mb-6 rounded-lg border border-slate-700 bg-slate-800/40 p-6">
+          <h3 className="text-base font-semibold text-accent-400 mb-3">Source map upload guide</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
               <h4 className="font-medium text-white mb-2">Option 1: File Upload (Recommended)</h4>
@@ -177,8 +177,8 @@ export const ReleasesPage = ({
       )}
 
       {/* Create New Release */}
-      <div className="mb-8 rounded-xl border border-slate-800/60 bg-slate-800/20 p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Create New Release</h2>
+      <div className="mb-8 rounded-lg border border-slate-800/60 bg-slate-800/20 p-6">
+        <h2 className="text-base font-semibold text-slate-100 mb-4">Create New Release</h2>
         <form onSubmit={handleCreateRelease} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -188,7 +188,7 @@ export const ReleasesPage = ({
                 value={newVersion}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setNewVersion(e.target.value)}
                 placeholder="e.g., 1.2.3, v2.0.0-beta.1"
-                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 disabled={isCreating}
               />
             </div>
@@ -197,7 +197,7 @@ export const ReleasesPage = ({
               <select
                 value={newEnvironment}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) => setNewEnvironment(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 disabled={isCreating}
               >
                 <option value="production">Production</option>
@@ -213,14 +213,14 @@ export const ReleasesPage = ({
               value={releaseNotes}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setReleaseNotes(e.target.value)}
               placeholder="What's new in this release..."
-              className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+              className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 h-20 resize-none"
               disabled={isCreating}
             />
           </div>
           <button
             type="submit"
             disabled={!newVersion.trim() || isCreating}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-accent-600 text-white rounded-lg font-medium hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isCreating ? 'Creating...' : 'Create Release'}
           </button>
@@ -229,24 +229,24 @@ export const ReleasesPage = ({
 
       {/* Releases List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">Existing Releases</h2>
+        <h2 className="text-base font-semibold text-slate-100">Existing Releases</h2>
         
         {releases.length === 0 ? (
-          <div className="text-center py-12 rounded-xl border border-slate-800/60 bg-slate-800/10">
+          <div className="text-center py-12 rounded-lg border border-slate-800/60 bg-slate-800/10">
             <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500"><Icon icon={Package} size="lg" /></div>
-            <h3 className="text-lg font-medium text-slate-300 mb-2">No releases yet</h3>
+            <h3 className="text-base font-medium text-slate-300 mb-2">No releases yet</h3>
             <p className="text-slate-400">Create your first release above to start tracking versions and uploading source maps.</p>
           </div>
         ) : (
           <div className="grid gap-4">
             {releases.map(release => (
-              <div key={release.id} className="rounded-xl border border-slate-800/60 bg-slate-800/10 p-6">
+              <div key={release.id} className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-white">{release.version}</h3>
+                    <h3 className="text-base font-semibold text-slate-100">{release.version}</h3>
                     <LevelBadge 
                       level={release.environment} 
-                      className="!bg-blue-500/20 !text-blue-300"
+                      className="!bg-accent-500/20 !text-accent-400"
                     />
                     <span className="text-sm text-slate-400">{fmtDate(release.created_at)}</span>
                   </div>
@@ -260,7 +260,7 @@ export const ReleasesPage = ({
                     <button
                       onClick={() => triggerFileUpload(release.id)}
                       disabled={uploadingTo === release.id}
-                      className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition-colors"
+                      className="px-3 py-1 text-sm bg-accent-600 text-white rounded hover:bg-accent-700 disabled:opacity-50 transition-colors"
                     >
                       {uploadingTo === release.id ? 'Uploading...' : 'Upload Files'}
                     </button>
@@ -273,7 +273,7 @@ export const ReleasesPage = ({
                     <span className="text-xs text-slate-400 font-medium">CLI Upload Command:</span>
                     <button
                       onClick={() => navigator.clipboard.writeText(generateUploadCommand(release))}
-                      className="text-xs text-blue-400 hover:text-blue-300"
+                      className="text-xs text-accent-400 hover:text-accent-400"
                     >
                       Copy
                     </button>

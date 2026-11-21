@@ -163,13 +163,13 @@ export const LogsView = ({
       data-testid={testId}
     >
       {/* Header Controls */}
-      <div className="rounded-xl border border-slate-800/60 p-3">
+      <div className="rounded-lg border border-slate-800/60 p-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm">
             <select 
               value={selected.id} 
               onChange={handleProjectChange}
-              className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500"
               data-testid="project-selector"
             >
               {projects.map(p => (
@@ -180,7 +180,7 @@ export const LogsView = ({
             <select 
               value={filterEnv} 
               onChange={handleEnvChange}
-              className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500"
               data-testid="environment-filter"
             >
               <option value="">All Envs</option>
@@ -205,7 +205,7 @@ export const LogsView = ({
               value={search} 
               onChange={handleSearchChange}
               placeholder="Search for logs, users, tags, and more" 
-              className="w-full rounded border border-slate-700 bg-slate-800 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              className="w-full rounded border border-slate-700 bg-slate-800 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" 
               data-testid="search-input"
               autoComplete="off"
             />
@@ -222,8 +222,8 @@ export const LogsView = ({
             />
             
             {realTimeEnabled && !isConnected && (
-              <div className="flex items-center gap-1 text-xs text-orange-400">
-                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+              <div className="flex items-center gap-1 text-xs text-slate-100">
+                <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                 <span>Connecting...</span>
               </div>
             )}

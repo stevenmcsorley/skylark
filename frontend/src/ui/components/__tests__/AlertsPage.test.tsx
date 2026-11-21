@@ -52,8 +52,8 @@ describe('AlertsPage', () => {
       />
     )
 
-    expect(screen.getByText('Alert Management')).toBeInTheDocument()
-    expect(screen.getByText('Configure automated alerts and notifications for')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Alerts' })).toBeInTheDocument()
+    expect(screen.getByText(/cross a threshold/)).toBeInTheDocument()
     expect(screen.getByText('Test Project')).toBeInTheDocument()
     expect(screen.getByText('+ New Alert Rule')).toBeInTheDocument()
   })

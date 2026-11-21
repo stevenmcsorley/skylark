@@ -125,8 +125,8 @@ export const App = () => {
           {/* Header */}
           <header className="mb-6 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">Skylark</h1>
-              <p className="text-sm text-slate-400">Error monitoring and performance tracking</p>
+              <h1 className="text-xl font-semibold tracking-tight text-slate-100">Skylark</h1>
+              <p className="text-sm text-slate-400">Error monitoring</p>
             </div>
             <div className="flex items-center gap-4">
               {routing.selected && (

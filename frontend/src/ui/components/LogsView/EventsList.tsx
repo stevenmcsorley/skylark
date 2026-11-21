@@ -21,7 +21,7 @@ interface EventsListProps {
 }
 
 const levelDot = (level: string) => {
-  const color = level === 'error' ? 'bg-red-500' : level === 'warning' ? 'bg-amber-400' : 'bg-blue-400'
+  const color = level === 'error' ? 'bg-red-500' : level === 'warning' ? 'bg-amber-400' : 'bg-sky-500'
   return <span className={`inline-block h-2 w-2 rounded-full ${color}`}></span>
 }
 
@@ -64,7 +64,7 @@ export const EventsList = ({
   return (
     <div 
       className={[
-        "rounded-xl border border-slate-800/60",
+        "rounded-lg border border-slate-800/60",
         className
       ].filter(Boolean).join(" ")}
       data-testid={testId}
@@ -83,7 +83,7 @@ export const EventsList = ({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="inline-flex h-5 w-5 items-center justify-center rounded hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="inline-flex h-5 w-5 items-center justify-center rounded hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500"
                 title="Toggle details"
                 onClick={() => handleToggleDetails(e.id)}
                 data-testid={`toggle-event-${e.id}`}
@@ -102,7 +102,7 @@ export const EventsList = ({
             {open[e.id] && (
               <div className="col-span-3">
                 {eventDetails[e.id] ? (
-                  <div className="mt-2 rounded-xl border border-slate-700 bg-slate-800/40 p-4 shadow-sm ring-1 ring-slate-700/40 border-l-4 border-indigo-500/60">
+                  <div className="mt-2 rounded-lg border border-slate-700 bg-slate-800/40 p-4 shadow-sm ring-1 ring-slate-700/40 border-l-4 border-slate-700">
                     <div className="mb-3 flex items-center justify-between text-xs text-slate-300">
                       <div className="truncate pr-2 text-sm font-medium text-slate-100">{e.message}</div>
                       <div className="flex items-center gap-2 whitespace-nowrap">
@@ -153,7 +153,7 @@ export const EventsList = ({
                         <div className="mb-1 flex items-center justify-between">
                           <div className="text-xs font-semibold text-slate-400">stack</div>
                           {(eventDetails[e.id] as any)._symSource ? (
-                            <span className="rounded-full bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 text-[10px] font-medium text-purple-300">
+                            <span className="rounded-full bg-slate-800/60 border border-slate-700 px-2 py-0.5 text-[10px] font-medium text-slate-300">
                               symbolicated: {(eventDetails[e.id] as any)._symSource}
                             </span>
                           ) : null}
@@ -193,7 +193,7 @@ export const EventsList = ({
         <div className="flex items-center gap-2">
           <span>Rows per page</span>
           <select 
-            className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            className="rounded border border-slate-700 bg-slate-800 text-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500" 
             value={eventLimit} 
             onChange={handleLimitChange}
             data-testid="events-per-page-select"
@@ -210,7 +210,7 @@ export const EventsList = ({
           </span>
           <button 
             type="button"
-            className="rounded border border-slate-700 px-2 py-1 text-white disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            className="rounded border border-slate-700 px-2 py-1 text-white disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
             disabled={eventOffset <= 0} 
             onClick={handlePrevPage}
             data-testid="prev-page-button"
@@ -219,7 +219,7 @@ export const EventsList = ({
           </button>
           <button 
             type="button"
-            className="rounded border border-slate-700 px-2 py-1 text-white disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            className="rounded border border-slate-700 px-2 py-1 text-white disabled:opacity-50 hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-accent-500" 
             disabled={eventOffset + events.length >= eventTotal} 
             onClick={handleNextPage}
             data-testid="next-page-button"

@@ -177,9 +177,9 @@ export const AlertsPage = ({
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Alert Management</h1>
-            <p className="text-slate-300 mt-1">
-              Configure automated alerts and notifications for <span className="font-mono text-blue-300">{selected.name}</span>
+            <h1 className="text-xl font-semibold text-slate-100">Alerts</h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Rules that notify you when errors in <span className="font-mono text-slate-200">{selected.name}</span> cross a threshold.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -191,14 +191,14 @@ export const AlertsPage = ({
             </button>
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 text-sm bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-colors"
               disabled={isCreating}
             >
               {showCreateForm ? 'Cancel' : '+ New Alert Rule'}
             </button>
             <div className="rounded-lg bg-slate-800/60 px-4 py-2">
               <div className="text-xs text-slate-400">Total Rules</div>
-              <div className="text-2xl font-bold text-orange-400">{rules.length}</div>
+              <div className="text-2xl font-semibold tabular-nums text-slate-100">{rules.length}</div>
             </div>
           </div>
         </div>
@@ -206,11 +206,11 @@ export const AlertsPage = ({
 
       {/* Alert Guide */}
       {showGuide && (
-        <div className="mb-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-6">
-          <h2 className="text-xl font-semibold text-blue-300 mb-4">Alert configuration guide</h2>
+        <div className="mb-8 rounded-lg border border-slate-700 bg-accent-500/5 p-6">
+          <h2 className="text-base font-semibold text-accent-400 mb-4">Alert configuration guide</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-sm">
             <div>
-              <h3 className="font-semibold text-white mb-3">Threshold settings</h3>
+              <h3 className="font-semibold text-slate-100 mb-3">Threshold settings</h3>
               <ul className="space-y-2 text-slate-300">
                 <li><strong>Threshold Count:</strong> Number of events that trigger the alert</li>
                 <li><strong>Window Minutes:</strong> Time window to count events (e.g., 10 errors in 5 minutes)</li>
@@ -219,7 +219,7 @@ export const AlertsPage = ({
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-white mb-3">Notification types</h3>
+              <h3 className="font-semibold text-slate-100 mb-3">Notification types</h3>
               <ul className="space-y-2 text-slate-300">
                 <li><strong>Email:</strong> Send alerts to email addresses</li>
                 <li><strong>Webhook:</strong> POST alerts to external services</li>
@@ -233,8 +233,8 @@ export const AlertsPage = ({
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="mb-8 rounded-xl border border-slate-800/60 bg-slate-800/20 p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Create New Alert Rule</h2>
+        <div className="mb-8 rounded-lg border border-slate-800/60 bg-slate-800/20 p-6">
+          <h2 className="text-base font-semibold text-slate-100 mb-4">Create New Alert Rule</h2>
           <form onSubmit={handleCreateRule} className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
@@ -244,7 +244,7 @@ export const AlertsPage = ({
                   value={createForm.name}
                   onChange={(e) => setCreateForm({...createForm, name: e.target.value})}
                   placeholder="e.g., High Error Rate Alert"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                   required
                 />
               </div>
@@ -253,7 +253,7 @@ export const AlertsPage = ({
                 <select
                   value={createForm.level}
                   onChange={(e) => setCreateForm({...createForm, level: e.target.value})}
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 >
                   <option value="">Any Level</option>
                   <option value="error">Error</option>
@@ -272,7 +272,7 @@ export const AlertsPage = ({
                   value={createForm.thresholdCount}
                   onChange={(e) => setCreateForm({...createForm, thresholdCount: parseInt(e.target.value) || 1})}
                   min="1"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
               <div>
@@ -282,7 +282,7 @@ export const AlertsPage = ({
                   value={createForm.thresholdWindowMinutes}
                   onChange={(e) => setCreateForm({...createForm, thresholdWindowMinutes: parseInt(e.target.value) || 5})}
                   min="1"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
               <div>
@@ -292,7 +292,7 @@ export const AlertsPage = ({
                   value={createForm.notifyIntervalMinutes}
                   onChange={(e) => setCreateForm({...createForm, notifyIntervalMinutes: parseInt(e.target.value) || 60})}
                   min="1"
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
             </div>
@@ -303,7 +303,7 @@ export const AlertsPage = ({
                 <select
                   value={createForm.targetType}
                   onChange={(e) => setCreateForm({...createForm, targetType: e.target.value as 'email' | 'webhook', targetValue: ''})}
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                 >
                   <option value="email">Email</option>
                   <option value="webhook">Webhook</option>
@@ -318,7 +318,7 @@ export const AlertsPage = ({
                   value={createForm.targetValue}
                   onChange={(e) => setCreateForm({...createForm, targetValue: e.target.value})}
                   placeholder={createForm.targetType === 'email' ? 'alerts@example.com' : 'https://your-webhook-url.com/alerts'}
-                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                   required
                 />
               </div>
@@ -331,7 +331,7 @@ export const AlertsPage = ({
                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                   !createForm.name.trim() || !createForm.targetValue.trim() || isCreating
                     ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-accent-600 text-white hover:bg-accent-700'
                 }`}
               >
                 {isCreating ? 'Creating...' : 'Create Alert Rule'}
@@ -351,27 +351,27 @@ export const AlertsPage = ({
       {/* Rules List */}
       <div className="space-y-4">
         {rules.length === 0 ? (
-          <div className="rounded-xl border border-slate-800/60 bg-slate-800/10 p-8 text-center">
+          <div className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-8 text-center">
             <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500"><Icon icon={Bell} size="lg" /></div>
-            <h3 className="text-xl font-semibold text-white mb-2">No alert rules yet</h3>
+            <h3 className="text-base font-semibold text-slate-100 mb-2">No alert rules yet</h3>
             <p className="text-slate-400 mb-4">
               Create your first alert rule above to start monitoring error thresholds and get notified when issues occur.
             </p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 text-sm bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-colors"
             >
               Create Your First Alert Rule
             </button>
           </div>
         ) : (
           rules.map((rule) => (
-            <div key={rule.id} className="rounded-xl border border-slate-800/60 bg-slate-800/10 p-6">
+            <div key={rule.id} className="rounded-lg border border-slate-800/60 bg-slate-800/10 p-6">
               {editingRule?.id === rule.id ? (
                 // Edit form
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-white">Edit Alert Rule</h3>
+                    <h3 className="text-base font-semibold text-slate-100">Edit Alert Rule</h3>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleUpdateRule}
@@ -379,7 +379,7 @@ export const AlertsPage = ({
                         className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
                           isUpdating
                             ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                            : 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-accent-600 text-white hover:bg-accent-700'
                         }`}
                       >
                         {isUpdating ? 'Saving...' : 'Save Changes'}
@@ -400,7 +400,7 @@ export const AlertsPage = ({
                         type="text"
                         value={editingRule.name}
                         onChange={(e) => setEditingRule({...editingRule, name: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                     <div>
@@ -408,7 +408,7 @@ export const AlertsPage = ({
                       <select
                         value={editingRule.level}
                         onChange={(e) => setEditingRule({...editingRule, level: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       >
                         <option value="">Any Level</option>
                         <option value="error">Error</option>
@@ -427,7 +427,7 @@ export const AlertsPage = ({
                         value={editingRule.thresholdCount}
                         onChange={(e) => setEditingRule({...editingRule, thresholdCount: parseInt(e.target.value) || 1})}
                         min="1"
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                     <div>
@@ -437,7 +437,7 @@ export const AlertsPage = ({
                         value={editingRule.thresholdWindowMinutes}
                         onChange={(e) => setEditingRule({...editingRule, thresholdWindowMinutes: parseInt(e.target.value) || 5})}
                         min="1"
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                     <div>
@@ -447,7 +447,7 @@ export const AlertsPage = ({
                         value={editingRule.notifyIntervalMinutes}
                         onChange={(e) => setEditingRule({...editingRule, notifyIntervalMinutes: parseInt(e.target.value) || 60})}
                         min="1"
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                   </div>
@@ -458,7 +458,7 @@ export const AlertsPage = ({
                       <select
                         value={editingRule.targetType}
                         onChange={(e) => setEditingRule({...editingRule, targetType: e.target.value as 'email' | 'webhook'})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       >
                         <option value="email">Email</option>
                         <option value="webhook">Webhook</option>
@@ -470,7 +470,7 @@ export const AlertsPage = ({
                         type={editingRule.targetType === 'email' ? 'email' : 'url'}
                         value={editingRule.targetValue}
                         onChange={(e) => setEditingRule({...editingRule, targetValue: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                       />
                     </div>
                   </div>
@@ -481,7 +481,7 @@ export const AlertsPage = ({
                         type="checkbox"
                         checked={editingRule.active}
                         onChange={(e) => setEditingRule({...editingRule, active: e.target.checked})}
-                        className="rounded border-slate-700 bg-slate-800 text-blue-500 focus:ring-blue-500"
+                        className="rounded border-slate-700 bg-slate-800 text-accent-400 focus:ring-accent-500"
                       />
                       Active (enable notifications)
                     </label>
@@ -492,8 +492,8 @@ export const AlertsPage = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${rule.active ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}`}></div>
-                      <h3 className="text-lg font-semibold text-white">{rule.name}</h3>
+                      <div className={`w-3 h-3 rounded-full ${rule.active ? 'bg-accent-500 animate-pulse' : 'bg-slate-500'}`}></div>
+                      <h3 className="text-base font-semibold text-slate-100">{rule.name}</h3>
                       {rule.level && <LevelBadge level={rule.level} />}
                       {!rule.active && (
                         <span className="px-2 py-1 text-xs rounded bg-slate-700 text-slate-300">Inactive</span>
@@ -515,15 +515,15 @@ export const AlertsPage = ({
                         onClick={() => handleToggleRule(rule)}
                         className={`px-3 py-1 text-sm rounded transition-colors ${
                           rule.active
-                            ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                            : 'bg-green-600 text-white hover:bg-green-700'
+                            ? 'bg-accent-600 text-white hover:bg-accent-700'
+                            : 'bg-accent-600 text-white hover:bg-accent-700'
                         }`}
                       >
                         {rule.active ? 'Disable' : 'Enable'}
                       </button>
                       <button
                         onClick={() => startEditRule(rule)}
-                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        className="px-3 py-1 text-sm bg-accent-600 text-white rounded hover:bg-accent-700 transition-colors"
                       >
                         Edit
                       </button>

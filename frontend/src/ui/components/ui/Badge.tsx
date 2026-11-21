@@ -11,11 +11,11 @@ interface BadgeProps {
 
 const variants = {
   default: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-  success: 'bg-green-500/20 text-green-300 border-green-500/30',
+  success: 'bg-accent-500/20 text-accent-400 border-accent-500/30',
   warning: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
   error: 'bg-red-500/20 text-red-300 border-red-500/30',
-  info: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  purple: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+  info: 'bg-accent-500/20 text-accent-400 border-slate-700',
+  purple: 'bg-slate-800/60 text-slate-300 border-slate-700'
 }
 
 const dotColors = {
@@ -23,8 +23,8 @@ const dotColors = {
   success: 'bg-green-400',
   warning: 'bg-amber-400',
   error: 'bg-red-400',
-  info: 'bg-blue-400',
-  purple: 'bg-purple-400'
+  info: 'bg-sky-500',
+  purple: 'bg-slate-400'
 }
 
 const sizes = {
