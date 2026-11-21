@@ -80,19 +80,28 @@ export function TrackingOverview({ slug }: { slug: string }) {
   }
 
   if (!data) return null
-  const s = data.stats
+  const st = (data.stats ?? {}) as Partial<Overview['stats']>
+  const s = { events_total: st.events_total ?? 0, groups_total: st.groups_total ?? 0, groups_unresolved: st.groups_unresolved ?? 0, first_event_at: st.first_event_at ?? null, last_event_at: st.last_event_at ?? null }
   const fmt = (d: string | null) => (d ? new Date(d).toLocaleString() : '—')
   const declared = data.tracking.filter(t => t.status !== 'removed')
+  const facts: Array<{ label: string; noun: string; items: string[]; href?: string }> = [
+    { label: 'Environments', noun: 'environments', items: data.sources.environments },
+    { label: 'Platforms and SDKs', noun: 'platforms and SDKs', items: data.sources.platforms },
+    { label: 'Tag keys', noun: 'tag keys', items: data.sources.tag_keys },
+    { label: 'Recent releases', noun: 'releases', items: data.releases, href: '#view=releases' },
+    { label: 'Integrations', noun: 'integrations', items: data.integrations, href: '#view=integrations' },
+    { label: 'Alert rules', noun: 'alert rules', items: data.alert_rules.map(r => `${r.name}${r.active ? '' : ' (off)'}`), href: '#view=alerts' },
+  ]
 
   return (
-    <section data-testid="tracking-overview" className="space-y-6 rounded-lg border border-slate-800/60 bg-slate-900/40 p-6">
+    <section data-testid="tracking-overview" className="space-y-6 rounded-lg border border-slate-800 p-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-slate-100">What we're monitoring</h3>
-          <p className="text-sm text-slate-400">The monitors set up for this project (mostly by the AI agent), and what data is actually arriving.</p>
+          <h2 className="text-base font-semibold text-slate-100">What we're monitoring</h2>
+          <p className="text-sm text-slate-300">Monitors declared for this project, and what has actually arrived.</p>
         </div>
         {!editingDesc && (
-          <button onClick={() => { setDraft(data.project.description || ''); setEditingDesc(true) }} className="text-xs text-emerald-400 hover:text-emerald-300">
+          <button onClick={() => { setDraft(data.project.description || ''); setEditingDesc(true) }} className="min-h-8 items-center inline-flex text-sm text-slate-200 underline underline-offset-2 hover:text-white">
             {data.project.description ? 'Edit summary' : 'Add summary'}
           </button>
         )}
@@ -117,19 +126,19 @@ export function TrackingOverview({ slug }: { slug: string }) {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h4 className="text-sm font-semibold text-slate-200">Declared monitors <span className="text-slate-400">({declared.length})</span></h4>
-          <button onClick={() => setAdding(a => !a)} className="text-xs text-emerald-400 hover:text-emerald-300" data-testid="add-monitor">
+          <button onClick={() => setAdding(a => !a)} className="min-h-8 items-center inline-flex text-sm text-slate-200 underline underline-offset-2 hover:text-white" data-testid="add-monitor">
             {adding ? 'Close' : '+ Add monitor'}
           </button>
         </div>
 
         {adding && (
           <div className="mb-3 grid gap-2 rounded-lg border border-slate-700/60 bg-slate-950/40 p-3 sm:grid-cols-2">
-            <select value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1.5 text-sm text-slate-100">
+            <select value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100">
               {SOURCES.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
-            <input value={form.kind} onChange={e => setForm(f => ({ ...f, kind: e.target.value }))} placeholder="kind — e.g. window.onerror" className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1.5 text-sm text-slate-100" />
-            <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="location — file or endpoint" className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1.5 text-sm text-slate-100" />
-            <input value={form.detail} onChange={e => setForm(f => ({ ...f, detail: e.target.value }))} placeholder="detail — what it captures" className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1.5 text-sm text-slate-100" />
+            <input value={form.kind} onChange={e => setForm(f => ({ ...f, kind: e.target.value }))} placeholder="kind — e.g. window.onerror" className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100" />
+            <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="location — file or endpoint" className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100" />
+            <input value={form.detail} onChange={e => setForm(f => ({ ...f, detail: e.target.value }))} placeholder="detail — what it captures" className="h-8 rounded-md border border-slate-700 bg-slate-800 px-2 text-sm text-slate-100" />
             <div className="sm:col-span-2">
               <button onClick={addItem} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500">Add</button>
             </div>
@@ -155,9 +164,9 @@ export function TrackingOverview({ slug }: { slug: string }) {
                   {t.location && <div className="mt-0.5 font-mono text-xs text-slate-400">{t.location}</div>}
                 </div>
                 <div className="flex shrink-0 items-center gap-2 text-xs">
-                  {t.status !== 'active' && <button onClick={() => setStatus(t.id, 'active')} className="text-emerald-400 hover:text-emerald-300">Activate</button>}
-                  {t.status === 'active' && <button onClick={() => setStatus(t.id, 'removed')} className="text-amber-400 hover:text-amber-300">Retire</button>}
-                  <button onClick={() => remove(t.id)} className="text-red-400 hover:text-red-300">Delete</button>
+                  {t.status !== 'active' && <button onClick={() => setStatus(t.id, 'active')} className="inline-flex min-h-8 items-center text-slate-200 underline underline-offset-2 hover:text-white">Activate</button>}
+                  {t.status === 'active' && <button onClick={() => setStatus(t.id, 'removed')} className="inline-flex min-h-8 items-center text-amber-400 hover:text-amber-300">Retire</button>}
+                  <button onClick={() => remove(t.id)} className="inline-flex min-h-8 items-center text-red-400 hover:text-red-300">Delete</button>
                 </div>
               </li>
             ))}
@@ -165,27 +174,28 @@ export function TrackingOverview({ slug }: { slug: string }) {
         )}
       </div>
 
-      {/* OBSERVED — what's actually arriving, to confirm the monitors are live */}
+      {/* OBSERVED: only what has values; everything empty is one line below */}
       <div>
-        <h4 className="mb-3 text-sm font-semibold text-slate-200">
-          Actually arriving <span className="text-slate-400">(from the last {data.sources.sampled_events} events)</span>
-        </h4>
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[['Events', s.events_total], ['Issues', s.groups_total], ['Unresolved', s.groups_unresolved], ['Linked tickets', data.external_links_total]].map(([label, val]) => (
-            <div key={label as string} className="rounded-lg border border-slate-800/60 bg-slate-800/20 p-3 text-center">
-              <div className="text-xl font-semibold text-white">{val as number}</div>
-              <div className="text-xs text-slate-400">{label as string}</div>
-            </div>
-          ))}
-        </div>
-        <dl className="grid gap-4 sm:grid-cols-2">
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Environments</dt><dd><Chips items={data.sources.environments} empty="No events yet" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Platforms / SDKs</dt><dd><Chips items={data.sources.platforms} empty="Not reported by the SDK" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Tag keys seen</dt><dd><Chips items={data.sources.tag_keys} empty="No tags" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Recent releases</dt><dd><Chips items={data.releases} empty="No releases tracked" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Integrations</dt><dd><Chips items={data.integrations} empty="None configured" /></dd></div>
-          <div><dt className="mb-1.5 text-xs uppercase tracking-wide text-slate-400">Alert rules</dt><dd><Chips items={data.alert_rules.map(r => `${r.name}${r.active ? '' : ' (off)'}`)} empty="No alert rules" /></dd></div>
-        </dl>
+        <h3 className="mb-2 text-sm font-semibold text-slate-200">Actually arriving</h3>
+        <p className="mb-3 text-sm text-slate-300" data-testid="arriving-summary">
+          {s.events_total.toLocaleString()} stored {s.events_total === 1 ? 'event' : 'events'} in {s.groups_total} {s.groups_total === 1 ? 'issue' : 'issues'} ({s.groups_unresolved} unresolved)
+          {(data.sources.sampled_events ?? 0) > 0 && data.sources.sampled_events < s.events_total ? `. The lists below come from the latest ${data.sources.sampled_events}.` : '.'}
+          {data.external_links_total > 0 ? ` ${data.external_links_total} linked ${data.external_links_total === 1 ? 'ticket' : 'tickets'}.` : ''}
+        </p>
+        {facts.some(f => f.items.length > 0) && (
+          <dl className="grid gap-4 sm:grid-cols-2">
+            {facts.filter(f => f.items.length > 0).map(f => (
+              <div key={f.label}><dt className="mb-1.5 text-xs text-slate-400">{f.label}</dt><dd><Chips items={f.items} empty="" /></dd></div>
+            ))}
+          </dl>
+        )}
+        {facts.some(f => f.items.length === 0) && (
+          <p className="mt-3 text-sm text-slate-400" data-testid="not-set-up">
+            Not set up yet: {facts.filter(f => f.items.length === 0).map((f, i, arr) => (
+              <span key={f.label}>{f.href ? <a href={`${f.href}&project=${encodeURIComponent(slug)}`} className="text-slate-200 underline underline-offset-2 hover:text-white">{f.noun}</a> : f.noun}{i < arr.length - 1 ? ', ' : '.'}</span>
+            ))}
+          </p>
+        )}
       </div>
 
       <div className="border-t border-slate-800/60 pt-4 text-xs text-slate-400">

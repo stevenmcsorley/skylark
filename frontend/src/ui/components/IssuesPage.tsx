@@ -105,6 +105,10 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
 
   const toggle = (id: number) => setSelected(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
   const allSelected = rows.length > 0 && rows.every(r => selected.has(r.id))
+  const picked = rows.filter(r => selected.has(r.id))
+  const canResolve = picked.some(r => r.status !== 'resolved')
+  const canIgnore = picked.some(r => r.status !== 'ignored')
+  const canReopen = picked.some(r => r.status !== 'unresolved')
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -136,7 +140,7 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
           {STATUS_TABS.map(tab => (
             <button key={tab.id} role="tab" type="button" aria-selected={status === tab.id} onClick={() => onStatus(tab.id)}
               data-testid={`issues-tab-${tab.id}`}
-              className={`rounded px-3 py-1 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${status === tab.id ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:text-slate-200'}`}>
+              className={`rounded px-3 py-1.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${status === tab.id ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:text-slate-200'}`}>
               {tab.label} <span className="tabular-nums text-slate-400">{issues ? counts[tab.id] : ''}</span>
             </button>
           ))}
@@ -179,7 +183,7 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
             <table className="w-full text-sm" data-testid="issues-table">
               <thead>
                 {selected.size > 0 ? (
-                  <tr className="border-b border-slate-800 bg-slate-800/60" data-testid="issues-bulk-bar" role="toolbar" aria-label="Bulk actions">
+                  <tr className="h-12 border-b border-slate-800 bg-slate-800/60" data-testid="issues-bulk-bar" role="toolbar" aria-label="Bulk actions">
                     <th colSpan={7} className="px-3 py-1.5 text-sm font-normal normal-case tracking-normal text-slate-200">
                       <div className="flex flex-wrap items-center gap-2">
                         <label className="flex h-9 w-9 cursor-pointer items-center justify-center">
@@ -187,15 +191,15 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
                           <input type="checkbox" checked={allSelected} onChange={() => setSelected(allSelected ? new Set() : new Set(rows.map(r => r.id)))} className="h-4 w-4 accent-emerald-600" data-testid="issues-select-all" />
                         </label>
                         <span className="mr-2 tabular-nums">{selected.size} selected</span>
-                        <Button size="sm" variant="primary" disabled={busy} onClick={() => act([...selected], 'resolve')} data-testid="bulk-resolve">Resolve</Button>
-                        <Button size="sm" variant="secondary" disabled={busy} onClick={() => act([...selected], 'ignore')} data-testid="bulk-ignore">Ignore</Button>
-                        <Button size="sm" variant="secondary" disabled={busy} onClick={() => act([...selected], 'unresolve')} data-testid="bulk-reopen">Reopen</Button>
-                        <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Clear</Button>
+                        {canResolve && <Button size="md" variant="primary" disabled={busy} onClick={() => act([...selected], 'resolve')} data-testid="bulk-resolve">Resolve</Button>}
+                        {canIgnore && <Button size="md" variant="secondary" disabled={busy} onClick={() => act([...selected], 'ignore')} data-testid="bulk-ignore">Ignore</Button>}
+                        {canReopen && <Button size="md" variant="secondary" disabled={busy} onClick={() => act([...selected], 'unresolve')} data-testid="bulk-reopen">Reopen</Button>}
+                        <Button size="md" variant="ghost" onClick={() => setSelected(new Set())}>Clear</Button>
                       </div>
                     </th>
                   </tr>
                 ) : (
-                <tr className="border-b border-slate-800">
+                <tr className="h-12 border-b border-slate-800">
                     <th className="w-10 pl-2">
                       <label className="flex h-9 w-9 cursor-pointer items-center justify-center">
                         <span className="sr-only">Select all shown issues</span>
@@ -204,7 +208,7 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
                     </th>
                     <th className="w-full py-2.5">Issue</th>
                     <th className="hidden py-2.5 pl-4 md:table-cell">Level</th>
-                    <th className="py-2.5 pl-3 text-right">Events</th>
+                    <th className="py-2.5 pl-3 text-right" title="Total occurrences, including events no longer stored">Total events</th>
                     <th className="hidden py-2.5 pl-6 sm:table-cell">Last seen</th>
                     {status === 'all' && <th className="hidden py-2.5 pl-6 md:table-cell">Status</th>}
                     <th className="hidden py-2.5 pl-6 pr-4 lg:table-cell">Assignee</th>
@@ -255,7 +259,7 @@ export const IssuesPage = ({ project, status, query, onStatus, onQuery, onOpen }
 }
 
 export const StatusLabel = ({ status }: { status: Issue['status'] }) => (
-  <span className={`inline-flex items-center gap-1 text-sm ${status === 'resolved' ? 'text-accent-400' : status === 'ignored' ? 'text-slate-400' : 'text-slate-300'}`}>
+  <span className="inline-flex items-center gap-1 text-sm text-slate-300">
     {status === 'resolved' && <Icon icon={Check} size="xs" />}
     {status === 'ignored' && <Icon icon={EyeOff} size="xs" />}
     <span className="capitalize">{status}</span>

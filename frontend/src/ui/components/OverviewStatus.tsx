@@ -56,7 +56,7 @@ export const OverviewStatus = ({ slug, groups, now = Date.now() }: OverviewStatu
   return (
     <section data-testid="overview-status" className="grid gap-6 rounded-lg border border-slate-800 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-end">
       <div>
-        <h2 className={`text-2xl font-semibold ${open.length > 0 ? 'text-slate-100' : 'text-accent-400'}`} data-testid="overview-headline">{headline}</h2>
+        <h2 className={`text-2xl font-semibold text-slate-100`} data-testid="overview-headline">{headline}</h2>
         <p className="mt-1 text-sm text-slate-300">{detail}</p>
       </div>
       <div>

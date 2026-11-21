@@ -154,4 +154,15 @@ describe('IssuesPage', () => {
     expect(screen.getByTestId('issue-row-1')).toHaveTextContent('warning')
     expect(screen.queryByRole('columnheader', { name: 'Status' })).not.toBeInTheDocument()
   })
+
+  it('only offers bulk actions that change something for the selected issues', async () => {
+    vi.mocked(api).mockResolvedValue([make(1), make(2, { status: 'resolved' })])
+    renderPage({ status: 'all' })
+    await screen.findByTestId('issues-table')
+    fireEvent.click(screen.getByTestId('issue-select-1'))
+    expect(screen.getByTestId('bulk-resolve')).toBeInTheDocument()
+    expect(screen.queryByTestId('bulk-reopen')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByTestId('issue-select-2'))
+    expect(screen.getByTestId('bulk-reopen')).toBeInTheDocument()
+  })
 })

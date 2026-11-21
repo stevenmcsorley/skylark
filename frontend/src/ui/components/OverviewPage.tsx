@@ -147,7 +147,7 @@ export function OverviewPage({
       <section data-testid="groups-section" className="rounded-lg border border-slate-800">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <h2 className="text-base font-semibold text-slate-100">Needs attention</h2>
-          <a href={`#view=issues&project=${encodeURIComponent(selected.slug)}`} className="inline-flex min-h-8 items-center text-sm text-accent-400 hover:text-accent-300">View all issues</a>
+          <a href={`#view=issues&project=${encodeURIComponent(selected.slug)}`} className="inline-flex min-h-8 items-center text-sm text-slate-200 underline underline-offset-2 hover:text-white">View all issues</a>
         </div>
         {attention.length === 0 ? (
           <p className="px-4 py-6 text-sm text-slate-300" data-testid="groups-table">No open issues.</p>
@@ -155,7 +155,7 @@ export function OverviewPage({
           <div className="overflow-x-auto" data-testid="groups-table">
             <table className="w-full text-sm">
               <thead className="text-left">
-                <tr><th className="pl-4">Issue</th><th className="pl-3 text-right">Events</th><th className="pl-6">Last seen</th><th className="pr-4 text-right"><span className="sr-only">Actions</span></th></tr>
+                <tr><th className="pl-4">Issue</th><th className="pl-3 text-right" title="Total occurrences, including events no longer stored">Total events</th><th className="pl-6">Last seen</th><th className="pr-4 text-right"><span className="sr-only">Actions</span></th></tr>
               </thead>
               <tbody>
                 {attention.slice(0, 8).map(({ group: g, isNew }) => (
@@ -164,7 +164,7 @@ export function OverviewPage({
                       <div className="flex items-center gap-2">
                         <LevelBadge level={g.level} variant="compact" />
                         <a href={issueHref(selected.slug, g.id)} className="block min-h-9 flex-1 truncate py-2 text-slate-100 hover:underline">{g.title}</a>
-                        {isNew && <span className="shrink-0 rounded bg-accent-900 px-1.5 py-0.5 text-xs text-accent-300">New</span>}
+                        {isNew && <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-xs text-slate-200">New</span>}
                       </div>
                     </td>
                     <td className="pl-3 text-right tabular-nums text-slate-200">{g.count.toLocaleString()}</td>
@@ -326,18 +326,18 @@ export function OverviewPage({
                 value={sessionUser} 
                 onChange={e => setSessionUser(e.target.value)} 
                 placeholder="user id" 
-                className="rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                className="h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
               />
               <button 
                 data-testid="send-ok-session"
-                className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+                className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
                 onClick={() => sendSession('ok')}
               >
                 Send ok session
               </button>
               <button 
                 data-testid="send-crashed-session"
-                className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+                className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
                 onClick={() => sendSession('crashed')}
               >
                 Send crashed session
@@ -350,7 +350,7 @@ export function OverviewPage({
             <label className="text-xs text-slate-400">Range</label>
             <select 
               data-testid="health-range-select"
-              className="rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+              className="h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
               value={range} 
               onChange={e => setRange(e.target.value as any)}
             >
@@ -360,7 +360,7 @@ export function OverviewPage({
             <label className="text-xs text-slate-400">Interval</label>
             <select 
               data-testid="health-interval-select"
-              className="rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+              className="h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
               value={interval} 
               onChange={e => setInterval(e.target.value as any)}
             >
@@ -369,7 +369,7 @@ export function OverviewPage({
             </select>
             <button 
               data-testid="refresh-health"
-              className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+              className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
               onClick={refreshSeries}
             >
               Refresh
@@ -451,7 +451,7 @@ export function OverviewPage({
                     value={editRule.threshold} 
                     onChange={e => setEditRule({...editRule, threshold: parseInt(e.target.value)})} 
                     placeholder="threshold" 
-                    className="w-20 rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                    className="w-20 h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
                   />
                   <input 
                     data-testid="rule-window-input"
@@ -459,7 +459,7 @@ export function OverviewPage({
                     value={editRule.window} 
                     onChange={e => setEditRule({...editRule, window: parseInt(e.target.value)})} 
                     placeholder="window (min)" 
-                    className="w-24 rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                    className="w-24 h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
                   />
                   <input 
                     data-testid="rule-notify-input"
@@ -467,11 +467,11 @@ export function OverviewPage({
                     value={editRule.notify} 
                     onChange={e => setEditRule({...editRule, notify: parseInt(e.target.value)})} 
                     placeholder="notify (min)" 
-                    className="w-24 rounded border border-slate-700 bg-transparent px-2 py-1 text-xs" 
+                    className="w-24 h-8 rounded border border-slate-700 bg-transparent px-2 text-xs" 
                   />
                   <button 
                     data-testid="update-rule-button"
-                    className="rounded border border-slate-700 px-2 py-1 text-xs hover:bg-slate-800/60" 
+                    className="h-8 rounded border border-slate-700 px-2 text-xs hover:bg-slate-800/60" 
                     onClick={updateFirstRule}
                   >
                     Update

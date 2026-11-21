@@ -39,19 +39,23 @@ const details = (event: IssueEvent): Array<[string, string]> => {
 const HOUR = 3600_000
 const DAY = 24 * HOUR
 
-/** Count events per hour (or per day when they span more than two days) from the events we have. */
+/**
+ * Count events per hour over the last 24 hours, or per day over the last 14 days when the stored events reach
+ * back further than two days. The window is fixed, so empty hours show as gaps and bars sit at even spacing.
+ */
 export const bucketEvents = (events: IssueEvent[], now: number = Date.now()): { rows: BarRow[]; unit: 'hour' | 'day' } => {
   const times = events.map(e => new Date(e.received_at).getTime()).filter(n => !Number.isNaN(n))
-  if (times.length === 0) return { rows: [], unit: 'hour' }
-  const first = Math.min(...times)
-  const unit = now - first > 2 * DAY ? 'day' : 'hour'
+  const oldest = times.length ? Math.min(...times) : now
+  const unit = now - oldest > 2 * DAY ? 'day' : 'hour'
   const size = unit === 'day' ? DAY : HOUR
-  const start = Math.floor(first / size) * size
-  const count = Math.min(60, Math.floor((now - start) / size) + 1)
+  const count = unit === 'day' ? 14 : 24
+  const end = Math.floor(now / size) * size
+  const start = end - (count - 1) * size
   const rows: BarRow[] = Array.from({ length: count }, (_, i) => ({ bucket: new Date(start + i * size).toISOString(), error: 0, other: 0 }))
   for (const e of events) {
     const at = new Date(e.received_at).getTime()
-    const i = Math.min(count - 1, Math.max(0, Math.floor((at - start) / size)))
+    if (Number.isNaN(at) || at < start) continue
+    const i = Math.min(count - 1, Math.floor((at - start) / size))
     if (['error', 'fatal'].includes(e.level.toLowerCase())) rows[i].error += 1; else rows[i].other += 1
   }
   return { rows, unit }
@@ -81,6 +85,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
   const [assignee, setAssignee] = useState('')
   const [draft, setDraft] = useState('')
   const [copied, setCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   const load = useCallback(async () => {
     setError(null)
@@ -137,8 +142,12 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
     try { await navigator.clipboard.writeText(selected.stack); setCopied(true); window.setTimeout(() => setCopied(false), 1500) } catch { toast.addToast('error', 'Copy failed') }
   }
 
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}#view=issues&project=${new URLSearchParams(window.location.hash.slice(1)).get('project') ?? ''}&issue=${issueId}`); setLinkCopied(true); window.setTimeout(() => setLinkCopied(false), 1500) } catch { toast.addToast('error', 'Copy failed') }
+  }
+
   const back = (
-    <button type="button" onClick={onBack} className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-back">
+    <button type="button" onClick={onBack} className="inline-flex min-h-8 items-center gap-1 text-sm text-slate-300 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-back">
       <Icon icon={ArrowLeft} size="sm" /> Issues
     </button>
   )
@@ -163,20 +172,22 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         </div>
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-400">
           <StatusLabel status={issue.status} />
-          <span className="tabular-nums">{issue.count.toLocaleString()} events</span>
+          <span className="tabular-nums">{issue.count.toLocaleString()} events in total</span>
           <span title={fmtDate(issue.first_seen)}>First seen {timeAgo(issue.first_seen)}</span>
           <span title={fmtDate(issue.last_seen)}>Last seen {timeAgo(issue.last_seen)}</span>
-          {split.length > 0 && <span data-testid="issue-env-split">{split.map(([env, n]) => `${env} ${n}`).join(' · ')}</span>}
-          <span className="tabular-nums" data-testid="issue-id">ID {issue.id}</span>
+          {split.length > 0 && <span data-testid="issue-env-split">{split.map(([env, n]) => `${env} ${n}`).join(' · ')} in the latest {events.length} stored</span>}
+          <button type="button" onClick={copyLink} className="inline-flex min-h-8 items-center gap-1 tabular-nums text-slate-300 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" data-testid="issue-id" aria-label={`Copy link to issue ${issue.id}`}>
+            ID {issue.id} <Icon icon={linkCopied ? Check : Copy} size="xs" />
+          </button>
         </p>
       </header>
 
       <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Issue actions">
         {issue.status === 'resolved'
-          ? <Button size="sm" variant="secondary" loading={busy === 'unresolve'} onClick={() => act('unresolve', 'unresolve')} testId="issue-unresolve">Reopen</Button>
-          : <Button size="sm" variant="primary" loading={busy === 'resolve'} onClick={() => act('resolve', 'resolve')} testId="issue-resolve">Resolve</Button>}
-        {issue.status !== 'ignored' && <Button size="sm" variant="secondary" loading={busy === 'ignore'} onClick={() => act('ignore', 'ignore')} testId="issue-ignore">Ignore</Button>}
-        <Button size="sm" variant="ghost" aria-pressed={issue.is_bookmarked} aria-label={issue.is_bookmarked ? 'Remove bookmark' : 'Bookmark'}
+          ? <Button size="md" variant="secondary" loading={busy === 'unresolve'} onClick={() => act('unresolve', 'unresolve')} testId="issue-unresolve">Reopen</Button>
+          : <Button size="md" variant="primary" loading={busy === 'resolve'} onClick={() => act('resolve', 'resolve')} testId="issue-resolve">Resolve</Button>}
+        {issue.status !== 'ignored' && <Button size="md" variant="secondary" loading={busy === 'ignore'} onClick={() => act('ignore', 'ignore')} testId="issue-ignore">Ignore</Button>}
+        <Button size="md" variant="ghost" aria-pressed={issue.is_bookmarked} aria-label={issue.is_bookmarked ? 'Remove bookmark' : 'Bookmark'}
           icon={<Icon icon={Bookmark} size="sm" className={issue.is_bookmarked ? 'fill-current' : ''} />}
           onClick={() => act('bookmark', issue.is_bookmarked ? 'unbookmark' : 'bookmark')} testId="issue-bookmark">{issue.is_bookmarked ? 'Bookmarked' : 'Bookmark'}</Button>
         <label className="ml-auto flex items-center gap-2 text-sm text-slate-400">
@@ -196,7 +207,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
 
           {selected.stack ? (
             <div className="relative rounded-lg border border-slate-800 bg-slate-900/60">
-              <button type="button" onClick={copyStack} aria-label="Copy stack trace" className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
+              <button type="button" onClick={copyStack} aria-label="Copy stack trace" className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500">
                 <Icon icon={copied ? Check : Copy} size="sm" />
               </button>
               <pre className="overflow-x-auto p-5 pr-12 font-mono text-sm leading-6" data-testid="issue-stack">
@@ -221,9 +232,9 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
       {events.length > 1 && (
         <section aria-label="Frequency" className="space-y-2" data-testid="issue-frequency">
           <h2 className="text-base font-semibold text-slate-100">Frequency</h2>
-          <EventBars rows={buckets.rows} height={56} startLabel={timeAgo(buckets.rows[0]?.bucket ?? issue.first_seen)} endLabel="now"
+          <EventBars rows={buckets.rows} height={56} startLabel={buckets.unit === 'day' ? '14 days ago' : '24 hours ago'} endLabel="now"
             unit={`events per ${buckets.unit}, latest ${events.length}`} testId="issue-frequency-bars" />
-          <p className="text-xs text-slate-400">Latest {events.length} stored events, per {buckets.unit}. Red is error level.</p>
+          <p className="text-xs text-slate-400">The latest {events.length} stored events, per {buckets.unit}, over {buckets.unit === 'day' ? '14 days' : '24 hours'}. Red is error level; the issue has {issue.count.toLocaleString()} events in total.</p>
         </section>
       )}
 
@@ -255,7 +266,7 @@ export const IssueDetail = ({ issueId, onBack }: IssueDetailProps) => {
         <form onSubmit={addComment} className="space-y-2">
           <label className="sr-only" htmlFor="issue-comment">Add a comment</label>
           <textarea id="issue-comment" value={draft} onChange={e => setDraft(e.target.value)} rows={3} placeholder="Add a comment" className={`${control} w-full py-2`} data-testid="issue-comment-input" />
-          <Button type="submit" size="sm" variant="secondary" loading={busy === 'comment'} disabled={!draft.trim()} testId="issue-comment-submit">Comment</Button>
+          <Button type="submit" size="md" variant="secondary" loading={busy === 'comment'} disabled={!draft.trim()} testId="issue-comment-submit">Comment</Button>
         </form>
         {comments.length === 0 ? <p className="text-sm text-slate-400">No comments yet.</p> : (
           <ul className="divide-y divide-slate-800 rounded-lg border border-slate-800" data-testid="issue-comments">

@@ -8,6 +8,8 @@ code, pre { @apply bg-slate-900/70 text-slate-100 rounded; }
 
 /* Tables: small-caps header row, hairline row dividers, tabular figures. */
 @layer base {
+  /* One visible focus ring for every control, including native ones that have no ring class of their own. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid theme('colors.accent.500'); outline-offset: 2px; }
   th { @apply whitespace-nowrap px-2 text-left text-xs font-medium uppercase tracking-wider text-slate-400; }
   td { @apply tabular-nums; }
 }
