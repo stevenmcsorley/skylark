@@ -55,12 +55,12 @@ export const NavRail = ({ activeTab, onChange, className = '', testId = 'nav-rai
   return <>
     <div className="flex items-center gap-3 rounded-lg bg-slate-800 p-2 lg:hidden">
       <button ref={menu} type="button" aria-label="Open navigation" aria-controls="main-nav" aria-expanded={open}
-        className={`rounded px-3 py-2 ${focusRing}`} onClick={() => setOpen(true)}>☰</button>
+        className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded px-3 py-2 ${focusRing}`} onClick={() => setOpen(true)}>☰</button>
       <span className="font-semibold">Skylark</span>
     </div>
     {open && <div aria-hidden="true" className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={close} />}
     <nav id="main-nav" ref={rail} data-testid={testId} aria-label="Main navigation"
-      className={`fixed inset-y-0 left-0 z-50 flex w-56 max-w-full flex-col overflow-y-auto border border-slate-700 bg-slate-900 p-2 text-slate-200 transition-transform motion-reduce:transition-none lg:sticky lg:top-4 lg:z-auto lg:h-[calc(100dvh-2rem)] lg:shrink-0 lg:translate-x-0 lg:visible lg:rounded-xl ${open ? 'visible translate-x-0' : 'invisible -translate-x-full'} ${compact ? 'lg:w-14' : 'lg:w-56'} ${className}`}>
+      className={`fixed inset-y-0 left-0 z-50 flex w-56 max-w-full flex-col overflow-y-auto border border-slate-700 bg-slate-900 p-2 text-slate-200 transition-transform motion-reduce:transition-none lg:sticky lg:top-4 lg:z-auto lg:h-[calc(100dvh-7.5rem)] lg:shrink-0 lg:translate-x-0 lg:visible lg:rounded-xl ${open ? 'visible translate-x-0' : 'invisible -translate-x-full'} ${compact ? 'lg:w-14' : 'lg:w-56'} ${className}`}>
       <div className="mb-2 flex items-center gap-3 font-semibold" data-testid="nav-logo" title="Skylark">
         <svg viewBox="0 0 32 32" className="h-9 w-9 shrink-0 rounded-lg bg-emerald-600 p-1 text-white" fill="currentColor" aria-hidden="true">
           <path d="M5 20 C 10.5 12.5, 14 13, 16 17.5 C 18 13, 21.5 12.5, 27 20 C 21.5 17, 18.2 18, 16 22 C 13.8 18, 10.5 17, 5 20 Z" />
