@@ -8,6 +8,6 @@ code, pre { @apply bg-slate-900/70 text-slate-100 rounded; }
 
 /* Tables: small-caps header row, hairline row dividers, tabular figures. */
 @layer base {
-  th { @apply px-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500; }
+  th { @apply whitespace-nowrap px-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500; }
   td { @apply tabular-nums; }
 }

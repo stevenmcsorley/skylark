@@ -90,6 +90,9 @@ class EventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
         env = self.request.query_params.get("environment")
         if env:
             qs = qs.filter(environment=env)
+        group = self.request.query_params.get("group")
+        if group:
+            qs = qs.filter(group_id=int(group)) if group.isdigit() else qs.none()   # the events of one issue; still inside the caller's workspace
         rel = self.request.query_params.get("release")
         if rel:
             qs = qs.filter(release__version=rel)

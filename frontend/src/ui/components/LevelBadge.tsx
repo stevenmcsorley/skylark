@@ -19,7 +19,7 @@ export const LevelBadge = ({ level, variant = 'default', testId = 'level-badge',
   const dot = DOTS[key] ?? 'bg-sky-500'
 
   if (variant === 'compact') {
-    return <span className={`inline-block h-2 w-2 rounded-full ${dot}`} title={level} data-testid={`${testId}-dot`} />
+    return <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${dot}`} title={level} data-testid={`${testId}-dot`} />
   }
 
   return (
