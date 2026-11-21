@@ -195,6 +195,7 @@ export const LogsView = ({
               setInterval={setInterval as (interval: string) => void}
               setTimeSel={setTimeSel} 
               onCustomRange={setCustomRange} 
+              customRange={customRange}
             />
           </div>
           

@@ -19,13 +19,8 @@ describe('App - Basic Tests', () => {
     }).not.toThrow()
   })
 
-  it('contains the main app title', async () => {
-    try {
-      renderApp()
-      expect(screen.getByText('Skylark')).toBeInTheDocument()
-    } catch (error) {
-      // If rendering fails due to hooks/data loading, that's ok for this basic test
-      console.log('Component rendering failed with hooks - this is expected in isolated testing')
-    }
+  it('contains the main app title', () => {
+    renderApp()
+    expect(screen.getByRole('heading', { name: 'Skylark', level: 1 })).toBeInTheDocument()
   })
 })

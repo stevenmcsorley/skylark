@@ -15,6 +15,8 @@ interface TimeRangeMenuProps {
   setInterval: (interval: string) => void
   setTimeSel: (timeSel: any) => void
   onCustomRange?: (customRange: CustomRangeType | null) => void
+  /** The custom range currently applied (from the router). When given it decides the label, so a range restored from the URL or cleared elsewhere is shown correctly. */
+  customRange?: CustomRangeType | null
   className?: string
   testId?: string
 }
@@ -25,12 +27,14 @@ export const TimeRangeMenu = ({
   setInterval, 
   setTimeSel, 
   onCustomRange,
+  customRange: appliedCustomRange,
   className,
   testId = 'time-range-menu'
 }: TimeRangeMenuProps) => {
   const [open, setOpen] = useState(false)
   const [custom, setCustom] = useState('')
-  const [customRange, setCustomRange] = useState<CustomRangeType | null>(null)
+  const [localCustomRange, setCustomRange] = useState<CustomRangeType | null>(null)
+  const customRange = appliedCustomRange !== undefined ? appliedCustomRange : localCustomRange
   
   const applyRelative = useCallback((r: TimeRange) => {
     setRange(r)

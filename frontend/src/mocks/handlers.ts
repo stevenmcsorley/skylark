@@ -86,6 +86,10 @@ export const resetMockData = () => {
 resetMockData()
 
 export const handlers = [
+  http.get('/api/estate/', () => HttpResponse.json({
+    projects: [], integrations: [], totals: { projects: 0, events_total: 0, unresolved_total: 0 },
+  })),
+
   // Projects endpoints
   http.get('/api/projects', () => {
     return HttpResponse.json(mockProjects)

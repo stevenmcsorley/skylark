@@ -1,4 +1,5 @@
-import { useState, useEffect, useLayoutEffect, useCallback } from 'react'
+import { NAV_ITEMS } from '../navigation'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import type { 
   Project, 
   NavigationTab, 
@@ -39,229 +40,156 @@ interface RoutingActions {
   setInterval: (interval: TimeInterval) => void
 }
 
-export const useAppRouting = (
-  projects: Project[]
-): RoutingState & RoutingActions => {
-  const [state, setState] = useState<RoutingState>({
-    activeTab: 'logs',
-    selected: null,
-    search: '',
-    filterLevel: '',
-    filterEnv: '',
-    filterRelease: '',
-    timeSel: null,
-    eventLimit: 50,
-    eventOffset: 0,
-    customRange: null,
-    range: '24h',
-    interval: '5m',
-    initializedFromURL: false
-  })
-  
-  const [isInitializing, setIsInitializing] = useState(true)
+const resolveProject = (projects: Project[], slug: string | null) => {
+  const requested = projects.find(project => project.slug === slug)
+  if (requested) return requested
+  try {
+    const saved = localStorage.getItem('skylark-last-project')
+    return projects.find(project => project.slug === saved) ?? projects[0] ?? null
+  } catch {
+    return projects[0] ?? null
+  }
+}
 
-  // Initialize from URL hash on first load (use useLayoutEffect to run before other effects)
-  useLayoutEffect(() => {
-    if (state.initializedFromURL) return
-    
-    const params = new URLSearchParams(window.location.hash.slice(1))
-    const updates: Partial<RoutingState> = {}
-    let hasUrlParams = false
-    
-    // Parse URL parameters
-    const view = params.get('view') as NavigationTab
-    if (view) {
-      hasUrlParams = true // Any view parameter counts as having URL params
-      if (['logs', 'overview', 'dashboard', 'projects'].includes(view)) {
-        updates.activeTab = view
-      }
-    }
-    
-    const q = params.get('q')
-    if (q) {
-      updates.search = q
-      hasUrlParams = true
-    }
-    
-    const lvl = params.get('level')
-    if (lvl) {
-      updates.filterLevel = lvl
-      hasUrlParams = true
-    }
-    
-    const env = params.get('env')
-    if (env) {
-      updates.filterEnv = env
-      hasUrlParams = true
-    }
-    
-    const rel = params.get('release')
-    if (rel) {
-      updates.filterRelease = rel
-      hasUrlParams = true
-    }
-    
-    const from = params.get('from')
-    const to = params.get('to')
-    if (from && to) {
-      updates.timeSel = { from, to }
-      hasUrlParams = true
-    }
-    
-    const lim = params.get('limit')
-    const off = params.get('offset')
-    if (lim) {
-      updates.eventLimit = parseInt(lim, 10) || 50
-      hasUrlParams = true
-    }
-    if (off) {
-      updates.eventOffset = parseInt(off, 10) || 0
-      hasUrlParams = true
-    }
-    
-    // Only set initializedFromURL to true if there were actual URL parameters
-    updates.initializedFromURL = hasUrlParams
-    
-    setState(prev => ({ ...prev, ...updates }))
-    setIsInitializing(false)
-  }, [state.initializedFromURL])
+const ranges: TimeRange[] = ['1h', '24h', '7d', '14d', '30d', '90d', '1y']
+const intervals: TimeInterval[] = ['1m', '5m', '15m', '30m', '1h', '24h', '7d', '30d']
 
-  // Handle project selection from URL and localStorage
+const readRoute = (params: URLSearchParams, projects: Project[]): RoutingState => {
+  const selected = resolveProject(projects, params.get('project'))
+  const view = NAV_ITEMS.find(item => item.id === params.get('view'))
+  const value = Number(params.get('customValue'))
+  const unit = params.get('customUnit')
+  const label = params.get('customLabel')
+  const from = params.get('from')
+  const to = params.get('to')
+  return {
+    selected,
+    activeTab: view?.id ?? (selected ? 'overview' : 'estate'),
+    search: params.get('q') ?? '',
+    filterLevel: params.get('level') ?? '',
+    filterEnv: params.get('env') ?? '',
+    filterRelease: params.get('release') ?? '',
+    timeSel: from && to ? { from, to } : null,
+    eventLimit: parseInt(params.get('limit') ?? '', 10) || 50,
+    eventOffset: parseInt(params.get('offset') ?? '', 10) || 0,
+    customRange: value > 0 && unit && label ? { value, unit, label } : null,
+    range: ranges.find(range => range === params.get('range')) ?? '24h',
+    interval: intervals.find(interval => interval === params.get('interval')) ?? (selected ? '1h' : '5m'),
+    initializedFromURL: Boolean(params.toString())
+  }
+}
+
+export const useAppRouting = (projects: Project[]): RoutingState & RoutingActions => {
+  // Keep the requested route until asynchronously loaded projects can resolve it.
+  const [params, setParams] = useState(() => new URLSearchParams(window.location.hash.slice(1)))
+  const [state, setState] = useState(() => readRoute(params, projects))
+  const explicitView = useRef(NAV_ITEMS.some(item => item.id === params.get('view')))
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.slice(1))
-    const wanted = params.get('project')
-    
-    if (projects.length === 0) return
-    
-    if (wanted) {
-      const bySlug = projects.find(p => p.slug === wanted)
-      if (bySlug) {
-        setState(prev => {
-          if (prev.selected?.slug === bySlug.slug) return prev // Prevent unnecessary updates
-          return {
-            ...prev,
-            selected: bySlug,
-            range: '24h',
-            interval: '1h',
-            timeSel: null,
-            customRange: null
-          }
-        })
-        return
-      }
+    const readHash = () => {
+      const next = new URLSearchParams(window.location.hash.slice(1))
+      explicitView.current = NAV_ITEMS.some(item => item.id === next.get('view'))
+      setParams(next)
+      setState(readRoute(next, projects))
     }
-    
-    setState(prev => {
-      if (prev.selected) return prev // Don't change if already selected
-      
-      // Check localStorage for previously selected project
-      const lastProjectSlug = localStorage.getItem('skylark-last-project')
-      if (lastProjectSlug) {
-        const lastProject = projects.find(p => p.slug === lastProjectSlug)
-        if (lastProject) {
-          return {
-            ...prev,
-            selected: lastProject,
-            range: '24h',
-            interval: '1h',
-            timeSel: null,
-            customRange: null
-          }
-        }
-      }
-      
-      // Fall back to first project
-      return {
-        ...prev,
-        selected: projects[0],
-        range: '24h',
-        interval: '1h',
-        timeSel: null,
-        customRange: null
-      }
-    })
+    window.addEventListener('hashchange', readHash)
+    return () => window.removeEventListener('hashchange', readHash)
   }, [projects])
+
+  useEffect(() => {
+    if (state.selected || !projects.length) return
+    const selected = resolveProject(projects, params.get('project'))
+    setState(prev => ({
+      ...prev, selected, interval: params.has('interval') ? prev.interval : '1h',
+      activeTab: explicitView.current ? prev.activeTab : 'overview'
+    }))
+  }, [projects, params, state.selected])
+
+  useEffect(() => {
+    document.title = NAV_ITEMS.find(item => item.id === state.activeTab)?.label + ' · Skylark'
+  }, [state.activeTab])
 
   // Sync state to URL hash
   useEffect(() => {
-    const params = new URLSearchParams()
-    params.set('view', state.activeTab)
+    const pendingProject = params.get('project')
+    const hash = new URLSearchParams()
+    hash.set('view', state.activeTab)
     
     if (state.selected) {
-      params.set('project', state.selected.slug)
-      localStorage.setItem('skylark-last-project', state.selected.slug)
+      hash.set('project', state.selected.slug)
+      try { localStorage.setItem('skylark-last-project', state.selected.slug) } catch { /* Storage unavailable */ }
     }
     
-    if (state.search) params.set('q', state.search)
-    if (state.filterLevel) params.set('level', state.filterLevel)
-    if (state.filterEnv) params.set('env', state.filterEnv)
-    if (state.filterRelease) params.set('release', state.filterRelease)
+    if (!state.selected && pendingProject) hash.set('project', pendingProject)
+    if (state.search) hash.set('q', state.search)
+    if (state.filterLevel) hash.set('level', state.filterLevel)
+    if (state.filterEnv) hash.set('env', state.filterEnv)
+    if (state.filterRelease) hash.set('release', state.filterRelease)
+    if (state.range !== '24h') hash.set('range', state.range)
+    if (state.interval !== (state.selected ? '1h' : '5m')) hash.set('interval', state.interval)
+    if (state.customRange) {
+      hash.set('customValue', String(state.customRange.value))
+      hash.set('customUnit', state.customRange.unit)
+      hash.set('customLabel', state.customRange.label)
+    }
     if (state.timeSel) {
-      params.set('from', state.timeSel.from)
-      params.set('to', state.timeSel.to)
+      hash.set('from', state.timeSel.from)
+      hash.set('to', state.timeSel.to)
     }
-    if (state.eventLimit) params.set('limit', String(state.eventLimit))
-    if (state.eventOffset) params.set('offset', String(state.eventOffset))
+    if (state.eventLimit) hash.set('limit', String(state.eventLimit))
+    if (state.eventOffset) hash.set('offset', String(state.eventOffset))
     
-    const newHash = '#' + params.toString()
+    const newHash = '#' + hash.toString()
     if (window.location.hash !== newHash) {
       history.replaceState(null, '', newHash)
     }
   }, [
+    params,
     state.activeTab,
     state.selected,
     state.search,
     state.filterLevel,
     state.filterEnv,
     state.filterRelease,
+    state.range,
+    state.interval,
+    state.customRange,
     state.timeSel,
     state.eventLimit,
     state.eventOffset
   ])
 
-  // Reset pagination when filters change (but not during initial URL load)
-  useEffect(() => {
-    if (isInitializing) return
-    setState(prev => ({ ...prev, eventOffset: 0 }))
-  }, [
-    isInitializing,
-    state.selected,
-    state.filterLevel,
-    state.filterEnv,
-    state.filterRelease,
-    state.search,
-    state.timeSel,
-    state.customRange,
-    state.range
-  ])
-
-  // State setters
   const setActiveTab = useCallback((activeTab: NavigationTab) => {
+    explicitView.current = true
+    if (activeTab === state.activeTab) return
+    const next = new URLSearchParams(window.location.hash.slice(1))
+    next.set('view', activeTab)
+    history.pushState(null, '', '#' + next.toString())
     setState(prev => ({ ...prev, activeTab }))
-  }, [])
+  }, [state.activeTab])
 
   const setSelected = useCallback((selected: Project) => {
-    setState(prev => ({ ...prev, selected }))
+    setState(prev => (prev.selected === selected ? prev : { ...prev, selected, eventOffset: 0 }))
   }, [])
 
   const setSearch = useCallback((search: string) => {
-    setState(prev => ({ ...prev, search }))
+    setState(prev => (prev.search === search ? prev : { ...prev, search, eventOffset: 0 }))
   }, [])
 
   const setFilterLevel = useCallback((filterLevel: string) => {
-    setState(prev => ({ ...prev, filterLevel }))
+    setState(prev => (prev.filterLevel === filterLevel ? prev : { ...prev, filterLevel, eventOffset: 0 }))
   }, [])
 
   const setFilterEnv = useCallback((filterEnv: string) => {
-    setState(prev => ({ ...prev, filterEnv }))
+    setState(prev => (prev.filterEnv === filterEnv ? prev : { ...prev, filterEnv, eventOffset: 0 }))
   }, [])
 
   const setFilterRelease = useCallback((filterRelease: string) => {
-    setState(prev => ({ ...prev, filterRelease }))
+    setState(prev => (prev.filterRelease === filterRelease ? prev : { ...prev, filterRelease, eventOffset: 0 }))
   }, [])
 
   const setTimeSel = useCallback((timeSel: TimeSelection | null) => {
-    setState(prev => ({ ...prev, timeSel }))
+    setState(prev => (prev.timeSel === timeSel ? prev : { ...prev, timeSel, eventOffset: 0 }))
   }, [])
 
   const setEventLimit = useCallback((eventLimit: number) => {
@@ -273,11 +201,11 @@ export const useAppRouting = (
   }, [])
 
   const setCustomRange = useCallback((customRange: CustomRangeType | null) => {
-    setState(prev => ({ ...prev, customRange }))
+    setState(prev => (prev.customRange === customRange ? prev : { ...prev, customRange, eventOffset: 0 }))
   }, [])
 
   const setRange = useCallback((range: TimeRange) => {
-    setState(prev => ({ ...prev, range }))
+    setState(prev => (prev.range === range ? prev : { ...prev, range, eventOffset: 0 }))
   }, [])
 
   const setInterval = useCallback((interval: TimeInterval) => {
