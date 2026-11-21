@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import ProjectViewSet, EventViewSet, GroupViewSet, ReleaseViewSet, SymbolicateView, AlertRuleViewSet, SessionIngestView, ReleaseHealthView, ReleaseHealthSeriesView, DeploymentViewSet, EventSeriesView, TopGroupsView
+from .views import SentryIngestView
 from .auth_views import RegisterView, LoginView, MeView, AuthConfigView
 from .workspace_views import (
     WorkspacesView, CurrentWorkspaceView, MembersView, MemberDetailView,
@@ -25,6 +26,8 @@ router.register(r"alert-rules", AlertRuleViewSet, basename="alertrule")
 router.register(r"deployments", DeploymentViewSet, basename="deployment")
 
 urlpatterns = [
+    path("<int:project_id>/envelope/", SentryIngestView.as_view({"post": "receive"}), {"envelope": True}),
+    path("<int:project_id>/store/", SentryIngestView.as_view({"post": "receive"})),
     path("", include(router.urls)),
     path("health/", lambda r: JsonResponse({"ok": True})),
     path("auth/register/", RegisterView.as_view()),

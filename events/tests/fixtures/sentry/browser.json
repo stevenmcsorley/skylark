@@ -1,0 +1,11 @@
+{
+  "event_id": "10fc8c982cdd4736b001bf2ddbb23f86",
+  "platform": "javascript",
+  "level": "error",
+  "exception": {"values": [{"type": "TypeError", "value": "Cannot read properties of undefined", "stacktrace": {"frames": [
+    {"filename": "https://example.test/assets/main.min.js", "function": "n", "lineno": 1, "colno": 1260},
+    {"filename": "https://example.test/assets/main.min.js", "function": "t", "lineno": 1, "colno": 61, "in_app": true}
+  ]}}]},
+  "tags": [["browser", "Firefox"]],
+  "sdk": {"name": "sentry.javascript.browser", "version": "8.0.0"}
+}

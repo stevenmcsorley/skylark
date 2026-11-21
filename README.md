@@ -501,3 +501,27 @@ settings, event ingest and grouping, group workflows, estate and project summari
 authentication, workspace access, and alerts. The suite uses in-memory SQLite and
 needs no PostgreSQL, Redis, Kafka, or ClickHouse. To run a subset, pass a Django
 test label, for example `scripts/test-backend.sh events.tests.test_ingest`.
+
+## Sending errors from your app
+
+Use the project's `dsn` from the projects API with your Sentry SDK. Its format is
+`https://<key>@<host>/<id>`, where the key is the project's ingest token and the
+ID is its numeric project ID.
+
+```python
+import sentry_sdk
+
+sentry_sdk.init(dsn="https://<key>@<host>/<id>", environment="production", release="1.0.0")
+```
+
+```javascript
+import * as Sentry from "@sentry/browser";
+
+Sentry.init({ dsn: "https://<key>@<host>/<id>", environment: "production", release: "1.0.0" });
+```
+
+Skylark stores errors and messages. It accepts and ignores transactions, sessions,
+replays, and attachments. By default, errors group by exception type and the
+innermost in-app frame's module or filename and function. If no frame is marked
+in-app, Skylark uses the innermost frame. Without frames, it uses the normalized
+exception value. SDK fingerprints can override this grouping.

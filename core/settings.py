@@ -153,6 +153,8 @@ CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").sp
 
 # CORS configuration (allow local dev by default)
 # In production, set CORS_ALLOW_ALL_ORIGINS=0 and specify CORS_ALLOWED_ORIGINS
+PUBLIC_ORIGIN = os.environ.get("PUBLIC_ORIGIN", "https://skylark.halfagiraf.com")
+CORS_URLS_REGEX = r"^/api/(?!\d+/(envelope|store)/).*$"
 CORS_ALLOW_ALL_ORIGINS = os.environ.get("CORS_ALLOW_ALL_ORIGINS", "1") == "1"
 if not CORS_ALLOW_ALL_ORIGINS:
     CORS_ALLOWED_ORIGINS = [
